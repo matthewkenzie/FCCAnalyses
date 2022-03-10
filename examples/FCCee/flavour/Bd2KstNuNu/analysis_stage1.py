@@ -18,7 +18,7 @@ print ('edm4hep  ',_edm)
 print ('podio    ',_pod)
 print ('fccana   ',_fcc)
 
-MVAFilter="EVT_MVA1>0.6"
+MVAFilter="EVT_MVA1>0.0"
 
 ROOT.gInterpreter.ProcessLine('''
 TMVA::Experimental::RBDT<> bdt("Bd2KstNuNu_BDT", "/eos/experiment/fcc/ee/analyses/case-studies/flavour/Bd2KstNuNu/xgb_bdt_vtx.root");
@@ -164,7 +164,8 @@ class analysis():
                #############################################
                ##        Build Kstz -> KPi  candidates      ##
                #############################################
-               .Define("KPiCandidates",         "myUtils::build_Bd2KstNuNu(VertexObject,RecoPartPIDAtVertex)")
+               .Define("KPiCands",         "myUtils::build_Bd2KstNuNu(VertexObject,RecoPartPIDAtVertex)")
+               .Define("KPiCandidates",    "myUtils::add_truthmatched2(KPiCands, Particle, VertexObject, MCRecoAssociations1, ReconstructedParticles, Particle0)")
 
                #############################################
                ##       Filter Kstz -> KPi candidates      ##
@@ -176,7 +177,6 @@ class analysis():
                ##    Attempt to add a truth match         ##
                #############################################
                #.Define("TruthMatching" ,"myUtils::add_truthmatched2(KPiCandidates, MCParticles, MCRecoAssociations0, ReconstructedParticles, MCRecoAssociations1)")
-               .Define("TruthMatching" ,"myUtils::add_truthmatched2(KPiCandidates, Particle, VertexObject, MCRecoAssociations0, ReconstructedParticles, MCRecoAssociations1)")
 
 
                

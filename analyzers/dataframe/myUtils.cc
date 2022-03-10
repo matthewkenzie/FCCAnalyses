@@ -803,7 +803,7 @@ ROOT::VecOps::RVec<FCCAnalysesComposite> myUtils::add_truthmatched(ROOT::VecOps:
   
 
   for (size_t i = 0; i < comp.size(); ++i) {
-    //std::cout << "compo " << i << "  charge " << comp.at(i).charge<< std::endl;
+    //std::cout << "comp " << i << "  charge " << comp.at(i).charge<< std::endl;
     ROOT::VecOps::RVec<int> index = comp.at(i).index;
     ROOT::VecOps::RVec<int> mother;
     ROOT::VecOps::RVec<int> motherPDG;
@@ -895,8 +895,9 @@ ROOT::VecOps::RVec<FCCAnalysesComposite2> myUtils::add_truthmatched2(ROOT::VecOp
 								     ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop,
 								     ROOT::VecOps::RVec<int> ind){
 
-
+  std::cout  << "Called myUtils::add_truthmatched2" << std::endl;
   for (size_t i = 0; i < comp.size(); ++i) {
+    std::cout << "comp " << i << "  charge " << comp.at(i).charge<< std::endl;
     ROOT::VecOps::RVec<int> index = vertex.at(comp.at(i).vertex).reco_ind;
     ROOT::VecOps::RVec<int> mother;
     ROOT::VecOps::RVec<int> motherPDG;
@@ -909,6 +910,10 @@ ROOT::VecOps::RVec<FCCAnalysesComposite2> myUtils::add_truthmatched2(ROOT::VecOp
       
       mother.push_back(mother1);
       motherPDG.push_back(mc.at(mother1).PDG);
+      std::cout << "mother 1 "<<mother1<<"  mother2  " << mother2<< std::endl;
+      std::cout << " mc assoc j " << j << "  rp index  "<< index.at(j) << " mc index " << mcassoc <<  "  PDG ID  " << mc.at(mcassoc).PDG << "  charge "<< mc.at(mcassoc).charge<< " mc p="<<sqrt(pow(mc.at(mcassoc).momentum.z,2)+pow(mc.at(mcassoc).momentum.y,2)+pow(mc.at(mcassoc).momentum.x,2)) << "  rp p " << ReconstructedParticle::get_p(recop.at(index.at(j)))<<std::endl; 
+      
+      //std::cout << " mc assoc j " << j << "   " << mcassoc.at(0) <<  "  PDG ID  " << mc.at(mcassoc.at(0)).PDG << "  charge "<< mc.at(mcassoc.at(0)).charge<< "  px="<< mc.at(mcassoc.at(0)).momentum.x << "  py="<< mc.at(mcassoc.at(0)).momentum.y << "  pz="<< mc.at(mcassoc.at(0)).momentum.z << "  p="<<sqrt(pow(mc.at(mcassoc.at(0)).momentum.z,2)+pow(mc.at(mcassoc.at(0)).momentum.y,2)+pow(mc.at(mcassoc.at(0)).momentum.x,2))<<std::endl;
     }
 
     if (mother.size()>0){
