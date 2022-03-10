@@ -18,6 +18,12 @@ print ('edm4hep  ',_edm)
 print ('podio    ',_pod)
 print ('fccana   ',_fcc)
 
+MVAFilter="EVT_MVA1>0.6"
+
+ROOT.gInterpreter.ProcessLine('''
+TMVA::Experimental::RBDT<> bdt("Bd2KstNuNu_BDT", "/eos/experiment/fcc/ee/analyses/case-studies/flavour/Bd2KstNuNu/xgb_bdt_vtx.root");
+computeModel = TMVA::Experimental::Compute<18, float>(bdt);
+''')
 
 class analysis():
 
@@ -48,15 +54,32 @@ class analysis():
                #############################################               
                .Define("MC_PDG", "MCParticle::get_pdg(Particle)")
                .Define("MC_n",   "int(MC_PDG.size())")
-               .Define("MC_M1",  "myUtils::get_MCMother1(Particle,Particle0)")
-               .Define("MC_M2",  "myUtils::get_MCMother2(Particle,Particle0)")
-               .Define("MC_D1",  "myUtils::get_MCDaughter1(Particle,Particle1)")
-               .Define("MC_D2",  "myUtils::get_MCDaughter2(Particle,Particle1)")
-               .Define("MC_x",   "MCParticle::get_vertex_x(Particle)")
-               .Define("MC_y",   "MCParticle::get_vertex_y(Particle)")
-               .Define("MC_z",   "MCParticle::get_vertex_z(Particle)")
+               #.Define("MC_M1",  "myUtils::get_MCMother1(Particle,Particle0)")
+               #.Define("MC_M2",  "myUtils::get_MCMother2(Particle,Particle0)")
+               #.Define("MC_D1",  "myUtils::get_MCDaughter1(Particle,Particle1)")
+               #.Define("MC_D2",  "myUtils::get_MCDaughter2(Particle,Particle1)")
+               .Define("MC_M1",  "myUtils::getMC_parent(0,Particle,Particle0)")
+               .Define("MC_M2",  "myUtils::getMC_parent(1,Particle,Particle0)")
+               .Define("MC_D1",  "myUtils::getMC_daughter(0,Particle,Particle1)")
+               .Define("MC_D2",  "myUtils::getMC_daughter(1,Particle,Particle1)")
+               .Define("MC_D3",  "myUtils::getMC_daughter(2,Particle,Particle1)")
+               .Define("MC_D4",  "myUtils::getMC_daughter(3,Particle,Particle1)")
+               .Define("MC_orivtx_x",   "MCParticle::get_vertex_x(Particle)")
+               .Define("MC_orivtx_y",   "MCParticle::get_vertex_y(Particle)")
+               .Define("MC_orivtx_z",   "MCParticle::get_vertex_z(Particle)")
+               .Define("MC_endvtx_x",   "MCParticle::get_endPoint_x(Particle)")
+               .Define("MC_endvtx_y",   "MCParticle::get_endPoint_y(Particle)")
+               .Define("MC_endvtx_z",   "MCParticle::get_endPoint_z(Particle)")
+               .Define("MC_p",   "MCParticle::get_p(Particle)")
+               .Define("MC_pt",  "MCParticle::get_pt(Particle)")
+               .Define("MC_px",  "MCParticle::get_pt(Particle)")
+               .Define("MC_py",  "MCParticle::get_pt(Particle)")
+               .Define("MC_pz",  "MCParticle::get_pt(Particle)")
                .Define("MC_e",   "MCParticle::get_e(Particle)")
                .Define("MC_m",   "MCParticle::get_mass(Particle)")
+               .Define("MC_q",   "MCParticle::get_charge(Particle)")
+               .Define("MC_eta", "MCParticle::get_eta(Particle)")
+               .Define("MC_phi", "MCParticle::get_phi(Particle)")
                
                #############################################
                ##               Build MC Vertex           ##
@@ -149,6 +172,13 @@ class analysis():
                .Define("EVT_NKPi",              "float(myUtils::getFCCAnalysesComposite_N(KPiCandidates))")
                .Filter("EVT_NKPi>0")
 
+               #############################################
+               ##    Attempt to add a truth match         ##
+               #############################################
+               #.Define("TruthMatching" ,"myUtils::add_truthmatched2(KPiCandidates, MCParticles, MCRecoAssociations0, ReconstructedParticles, MCRecoAssociations1)")
+               .Define("TruthMatching" ,"myUtils::add_truthmatched2(KPiCandidates, Particle, VertexObject, MCRecoAssociations0, ReconstructedParticles, MCRecoAssociations1)")
+
+
                
                #############################################
                ##              Build the thrust           ##
@@ -212,11 +242,25 @@ class analysis():
 
                .Define("DV_d0",            "myUtils::get_trackd0(DV_tracks)")
                .Define("DV_z0",            "myUtils::get_trackz0(DV_tracks)")
-               
+
+               # Build MVA 
+               .Define("MVAVec", ROOT.computeModel, ("EVT_ThrustEmin_E",        "EVT_ThrustEmax_E",
+                                                     "EVT_ThrustEmin_Echarged", "EVT_ThrustEmax_Echarged",
+                                                     "EVT_ThrustEmin_Eneutral", "EVT_ThrustEmax_Eneutral",
+                                                     "EVT_ThrustEmin_Ncharged", "EVT_ThrustEmax_Ncharged",
+                                                     "EVT_ThrustEmin_Nneutral", "EVT_ThrustEmax_Nneutral",
+                                                     "EVT_NtracksPV",           "EVT_NVertex",
+                                                     "EVT_NKPi",                "EVT_ThrustEmin_NDV",
+                                                     "EVT_ThrustEmax_NDV",      "EVT_dPV2DVmin",
+                                                     "EVT_dPV2DVmax",           "EVT_dPV2DVave"))
+               .Define("EVT_MVA1", "MVAVec.at(0)")
+               .Filter(MVAFilter) 
+
                .Define("KPiCandidates_mass",    "myUtils::getFCCAnalysesComposite_mass(KPiCandidates)")
                .Define("KPiCandidates_q",       "myUtils::getFCCAnalysesComposite_charge(KPiCandidates)")
                .Define("KPiCandidates_vertex",  "myUtils::getFCCAnalysesComposite_vertex(KPiCandidates)")
                .Define("KPiCandidates_mcvertex","myUtils::getFCCAnalysesComposite_mcvertex(KPiCandidates,VertexObject)")
+               .Define("KPiCandidates_truth",   "myUtils::getFCCAnalysesComposite_truthMatch(KPiCandidates)")
                .Define("KPiCandidates_px",      "myUtils::getFCCAnalysesComposite_p(KPiCandidates,0)")
                .Define("KPiCandidates_py",      "myUtils::getFCCAnalysesComposite_p(KPiCandidates,1)")
                .Define("KPiCandidates_pz",      "myUtils::getFCCAnalysesComposite_p(KPiCandidates,2)")
@@ -261,8 +305,10 @@ class analysis():
         branchList = ROOT.vector('string')()
         for branchName in [
                 
-                "MC_PDG","MC_M1","MC_M2","MC_n","MC_D1","MC_D2",#"MC_D3",
-                "MC_x","MC_y","MC_z","MC_e","MC_m",
+                "MC_PDG","MC_M1","MC_M2","MC_n","MC_D1","MC_D2","MC_D3","MC_D4",
+                "MC_p","MC_pt","MC_px","MC_py","MC_pz","MC_eta","MC_phi",
+                "MC_orivtx_x","MC_orivtx_y","MC_orivtx_z", 
+                "MC_endvtx_x", "MC_endvtx_y", "MC_endvtx_z", "MC_e","MC_m",
                 "EVT_ThrustEmin_E",          "EVT_ThrustEmax_E",
                 "EVT_ThrustEmin_Echarged",   "EVT_ThrustEmax_Echarged",
                 "EVT_ThrustEmin_Eneutral",   "EVT_ThrustEmax_Eneutral",
@@ -297,6 +343,7 @@ class analysis():
                 "TrueKPiBd_vertex", "TrueKPiBd_d0", "TrueKPiBd_z0", 
                 
                 "KPiCandidates_mass", "KPiCandidates_vertex", "KPiCandidates_mcvertex", "KPiCandidates_B",
+                "KPiCandidates_truth",
                 "KPiCandidates_px", "KPiCandidates_py", "KPiCandidates_pz", "KPiCandidates_p", "KPiCandidates_q",
                 "KPiCandidates_d0",  "KPiCandidates_z0","KPiCandidates_anglethrust",
                 
