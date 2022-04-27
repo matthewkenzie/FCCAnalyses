@@ -173,12 +173,6 @@ class analysis():
                .Define("EVT_NKPi",              "float(myUtils::getFCCAnalysesComposite_N(KPiCandidates))")
                .Filter("EVT_NKPi>0")
 
-               #############################################
-               ##    Attempt to add a truth match         ##
-               #############################################
-               #.Define("TruthMatching" ,"myUtils::add_truthmatched2(KPiCandidates, MCParticles, MCRecoAssociations0, ReconstructedParticles, MCRecoAssociations1)")
-
-
                
                #############################################
                ##              Build the thrust           ##
