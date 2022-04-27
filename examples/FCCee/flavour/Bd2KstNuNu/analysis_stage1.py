@@ -51,9 +51,10 @@ class analysis():
 
                #############################################
                ##MC record to study the Z->bb events types##
-               #############################################               
-               .Define("MC_PDG", "MCParticle::get_pdg(Particle)")
+               #############################################
+               .Define("MC_PDG", "FCCAnalyses::MCParticle::get_pdg(Particle)")
                .Define("MC_n",   "int(MC_PDG.size())")
+               
                #.Define("MC_M1",  "myUtils::get_MCMother1(Particle,Particle0)")
                #.Define("MC_M2",  "myUtils::get_MCMother2(Particle,Particle0)")
                #.Define("MC_D1",  "myUtils::get_MCDaughter1(Particle,Particle1)")
@@ -64,6 +65,8 @@ class analysis():
                .Define("MC_D2",  "myUtils::getMC_daughter(1,Particle,Particle1)")
                .Define("MC_D3",  "myUtils::getMC_daughter(2,Particle,Particle1)")
                .Define("MC_D4",  "myUtils::getMC_daughter(3,Particle,Particle1)")
+               .Define("MC_D5",  "myUtils::getMC_daughter(4,Particle,Particle1)")
+               .Define("MC_D6",  "myUtils::getMC_daughter(5,Particle,Particle1)")
                .Define("MC_orivtx_x",   "MCParticle::get_vertex_x(Particle)")
                .Define("MC_orivtx_y",   "MCParticle::get_vertex_y(Particle)")
                .Define("MC_orivtx_z",   "MCParticle::get_vertex_z(Particle)")
@@ -113,7 +116,7 @@ class analysis():
                ##          Build RECO P with PID          ##
                #############################################
                .Define("RecoPartPID" ,"myUtils::PID(ReconstructedParticles, MCRecoAssociations0,MCRecoAssociations1,Particle)")
-               
+
                #############################################
                ##    Build RECO P with PID at vertex      ##
                #############################################
@@ -141,12 +144,12 @@ class analysis():
                .Define("Vertex_d2PVx",    "myUtils::get_Vertex_d2PV(VertexObject,0)")
                .Define("Vertex_d2PVy",    "myUtils::get_Vertex_d2PV(VertexObject,1)")
                .Define("Vertex_d2PVz",    "myUtils::get_Vertex_d2PV(VertexObject,2)")
-               
+
                .Define("Vertex_d2PVErr",  "myUtils::get_Vertex_d2PVError(VertexObject,-1)")
                .Define("Vertex_d2PVxErr", "myUtils::get_Vertex_d2PVError(VertexObject,0)")
                .Define("Vertex_d2PVyErr", "myUtils::get_Vertex_d2PVError(VertexObject,1)")
                .Define("Vertex_d2PVzErr", "myUtils::get_Vertex_d2PVError(VertexObject,2)")
-               
+
                .Define("Vertex_d2PVSig",  "Vertex_d2PV/Vertex_d2PVErr")
                .Define("Vertex_d2PVxSig", "Vertex_d2PVx/Vertex_d2PVxErr")
                .Define("Vertex_d2PVySig", "Vertex_d2PVy/Vertex_d2PVyErr")
@@ -160,7 +163,7 @@ class analysis():
                .Define("EVT_dPV2DVmin",   "myUtils::get_dPV2DV_min(Vertex_d2PV)")
                .Define("EVT_dPV2DVmax",   "myUtils::get_dPV2DV_max(Vertex_d2PV)")
                .Define("EVT_dPV2DVave",   "myUtils::get_dPV2DV_ave(Vertex_d2PV)")
-               
+
                #############################################
                ##        Build Kstz -> KPi  candidates      ##
                #############################################
@@ -169,29 +172,29 @@ class analysis():
 
                #############################################
                ##       Filter Kstz -> KPi candidates      ##
-               ############################################# 
+               #############################################
                .Define("EVT_NKPi",              "float(myUtils::getFCCAnalysesComposite_N(KPiCandidates))")
                .Filter("EVT_NKPi>0")
 
-               
+
                #############################################
                ##              Build the thrust           ##
-               ############################################# 
+               #############################################
                .Define("RP_e",          "ReconstructedParticle::get_e(RecoPartPIDAtVertex)")
                .Define("RP_px",         "ReconstructedParticle::get_px(RecoPartPIDAtVertex)")
                .Define("RP_py",         "ReconstructedParticle::get_py(RecoPartPIDAtVertex)")
                .Define("RP_pz",         "ReconstructedParticle::get_pz(RecoPartPIDAtVertex)")
                .Define("RP_charge",     "ReconstructedParticle::get_charge(RecoPartPIDAtVertex)")
-              
+
                .Define("EVT_thrustNP",      'Algorithms::minimize_thrust("Minuit2","Migrad")(RP_px, RP_py, RP_pz)')
                .Define("RP_thrustangleNP",  'Algorithms::getAxisCosTheta(EVT_thrustNP, RP_px, RP_py, RP_pz)')
                .Define("EVT_thrust",        'Algorithms::getThrustPointing(RP_thrustangleNP, RP_e, EVT_thrustNP, 1.)')
                .Define("RP_thrustangle",    'Algorithms::getAxisCosTheta(EVT_thrust, RP_px, RP_py, RP_pz)')
 
-               
+
                #############################################
                ##        Get thrust related values        ##
-               ############################################# 
+               #############################################
                ##hemis0 == negative angle == max energy hemisphere if pointing
                ##hemis1 == positive angle == min energy hemisphere if pointing
                .Define("EVT_thrusthemis0_n",    "Algorithms::getAxisN(0)(RP_thrustangle, RP_charge)")
@@ -260,7 +263,7 @@ class analysis():
                .Define("KPiCandidates_pz",      "myUtils::getFCCAnalysesComposite_p(KPiCandidates,2)")
                .Define("KPiCandidates_p",       "myUtils::getFCCAnalysesComposite_p(KPiCandidates,-1)")
                .Define("KPiCandidates_B",       "myUtils::getFCCAnalysesComposite_B(KPiCandidates, VertexObject, RecoPartPIDAtVertex)")
-               
+
                .Define("KPiCandidates_track",   "myUtils::getFCCAnalysesComposite_track(KPiCandidates, VertexObject)")
                .Define("KPiCandidates_d0",      "myUtils::get_trackd0(KPiCandidates_track)")
                .Define("KPiCandidates_z0",      "myUtils::get_trackz0(KPiCandidates_track)")
@@ -268,7 +271,7 @@ class analysis():
                .Define("KPiCandidates_anglethrust", "myUtils::getFCCAnalysesComposite_anglethrust(KPiCandidates, EVT_thrust)")
                .Define("CUT_hasCandEmin",           "myUtils::has_anglethrust_emin(KPiCandidates_anglethrust)")
                .Filter("CUT_hasCandEmin>0")
-               
+
                .Define("KPiCandidates_h1px",   "myUtils::getFCCAnalysesComposite_p(KPiCandidates, VertexObject, RecoPartPIDAtVertex, 0, 0)")
                .Define("KPiCandidates_h1py",   "myUtils::getFCCAnalysesComposite_p(KPiCandidates, VertexObject, RecoPartPIDAtVertex, 0, 1)")
                .Define("KPiCandidates_h1pz",   "myUtils::getFCCAnalysesComposite_p(KPiCandidates, VertexObject, RecoPartPIDAtVertex, 0, 2)")
@@ -278,7 +281,7 @@ class analysis():
                .Define("KPiCandidates_h1type", "myUtils::getFCCAnalysesComposite_type(KPiCandidates, VertexObject, RecoPartPIDAtVertex, 0)")
                .Define("KPiCandidates_h1d0",   "myUtils::getFCCAnalysesComposite_d0(KPiCandidates, VertexObject, 0)")
                .Define("KPiCandidates_h1z0",   "myUtils::getFCCAnalysesComposite_z0(KPiCandidates, VertexObject, 0)")
-               
+
                .Define("KPiCandidates_h2px",   "myUtils::getFCCAnalysesComposite_p(KPiCandidates, VertexObject, RecoPartPIDAtVertex, 1, 0)")
                .Define("KPiCandidates_h2py",   "myUtils::getFCCAnalysesComposite_p(KPiCandidates, VertexObject, RecoPartPIDAtVertex, 1, 1)")
                .Define("KPiCandidates_h2pz",   "myUtils::getFCCAnalysesComposite_p(KPiCandidates, VertexObject, RecoPartPIDAtVertex, 1, 2)")
@@ -288,7 +291,7 @@ class analysis():
                .Define("KPiCandidates_h2type", "myUtils::getFCCAnalysesComposite_type(KPiCandidates, VertexObject, RecoPartPIDAtVertex, 1)")
                .Define("KPiCandidates_h2d0",   "myUtils::getFCCAnalysesComposite_d0(KPiCandidates, VertexObject, 1)")
                .Define("KPiCandidates_h2z0",   "myUtils::getFCCAnalysesComposite_z0(KPiCandidates, VertexObject, 1)")
-               
+
                .Define("TrueKPiBd_vertex",        "myUtils::get_trueVertex(MCVertexObject,Particle,Particle0, 313, 511)")
                .Define("TrueKPiBd_track",         "myUtils::get_truetrack(TrueKPiBd_vertex, MCVertexObject, Particle)")
                .Define("TrueKPiBd_d0",            "myUtils::get_trackd0(TrueKPiBd_track)")
@@ -299,14 +302,14 @@ class analysis():
         branchList = ROOT.vector('string')()
         for branchName in [
                 
-                "MC_PDG","MC_M1","MC_M2","MC_n","MC_D1","MC_D2","MC_D3","MC_D4",
+                "MC_PDG","MC_M1","MC_M2","MC_n","MC_D1","MC_D2","MC_D3","MC_D4","MC_D5","MC_D6",
                 "MC_p","MC_pt","MC_px","MC_py","MC_pz","MC_eta","MC_phi",
                 "MC_orivtx_x","MC_orivtx_y","MC_orivtx_z", 
                 "MC_endvtx_x", "MC_endvtx_y", "MC_endvtx_z", "MC_e","MC_m",
                 "EVT_ThrustEmin_E",          "EVT_ThrustEmax_E",
                 "EVT_ThrustEmin_Echarged",   "EVT_ThrustEmax_Echarged",
                 "EVT_ThrustEmin_Eneutral",   "EVT_ThrustEmax_Eneutral",
-                "EVT_ThrustEmin_N",          "EVT_ThrustEmax_N",                
+                "EVT_ThrustEmin_N",          "EVT_ThrustEmax_N",
                 "EVT_ThrustEmin_Ncharged",   "EVT_ThrustEmax_Ncharged",
                 "EVT_ThrustEmin_Nneutral",   "EVT_ThrustEmax_Nneutral",
                 "EVT_ThrustEmin_NDV",        "EVT_ThrustEmax_NDV",
@@ -316,14 +319,14 @@ class analysis():
                 "EVT_Thrust_Z",  "EVT_Thrust_ZErr",
 
                 "EVT_NtracksPV", "EVT_NVertex", "EVT_NKPi",
-                
+
                 "EVT_dPV2DVmin","EVT_dPV2DVmax","EVT_dPV2DVave",
 
-                "MC_Vertex_x", "MC_Vertex_y", "MC_Vertex_z", 
+                "MC_Vertex_x", "MC_Vertex_y", "MC_Vertex_z",
                 "MC_Vertex_ntrk", "MC_Vertex_n",
-                
+
                 "MC_Vertex_PDG","MC_Vertex_PDGmother","MC_Vertex_PDGgmother",
-                
+
                 "Vertex_x", "Vertex_y", "Vertex_z",
                 "Vertex_xErr", "Vertex_yErr", "Vertex_zErr",
                 "Vertex_isPV", "Vertex_ntrk", "Vertex_chi2", "Vertex_n",
@@ -333,21 +336,21 @@ class analysis():
                 "Vertex_d2PVErr", "Vertex_d2PVxErr", "Vertex_d2PVyErr", "Vertex_d2PVzErr",
                 "Vertex_mass",
                 "DV_d0","DV_z0",
-                
-                "TrueKPiBd_vertex", "TrueKPiBd_d0", "TrueKPiBd_z0", 
-                
+
+                "TrueKPiBd_vertex", "TrueKPiBd_d0", "TrueKPiBd_z0",
+
                 "KPiCandidates_mass", "KPiCandidates_vertex", "KPiCandidates_mcvertex", "KPiCandidates_B",
                 "KPiCandidates_truth",
                 "KPiCandidates_px", "KPiCandidates_py", "KPiCandidates_pz", "KPiCandidates_p", "KPiCandidates_q",
                 "KPiCandidates_d0",  "KPiCandidates_z0","KPiCandidates_anglethrust",
-                
+
                 "KPiCandidates_h1px", "KPiCandidates_h1py", "KPiCandidates_h1pz",
                 "KPiCandidates_h1p", "KPiCandidates_h1q", "KPiCandidates_h1m", "KPiCandidates_h1type",
                 "KPiCandidates_h1d0", "KPiCandidates_h1z0",
                 "KPiCandidates_h2px", "KPiCandidates_h2py", "KPiCandidates_h2pz",
                 "KPiCandidates_h2p", "KPiCandidates_h2q", "KPiCandidates_h2m", "KPiCandidates_h2type",
                 "KPiCandidates_h2d0", "KPiCandidates_h2z0",
-                
+
                 ]:
             branchList.push_back(branchName)
 
@@ -400,7 +403,7 @@ if __name__ == "__main__":
                 print (sys.argv[i], " ",)
                 print (" ...")
 
-                         
+
     outfile=sys.argv[1]
     print("output file:  ",outfile)
     if len(outfile.split("/"))>1:
@@ -413,7 +416,7 @@ if __name__ == "__main__":
             tt=tf.Get("events")
             nevents+=tt.GetEntries()
     print ("nevents ", nevents)
-    
+
     import time
     start_time = time.time()
     ncpus = 8
@@ -427,7 +430,7 @@ if __name__ == "__main__":
     print  ("Total Events Processed   :  ",int(nevents))
     print  ("===================================================================")
 
-    
+
     outf = ROOT.TFile( outfile, "update" )
     meta = ROOT.TTree( "metadata", "metadata informations" )
     n = array( "i", [ 0 ] )
@@ -438,4 +441,3 @@ if __name__ == "__main__":
     p.Write()
     outf.Write()
     outf.Close()
-
