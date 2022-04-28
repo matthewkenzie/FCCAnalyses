@@ -321,6 +321,7 @@ class analysis():
                 "EVT_NtracksPV", "EVT_NVertex", "EVT_NKPi",
 
                 "EVT_dPV2DVmin","EVT_dPV2DVmax","EVT_dPV2DVave",
+                "EVT_MVA1",
 
                 "MC_Vertex_x", "MC_Vertex_y", "MC_Vertex_z",
                 "MC_Vertex_ntrk", "MC_Vertex_n",
