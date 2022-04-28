@@ -13,7 +13,7 @@ ROOT.gSystem.Load("libFCCAnalyses")
 
 ROOT.gErrorIgnoreLevel = ROOT.kFatal
 #Is this still needed?? 01/04/2022 still to be the case
-#_fcc  = ROOT.dummyLoader
+_fcc  = ROOT.dummyLoader
 
 #__________________________________________________________
 def getElement(rdfModule, element):
