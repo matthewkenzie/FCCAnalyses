@@ -1,0 +1,1 @@
+rm -r ./SlurmLogs; rm -r ./benchmarks; rm -r ./logs; rm -r ./output;
