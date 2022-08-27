@@ -2102,6 +2102,43 @@ ROOT::VecOps::RVec<FCCAnalysesComposite2> build_Bs2PhiNuNu(ROOT::VecOps::RVec<Ve
 }
 
 
+ROOT::VecOps::RVec<FCCAnalysesComposite2> build_Bu2KNuNu(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
+								    ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop){
+
+  ROOT::VecOps::RVec<FCCAnalysesComposite2> result;
+  //loop over the reconstructed vertex collection
+  for (size_t i=0;i<vertex.size();i++){
+
+    // 1 track from the PV
+    if (vertex.at(i).vertex.primary==0)continue;
+    if (vertex.at(i).ntracks!=1)       continue;
+
+    //1 track id as kaon
+    int charge_K=0;
+    int nobj_K=0;
+    for (auto &r:vertex.at(i).reco_ind){
+      if (recop.at(r).type==321 ){
+	nobj_K+=1;
+	charge_K+=recop.at(r).charge;
+      }
+    }
+    //select candidates with exactly 2 kaons and charge 0
+    if (nobj_K!=1)   continue;
+    if (charge_K!=abs(1)) continue;
+
+    //build a composite vertex
+    FCCAnalysesComposite2 comp;
+    comp.vertex = i;
+    comp.particle = build_tlv(recop,vertex.at(i).reco_ind);
+    comp.charge = charge_K;
+
+    //add the composite vertex to the collection
+    result.push_back(comp);
+  }
+  return result;
+}
+
+
 ROOT::VecOps::RVec<FCCAnalysesComposite2> build_Bd2MuMu(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
 								 ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop){
 

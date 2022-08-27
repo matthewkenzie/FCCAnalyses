@@ -18,14 +18,8 @@ rc('font',**{'family':'serif','serif':['Roman']})
 rc('text', usetex=True)
 
 #Local code
-from config import branching_fractions # TODO get this working
+import config as cfg
 from bdt_config import loc, train_vars, train_vars_vtx, mode_names
-
-#branching_fractions = {
-#    "p8_ee_Zbb_ecm91": 0.1512,
-#    "p8_ee_Zcc_ecm91": 0.1203,
-#    "p8_ee_Zuds_ecm91": 0.6991-0.1512-0.1203,
-#}
 
 def run(vars, signal_pkl, bbbar_pkl, ccbar_pkl, qqbar_pkl, signal_root, bbbar_root, ccbar_root, qqbar_root, output_root, output_joblib, roc_plot, decay):
 
@@ -39,23 +33,22 @@ def run(vars, signal_pkl, bbbar_pkl, ccbar_pkl, qqbar_pkl, signal_root, bbbar_ro
     print("TRAINING VARS")
     print(vars_list)
 
-    df_sig = pd.concat([pd.read_pickle(input_file) for input_file in signal_pkl])
-    df_sig = df_sig[vars_list]
-    print(f"Wasted signal events: {len(df_sig) - 1e6}")
-    df_sig = df_sig.sample(int(1e6), random_state=10)
-    print(f"Number of signal events: {len(df_sig)}")
-
     total_bkg = 1e6
 
     # count generated events
-    bkgs = branching_fractions.keys()
-    stage1_efficiency = {}
+    bkgs = cfg.branching_fractions.keys()
+    stage1_efficiencies = {}
     generated_events = {}
     for bkg, bkg_files in zip(bkgs, [bbbar_root, ccbar_root, qqbar_root]):
         generated_events[bkg] = 0
         for f in bkg_files:
             with uproot.open(f) as inf:
                 generated_events[bkg] += int(inf["metadata"]["eventsProcessed"].array(library="pd")[0])
+
+    generated_events["signal"] = 0
+    for f in signal_root:
+        with uproot.open(f) as inf:
+            generated_events["signal"]+= int(inf["metadata"]["eventsProcessed"].array(library="pd")[0])
 
     # count events that pass stage1 and calculate efficiencies
     df_bkg = {}
@@ -67,18 +60,31 @@ def run(vars, signal_pkl, bbbar_pkl, ccbar_pkl, qqbar_pkl, signal_root, bbbar_ro
         df_bkg[bkg] = df_bkg[bkg][vars_list]
         available_events[bkg] = len(df_bkg[bkg])
         print(f"Number of available {bkg} events: {available_events[bkg]}")
-        stage1_efficiency[bkg] = float(available_events[bkg])/generated_events[bkg]
+        stage1_efficiencies[bkg] = float(available_events[bkg])/generated_events[bkg]
+
+    df_sig = pd.concat([pd.read_pickle(input_file) for input_file in signal_pkl])
+    df_sig = df_sig[vars_list]
+    stage1_efficiencies["signal"] = float(len(df_sig))/generated_events["signal"]
+    print(f"Wasted signal events: {len(df_sig) - 1e6}")
+
+    print("Expected efficiencies")
+    print(cfg.stage1_efficiencies)
+    print("Actual efficiencies")
+    print(stage1_efficiencies)
+    
+    df_sig = df_sig.sample(int(1e6), random_state=10)
+    print(f"Number of signal events: {len(df_sig)}")
 
     for bkg in bkgs:
         print(f"Generated {bkg} events: {generated_events[bkg]}")
-        print(f"Stage1 efficiency of {bkg}: {stage1_efficiency[bkg]}")
+        print(f"Stage1 efficiency of {bkg}: {stage1_efficiencies[bkg]}")
 
-    total_BF = sum([stage1_efficiency[bkg]*branching_fractions[bkg] for bkg in bkgs])
+    total_BF = sum([stage1_efficiencies[bkg]*cfg.branching_fractions[bkg] for bkg in bkgs])
     # sample each bkg to weight them against their BF and efficiency
     for bkg in bkgs:
-        print(f"Desired number of {bkg} events: {int(total_bkg*(stage1_efficiency[bkg]*branching_fractions[bkg]/total_BF))}")
+        print(f"Desired number of {bkg} events: {int(total_bkg*(stage1_efficiencies[bkg]*cfg.branching_fractions[bkg]/total_BF))}")
     for bkg in bkgs:
-        df_bkg[bkg] = df_bkg[bkg].sample(n=int(total_bkg*(stage1_efficiency[bkg]*branching_fractions[bkg]/total_BF)),random_state=10)
+        df_bkg[bkg] = df_bkg[bkg].sample(n=int(total_bkg*(stage1_efficiencies[bkg]*cfg.branching_fractions[bkg]/total_BF)),random_state=10)
         print(f"Number of {bkg} events in combined sample: {len(df_bkg[bkg])}")
         print(f"Wasted events for {bkg}: {available_events[bkg] - len(df_bkg[bkg])}")
 

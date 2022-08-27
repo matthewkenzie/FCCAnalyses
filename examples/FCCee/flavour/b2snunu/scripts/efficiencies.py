@@ -1,5 +1,5 @@
 import math
-from config import branching_fractions
+from config import branching_fractions, stage1_efficiencies
 
 # events per file * files
 events_per_signal = 1e4*1e3 # 1e7

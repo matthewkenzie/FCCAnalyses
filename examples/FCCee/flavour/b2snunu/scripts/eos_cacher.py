@@ -10,6 +10,8 @@ def cache(outf_name, sample_portion, group_size):
     import math
     import random
 
+    random.seed(980608)
+
     eos_cache = {}
 
     print("Starting EOS querying!")
@@ -28,19 +30,22 @@ def cache(outf_name, sample_portion, group_size):
                 if result[i*group_size:-1]!=[]:
                     eos_cache[decay][event_type][decay_model]["samples"].append(result[i*group_size:-1])
                 eos_cache[decay][event_type][decay_model]["expected_output"] = [f"{outputs}root/stage1/{decay}/{event_type}/{decay_model}/{i}.root" for i in range(len(eos_cache[decay][event_type][decay_model]["samples"]))]
-
+                eos_cache[decay][event_type][decay_model]["expected_output_ids"] = [i for i in range(len(eos_cache[decay][event_type][decay_model]["samples"]))]
                 
                 training_portion = training_proportions[decay][event_type][decay_model]
                 total_samples = len(eos_cache[decay][event_type][decay_model]["samples"])
                 eos_cache[decay][event_type][decay_model]["training"] = random.sample(eos_cache[decay][event_type][decay_model]["samples"], int(total_samples*training_portion))
                 eos_cache[decay][event_type][decay_model]["training_output"] = []
+                eos_cache[decay][event_type][decay_model]["training_output_ids"] = []
                 print(f"For {decay} the {event_type} {decay_model} BDT 1 training will feature {group_size*int(total_samples*training_portion)} input files!")
                 for sample_group in eos_cache[decay][event_type][decay_model]["training"]:
                     index = eos_cache[decay][event_type][decay_model]["samples"].index(sample_group)
                     output_name = eos_cache[decay][event_type][decay_model]["expected_output"][index].replace("stage1", "training")
                     eos_cache[decay][event_type][decay_model]["training_output"].append(output_name)
+                    eos_cache[decay][event_type][decay_model]["training_output_ids"].append(eos_cache[decay][event_type][decay_model]["expected_output_ids"][index])
                     eos_cache[decay][event_type][decay_model]["samples"].remove(eos_cache[decay][event_type][decay_model]["samples"][index])
                     eos_cache[decay][event_type][decay_model]["expected_output"].remove(eos_cache[decay][event_type][decay_model]["expected_output"][index])
+                    eos_cache[decay][event_type][decay_model]["expected_output_ids"].remove(eos_cache[decay][event_type][decay_model]["expected_output_ids"][index])
         print(f"Finished {decay}!")
 
     if not Path(outputs).exists():

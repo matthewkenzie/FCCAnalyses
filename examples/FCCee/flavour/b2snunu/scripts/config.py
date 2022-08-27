@@ -1,9 +1,11 @@
 analysis_scripts = "scripts/"
 outputs = "output/"
+plots = f"{outputs}plots/"
 snakemake_flags = f"{outputs}snakemake_flags/"
 logs = f"logs/"
 benchmarks = f"benchmarks/"
 input_mc = f"{outputs}/input_mc/"
+envs = "../envs/"
 
 MC = "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/spring2021/IDEA/"
 
@@ -27,6 +29,46 @@ decay_to_pdgids = {
     "Bu2KNuNu": ["321", "521"],
 }
 
+# rough estimate from running a few files
+stage1_efficiencies = {
+    "Bd2KstNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 168569./200000.,
+            "inclusive": 385753./2000000.,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 308961./2000000.,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 9067./2000000.,
+        },
+    },
+    "Bs2PhiNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 171835./200000.,
+            "inclusive": 35289./2000000.,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 25415./2000000.,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 1046./2000000.,
+        },
+    },
+    "Bu2KNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 171835./200000.,
+            "inclusive": 35289./2000000.,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 25415./2000000.,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 1046./2000000.,
+        },
+    },
+}
+
 branching_fractions = {
     "p8_ee_Zbb_ecm91": 0.1512,
     "p8_ee_Zcc_ecm91": 0.1203,
@@ -36,7 +78,7 @@ branching_fractions = {
 training_proportions = {
     "Bd2KstNuNu": {
         "p8_ee_Zbb_ecm91": {
-            "signal": 120/1000,
+            "signal": 140/1000,
             "inclusive": 60/10000,
         },
         "p8_ee_Zcc_ecm91": {
@@ -56,6 +98,57 @@ training_proportions = {
         },
         "p8_ee_Zuds_ecm91": {
             "inclusive": 1000/10000,
+        },
+    },
+    "Bu2KNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 120/1000,
+            "inclusive": 400/10000,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 300/10000,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 1000/10000,
+        },
+    },
+}
+
+events_per_file = {
+    "Bd2KstNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 10000,
+            "inclusive": 100000,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 100000,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 100000,
+        },
+    },
+    "Bs2PhiNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 10000,
+            "inclusive": 100000,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 100000,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 100000,
+        },
+    },
+    "Bu2KNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 10000,
+            "inclusive": 100000,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 100000,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 100000,
         },
     },
 }
@@ -98,6 +191,34 @@ tuple_id_blacklist = { # TODO should probably report broken MC
         },
     },
 }
+
+MVA_cuts = [0.6, 0.7, 0.8, 0.9, 0.99]
+
+KPi_cut = "((KPiCandidates_mass[0]>0.65 && KPiCandidates_mass[0]<1.1)"
+KK_cut = "((KKCandidates_mass[0]>1. && KKCandidates_mass[0]<1.06)"
+for i in range(1,10):
+    KPi_cut = f"{KPi_cut} || (KPiCandidates_mass[{i}]>0.65 && KPiCandidates_mass[{i}]<1.1)"
+    KK_cut = f"{KK_cut} || (KKCandidates_mass[{i}]>1. && KKCandidates_mass[{i}]<1.06)"
+KPi_cut = f"{KPi_cut})"
+KK_cut = f"{KK_cut})"
+mass_cuts = {"Bd2KstNuNu": KPi_cut,
+             "Bs2PhiNuNu": KK_cut,
+            }
+
+mass_cut = {"KPi": [0.65, 1.1],
+            "KK": [1., 1.06],}
+
+truth_ids = {"Bd2KstNuNu": {"parent": 511,
+                            "candidate": 313,
+                            "children": [-211, 321],
+                            "siblings": [[-12, 12], [-14, 14], [-16, 16]],
+                            },
+             "Bs2PhiNuNu": {"parent": 531,
+                            "candidate": 333,
+                            "children": [-321, 321],
+                            "siblings": [[-12, 12], [-14, 14], [-16, 16]],
+                            },
+            }
 
 def stage1_branches(candidates):
     return [
@@ -151,15 +272,23 @@ def stage1_branches(candidates):
             f"{candidates}Candidates_h2d0", f"{candidates}Candidates_h2z0",
             ]
 
-def check_blacklist(target, blacklist):
-    for entry in blacklist:
-        if f"/{entry}." in target:
+def check_blacklist(target, blacklist, mode="file_name"):
+    if mode=="file_name":
+        for entry in blacklist:
+            if f"/{entry}." in target:
+                return True
+        return False
+    else:
+        if str(target) in blacklist:
             return True
-    return False
+        else:
+            return False
 
-def blacklister(tuple_ids, blacklist):
-    return [tuple_id for tuple_id in tuple_ids if not check_blacklist(str(tuple_id), blacklist)]
-
+def blacklister(tuple_ids, blacklist, mode="file_name"):
+    if mode=="file_name":
+        return [tuple_id for tuple_id in tuple_ids if not check_blacklist(str(tuple_id), blacklist)]
+    else:
+        return [tuple_id for tuple_id in tuple_ids if not check_blacklist(str(tuple_id), blacklist, mode="id")]
 
 def decays_to_fnames(decays):
     return [f"_EvtGen_{decay}" if decay!="inclusive" else "" for decay in decays]

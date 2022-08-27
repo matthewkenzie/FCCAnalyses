@@ -1,20 +1,4 @@
-#from snakemake.remote.XRootD import RemoteProvider as XRootDRemoteProvider
-#XRootD = XRootDRemoteProvider(stay_on_remote=True)
-from config import (
-                    list_to_constraints,
-                    event_types,
-                    decays_to_fnames,
-                    decays,
-                    snakemake_flags,
-                    outputs,
-                    logs,
-                    benchmarks,
-                    blacklister,
-                    tuple_id_blacklist,
-                    MC,
-                    decay_model_to_fname,
-                    analysis_scripts,
-                    )
+import config as cfg
 
 report: "b2snunu/workflow_report.rst"
 
@@ -22,114 +6,136 @@ with open("eos_cache.json") as inf:
     eos_cache = json.load(inf)
 
 wildcard_constraints:
-    event_type = list_to_constraints(list(event_types.keys())),
-    decay_fname = list_to_constraints(decays_to_fnames(list(decays))),
-    decay = list_to_constraints(list(decays)),
+    event_type = cfg.list_to_constraints(list(cfg.event_types.keys())),
+    decay_fname = cfg.list_to_constraints(cfg.decays_to_fnames(list(cfg.decays))),
+    decay = cfg.list_to_constraints(list(cfg.decays)),
     decay_model = "(inclusive|signal)",
     tuple_id = "\d+",
 
 rule all:
     input:
-        expand(snakemake_flags+"{decay}_done", decay=decays),
-        expand(outputs+"plots/mva/{decay}.pdf", decay=decays)
-    output: snakemake_flags+"all"
+        expand(cfg.snakemake_flags+"{decay}_done", decay=cfg.decays),
+        expand(cfg.outputs+"plots/mva/{decay}.pdf", decay=cfg.decays)
+    output: cfg.snakemake_flags+"all"
     shell: "touch {output}"
 
 rule decays:
-    input: lambda wildcards: expand(snakemake_flags+"{{decay}}/{event_type}_done", event_type=list(event_types.keys())),
-    output: snakemake_flags+"{decay}_done"
+    input: lambda wildcards: expand(cfg.snakemake_flags+"{{decay}}/{event_type}_done", event_type=list(cfg.event_types.keys())),
+    output: cfg.snakemake_flags+"{decay}_done"
     shell: "touch {output}"
 
 rule event_types:
-    input: lambda wildcards: expand(outputs+"json/bkg_matching/{{decay}}/{{event_type}}/{decay_model}.json", decay_model=event_types[wildcards.event_type])
-    output: snakemake_flags+"{decay}/{event_type}_done"
+    input: lambda wildcards: expand(cfg.plots+"mva1_bkgs/{{decay}}/{{event_type}}/{decay_model}_{mva_cut}.png", decay_model=cfg.event_types[wildcards.event_type], mva_cut=cfg.MVA_cuts)
+    output: cfg.snakemake_flags+"{decay}/{event_type}_done"
     shell: "touch {output}"
 
-# python ./scripts/bkg_matching.py --input_files ./p8_ee_Zbb_Bd2KstNuNu_stage1.root:events --output_file ./decay_trees.json
-rule bkg_matching:
-    input: lambda wildcards: expand(outputs+"root/mva_cut/{{decay}}/{{event_type}}/{{decay_model}}/{tuple_id}.root", tuple_id=blacklister(range(len(eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["expected_output"])), tuple_id_blacklist[wildcards.decay][wildcards.event_type][wildcards.decay_model]))
-    output: outputs+"json/bkg_matching/{decay}/{event_type}/{decay_model}.json"
-    log: logs+"json/bkg_matching/{decay}/{event_type}/{decay_model}.log"
-    #benchmark: benchmarks+"json/bkg_matching/{decay}/{event_type}/{decay_model}.txt"
-    shell: "python {analysis_scripts}/bkg_matching.py --input_files {input} --output_file {output}"
+rule bkg_combined_plot:
+    input:
+        signal          = lambda wildcards: expand(cfg.outputs+"json/bkg_matching/{{decay}}/p8_ee_Zbb_ecm91/signal/{tuple_id}.json", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"], mode="id")),
+        inclusive_bbbar = lambda wildcards: expand(cfg.outputs+"json/bkg_matching/{{decay}}/p8_ee_Zbb_ecm91/inclusive/{tuple_id}.json", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"], mode="id")),
+        inclusive_ccbar = lambda wildcards: expand(cfg.outputs+"json/bkg_matching/{{decay}}/p8_ee_Zcc_ecm91/inclusive/{tuple_id}.json", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"], mode="id")),
+        inclusive_qqbar = lambda wildcards: expand(cfg.outputs+"json/bkg_matching/{{decay}}/p8_ee_Zuds_ecm91/inclusive/{tuple_id}.json", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"], mode="id")),
+    output: cfg.plots+"mva1_bkgs_combined/{decay}_{mva_cut}.png"
+    log: cfg.plots+"plots/mva1_bkgs_combined/{decay}_{mva_cut}.log"
+    shell: "python {cfg.analysis_scripts}/bkg_combined_plot.py --signal {input.signal} --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar} 
 
-# TODO replace this with a script that just cuts on the MVA rather than redoing stage1
+rule bkg_plot:
+    input: lambda wildcards: expand(cfg.outputs+"json/bkg_matching/{{decay}}/{{event_type}}/{{decay_model}}/{tuple_id}.json", tuple_id=cfg.blacklister(eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay][wildcards.event_type][wildcards.decay_model], mode="id"))
+    output:
+        plot = cfg.plots+"mva1_bkgs/{decay}/{event_type}/{decay_model}_{mva_cut}.png",
+        spruced = cfg.outputs+"json/spruced/{decay}/{event_type}/{decay_model}_{mva_cut}.json",
+        hist_plot = cfg.plots+"mva1_bkg_dist/{decay}/{event_type}/{decay_model}_{mva_cut}.png",
+    log: cfg.logs+"plots/mva1_bkgs/{decay}/{event_type}/{decay_model}_{mva_cut}.log"
+    shell: "python {cfg.analysis_scripts}/bkg_plots.py --input {input} --output {output.plot} --spruced {output.spruced} --mva_cut {wildcards.mva_cut} --hist_plot {output.hist_plot} --eos_cache eos_cache.json --decay {wildcards.decay} --event_type {wildcards.event_type} --decay_model {wildcards.decay_model} &> {log}"
+
+# python ./scripts/bkg_matching.py --input_files ./output/root/stage1/Bd2KstNuNu/p8_ee_Zbb_ecm91/inclusive/0.root --output_file ./decay_trees.json --tree_name events --decay Bd2KstNuNu
+rule bkg_matching:
+    input: cfg.outputs+"root/mva_cut/{decay}/{event_type}/{decay_model}/{tuple_id}.root"# lambda wildcards: expand("{tuple_id}", tuple_id=cfg.blacklister(eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["expected_output"], cfg.tuple_id_blacklist[wildcards.decay][wildcards.event_type][wildcards.decay_model]))
+    output: cfg.outputs+"json/bkg_matching/{decay}/{event_type}/{decay_model}/{tuple_id}.json"
+    log: cfg.logs+"json/bkg_matching/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
+    conda: cfg.envs+"bkg_matching.yaml"
+    benchmark: cfg.benchmarks+"json/bkg_matching/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
+    shell: "python {cfg.analysis_scripts}/bkg_matching.py --input_files {input} --tree_name events --decay {wildcards.decay} --output_file {output} &> {log}"
+
+# python scripts/cut.py --output test_cut.root --cut 'EVT_MVA1>0.6' --input output/root/stage1/Bd2KstNuNu/p8_ee_Zuds_ecm91/inclusive/357.root 
 rule mva_cut:
     input:
-        tuple_file = outputs+"root/stage1/{decay}/{event_type}/{decay_model}/{tuple_id}.root",
-        mva = outputs+"root/xgb/{decay}.root",
-    output: outputs+"root/mva_cut/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
-    log: logs+"mva_cut/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
-    #benchmark: benchmarks+"mva_cut/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
-    shell: "python {analysis_scripts}stage1.py --output {output} --input {input.tuple_file} --decay {wildcards.decay} --mva {input.mva} --MVA_cut 0.6 &> {log}"
+        tuple_file = cfg.outputs+"root/stage1/{decay}/{event_type}/{decay_model}/{tuple_id}.root",
+        mva = cfg.outputs+"root/xgb/{decay}.root",
+    output: cfg.outputs+"root/mva_cut/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
+    log: cfg.logs+"mva_cut/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
+    benchmark: cfg.benchmarks+"mva_cut/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
+    run:
+        cut = "EVT_MVA1>0.6 && "+cfg.mass_cuts[wildcards.decay]
+        shell("python {cfg.analysis_scripts}cut.py --output {output} --input {input.tuple_file} --cut '{cut}' &> {log}")
 
 rule mva_plots:
     input:
-        signal = lambda wildcards: blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]["expected_output"], tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]),
-        inclusive_bbbar = lambda wildcards: blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["expected_output"], tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]),
-        inclusive_ccbar = lambda wildcards: blacklister(eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["expected_output"], tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]),
-        inclusive_qqbar = lambda wildcards: blacklister(eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["expected_output"], tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"])
-    output: outputs+"plots/mva/{decay}.pdf"
-    log: logs+"plots/mva/{decay}.log"
-    #benchmark: benchmarks+"plots/mva/{decay}.txt"
-    shell: "python {analysis_scripts}/mva_plot.py --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar} --signal {input.signal} --output {output} &> {log}"
+        signal = lambda wildcards: cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]["expected_output"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]),
+        inclusive_bbbar = lambda wildcards: cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["expected_output"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]),
+        inclusive_ccbar = lambda wildcards: cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["expected_output"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]),
+        inclusive_qqbar = lambda wildcards: cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["expected_output"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"])
+    output: cfg.outputs+"plots/mva/{decay}.pdf"
+    log: cfg.logs+"plots/mva/{decay}.log"
+    #benchmark: cfg.benchmarks+"plots/mva/{decay}.txt"
+    shell: "python {cfg.analysis_scripts}/mva_plot.py --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar} --signal {input.signal} --output {output} &> {log}"
 
 rule mva_tuples:
-    input: outputs+"root/xgb/{decay}.root"
-    output: outputs+"root/stage1/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
-    log: logs+"stage1/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
-    #benchmark: benchmarks+"stage1/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
+    input: cfg.outputs+"root/xgb/{decay}.root"
+    output: cfg.outputs+"root/stage1/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
+    log: cfg.logs+"stage1/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
+    #benchmark: cfg.benchmarks+"stage1/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
     run:
         desired_index = eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["expected_output"].index(output[0])
         tuple_ids = eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["samples"][desired_index]
-        input_location = f"{MC}{wildcards.event_type}{decay_model_to_fname(wildcards.decay_model, wildcards.decay)}/events_"
+        input_location = f"{cfg.MC}{wildcards.event_type}{cfg.decay_model_to_fname(wildcards.decay_model, wildcards.decay)}/events_"
         input_files = []
         for tuple_id in tuple_ids:
             input_files.append(f"{input_location}{tuple_id}.root")
-        cmd = "python {analysis_scripts}stage1.py --output {output} --input {input_files} --decay {wildcards.decay} --mva {input} &> {log}"
+        cmd = "python {cfg.analysis_scripts}stage1.py --output {output} --input {input_files} --decay {wildcards.decay} --mva {input} &> {log}"
         shell(cmd)
 
 # snakemake ./output/xgb/Bd2KstNuNu.root -s ./scripts/Snakefile --latency-wait 10 --jobs 25; mv ./slurm-* ./SlurmLogs/
 
 rule train_xgb:
     input:
-        signal_pkl = lambda wildcards: blacklister([f"{input_file[:-5]}.pkl".replace("training", "pickled") for input_file in eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]["training_output"]], tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]),
-        inclusive_bbbar_pkl = lambda wildcards: blacklister([f"{input_file[:-5]}.pkl".replace("training", "pickled") for input_file in eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["training_output"]], tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]),
-        inclusive_ccbar_pkl = lambda wildcards: blacklister([f"{input_file[:-5]}.pkl".replace("training", "pickled") for input_file in eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["training_output"]], tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]),
-        inclusive_qqbar_pkl = lambda wildcards: blacklister([f"{input_file[:-5]}.pkl".replace("training", "pickled") for input_file in eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["training_output"]], tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]),
-        signal_root = lambda wildcards: blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]["training_output"], tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]),
-        inclusive_bbbar_root = lambda wildcards: blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["training_output"], tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]),
-        inclusive_ccbar_root = lambda wildcards: blacklister(eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["training_output"], tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]),
-        inclusive_qqbar_root = lambda wildcards: blacklister(eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["training_output"], tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"])
+        signal_pkl = lambda wildcards: cfg.blacklister([f"{input_file[:-5]}.pkl".replace("training", "pickled") for input_file in eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]["training_output"]], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]),
+        inclusive_bbbar_pkl = lambda wildcards: cfg.blacklister([f"{input_file[:-5]}.pkl".replace("training", "pickled") for input_file in eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["training_output"]], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]),
+        inclusive_ccbar_pkl = lambda wildcards: cfg.blacklister([f"{input_file[:-5]}.pkl".replace("training", "pickled") for input_file in eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["training_output"]], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]),
+        inclusive_qqbar_pkl = lambda wildcards: cfg.blacklister([f"{input_file[:-5]}.pkl".replace("training", "pickled") for input_file in eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["training_output"]], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]),
+        signal_root = lambda wildcards: cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]["training_output"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]),
+        inclusive_bbbar_root = lambda wildcards: cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["training_output"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]),
+        inclusive_ccbar_root = lambda wildcards: cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["training_output"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]),
+        inclusive_qqbar_root = lambda wildcards: cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["training_output"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"])
     output:
-        root = outputs+"root/xgb/{decay}.root",
-        joblib = outputs+"root/xgb/{decay}.joblib",
-        roc_plot = outputs+"plots/xgb/ROC/{decay}.pdf",
-    log: logs+"xgb/{decay}.log"
-    #benchmark: benchmarks+"xgb/{decay}.txt"
-    shell: "python {analysis_scripts}/train_xgb.py --decay {wildcards.decay} --vars normal --inclusive_bbbar_pkl {input.inclusive_bbbar_pkl} --inclusive_ccbar_pkl {input.inclusive_ccbar_pkl} --inclusive_qqbar_pkl {input.inclusive_qqbar_pkl} --signal_pkl {input.signal_pkl} --inclusive_bbbar_root {input.inclusive_bbbar_root} --inclusive_ccbar_root {input.inclusive_ccbar_root} --inclusive_qqbar_root {input.inclusive_qqbar_root} --signal_root {input.signal_root} --output_root {output.root} --output_joblib {output.joblib} --roc_plot {output.roc_plot} &> {log}" # --decay {wildcards.decay} 
+        root = cfg.outputs+"root/xgb/{decay}.root",
+        joblib = cfg.outputs+"root/xgb/{decay}.joblib",
+        roc_plot = cfg.outputs+"plots/xgb/ROC/{decay}.pdf",
+    log: cfg.logs+"xgb/{decay}.log"
+    #benchmark: cfg.benchmarks+"xgb/{decay}.txt"
+    shell: "python {cfg.analysis_scripts}/train_xgb.py --decay {wildcards.decay} --vars normal --inclusive_bbbar_pkl {input.inclusive_bbbar_pkl} --inclusive_ccbar_pkl {input.inclusive_ccbar_pkl} --inclusive_qqbar_pkl {input.inclusive_qqbar_pkl} --signal_pkl {input.signal_pkl} --inclusive_bbbar_root {input.inclusive_bbbar_root} --inclusive_ccbar_root {input.inclusive_ccbar_root} --inclusive_qqbar_root {input.inclusive_qqbar_root} --signal_root {input.signal_root} --output_root {output.root} --output_joblib {output.joblib} --roc_plot {output.roc_plot} &> {log}" # --decay {wildcards.decay} 
 
 # python ./scripts/pickler.py --input ./test_output/stage1_Bd2KstNuNu.root --output ./test_output/Bd2KstNuNu.pkl
 rule pickle:
-    input: outputs+"root/training/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
-    output: outputs+"root/pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.pkl"
-    log: logs+"pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
-    #benchmark: benchmarks+"pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
-    shell: "python {analysis_scripts}/pickler.py --input {input} --output {output} &> {log}"
+    input: cfg.outputs+"root/training/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
+    output: cfg.outputs+"root/pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.pkl"
+    log: cfg.logs+"pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
+    #benchmark: cfg.benchmarks+"pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
+    shell: "python {cfg.analysis_scripts}/pickler.py --input {input} --output {output} &> {log}"
 
 # test with python ./scripts/stage1.py --output ./test_output/stage1_Bd2KstNuNu.root --input root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/spring2021/IDEA/p8_ee_Zbb_ecm91/events_132614370.root --decay Bd2KstNuNu --training
 rule training_tuples:
-    output: outputs+"root/training/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
-    log: logs+"training/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
-    #benchmark: benchmarks+"training/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
+    output: cfg.outputs+"root/training/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
+    log: cfg.logs+"training/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
+    #benchmark: cfg.benchmarks+"training/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
     run:
         desired_index = eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["training_output"].index(output[0])
         tuple_ids = eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["training"][desired_index]
-        input_location = f"{MC}{wildcards.event_type}{decay_model_to_fname(wildcards.decay_model, wildcards.decay)}/events_"
+        input_location = f"{cfg.MC}{wildcards.event_type}{cfg.decay_model_to_fname(wildcards.decay_model, wildcards.decay)}/events_"
         input_files = []
         for tuple_id in tuple_ids:
             input_files.append(f"{input_location}{tuple_id}.root")
-        cmd = "python {analysis_scripts}stage1.py --output {output} --input {input_files} --decay {wildcards.decay} --training &> {log}"
+        cmd = "python {cfg.analysis_scripts}stage1.py --output {output} --input {input_files} --decay {wildcards.decay} --training &> {log}"
         shell(cmd)
 
 # for checking efficiencies
