@@ -20,14 +20,128 @@ rule all:
     shell: "touch {output}"
 
 rule decays:
-    input: lambda wildcards: expand(cfg.snakemake_flags+"{{decay}}/{event_type}_done", event_type=list(cfg.event_types.keys())),
-    output: cfg.snakemake_flags+"{decay}_done"
-    shell: "touch {output}"
+	input:
+		flags = lambda wildcards: expand(cfg.snakemake_flags+"{{decay}}/{event_type}_done", event_type=list(cfg.event_types.keys())),
+		#st2   = lambda wildcards: expand(cfg.snakemake_flags+"{{decay}}/{event_type}_stage2_done", event_type=list(cfg.event_types.keys()))
+		st2  = cfg.snakemake_flags+"{decay}_st2_done"
+	output: cfg.snakemake_flags+"{decay}_done"
+	shell: "touch {output}"
 
 rule event_types:
-    input: lambda wildcards: expand(cfg.plots+"mva1_bkgs/{{decay}}/{{event_type}}/{decay_model}_{mva_cut}.png", decay_model=cfg.event_types[wildcards.event_type], mva_cut=cfg.MVA_cuts)
-    output: cfg.snakemake_flags+"{decay}/{event_type}_done"
-    shell: "touch {output}"
+	input: bkg = lambda wildcards: expand(cfg.plots+"mva1_bkgs/{{decay}}/{{event_type}}/{decay_model}_{mva_cut}.png", decay_model=cfg.event_types[wildcards.event_type], mva_cut=cfg.MVA_cuts),
+	output: cfg.snakemake_flags+"{decay}/{event_type}_done"
+	shell: "touch {output}"
+
+rule st_two_collector:
+	input:
+		signal = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zbb_ecm91/signal.pkl",
+		bbbar  = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zbb_ecm91/inclusive.pkl",
+		ccbar  = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zcc_ecm91/inclusive.pkl",
+		qqbar  = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zuds_ecm91/inclusive.pkl",
+		spl1   = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA1.pkl",
+		spl2   = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA2.pkl",
+		mpl1   = cfg.outputs+"plots/mva_st2/{decay}_mva1.pdf",
+		mpl2   = cfg.outputs+"plots/mva_st2/{decay}_mva2.pdf",
+		eduff  = cfg.outputs+"plots/mva_st2/{decay}_ediff.pdf",
+		#inclusive_bbbar = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zbb_ecm91/inclusive/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"], mode="id")),
+		#inclusive_ccbar = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zcc_ecm91/inclusive/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"], mode="id")),
+		#inclusive_qqbar = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zuds_ecm91/inclusive/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"], mode="id")),
+	output: cfg.snakemake_flags+"{decay}_st2_done"
+	shell: "touch {output}"
+
+rule bkg_mva_splines:
+	input:
+		bbbar = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zbb_ecm91/inclusive.pkl",
+		ccbar = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zcc_ecm91/inclusive.pkl",
+		qqbar = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zuds_ecm91/inclusive.pkl",
+		bbbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zbb_ecm91/inclusive/eff.json",
+		ccbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zcc_ecm91/inclusive/eff.json",
+		qqbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zuds_ecm91/inclusive/eff.json",
+	output:
+		spl1 = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA1.pkl",
+		spl2 = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA2.pkl",
+		pl1  = cfg.outputs+"plots/bkg_splines/{decay}/bkg_spl_EVT_MVA1.pdf",
+		pl2  = cfg.outputs+"plots/bkg_splines/{decay}/bkg_spl_EVT_MVA2.pdf"
+	log: cfg.logs+"bkg_splines/{decay}.log"
+	run:
+		fpath = cfg.outputs+"root/mva_st2_pkl/"+wildcards.decay
+		epath = cfg.outputs+"root/pickled_st2/"+wildcards.decay
+		opath = output.spl1.replace('_EVT_MVA1','')
+		ppath = output.pl1.replace('_EVT_MVA1','')
+
+		cmd = f"python {cfg.analysis_scripts}bkg_mva_splines.py --path {fpath} --path_eff {epath} --output {opath} --output_plot {ppath} &> {log}"
+		shell(cmd)
+
+rule st_two_pickle:
+	input: lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/{{event_type}}/{{decay_model}}/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay][wildcards.event_type][wildcards.decay_model], mode="id"))
+	output: cfg.outputs+"root/mva_st2_pkl/{decay}/{event_type}/{decay_model}.pkl"
+	log: cfg.logs+"mva_st2_hadd/{decay}/{event_type}/{decay_model}.log"
+	run:
+		cmd = "python {cfg.analysis_scripts}pickler.py --input {input} --output {output} --vars fit_cut_vars &> {log}"
+		shell(cmd)
+
+rule st_two_mva_plots:
+	input:
+		signal = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zbb_ecm91/signal/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["signal"], mode="id")),
+		inclusive_bbbar = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zbb_ecm91/inclusive/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"], mode="id")),
+		inclusive_ccbar = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zcc_ecm91/inclusive/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"], mode="id")),
+		inclusive_qqbar = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zuds_ecm91/inclusive/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"], mode="id")),
+	output:
+		mva1 = cfg.outputs+"plots/mva_st2/{decay}_mva1.pdf",
+		mva2 = cfg.outputs+"plots/mva_st2/{decay}_mva2.pdf",
+		ediff = cfg.outputs+"plots/mva_st2/{decay}_ediff.pdf",
+	log: cfg.logs+"plots/mva_st2/{decay}.log"
+	#benchmark: cfg.benchmarks+"plots/mva/{decay}.txt"
+	run:
+		shell("python {cfg.analysis_scripts}/mva_plot.py --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar} --signal {input.signal} --output {output.mva1} --var EVT_MVA1 --range \"(0.6,1)\" --bins 200 --xtitle \"MVA1 Response\" &> {log}")
+		shell("python {cfg.analysis_scripts}/mva_plot.py --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar} --signal {input.signal} --output {output.mva2} --var EVT_MVA2 --range \"(0,1)\" --bins 200 --xtitle \"MVA2 Response\" &> {log}")
+		shell("python {cfg.analysis_scripts}/mva_plot.py --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar} --signal {input.signal} --output {output.ediff} --var EVT_ThrustDiff_E --range \"(0,50)\" --bins 200 --xtitle \"Hemisphere Energy Difference\" &> {log}")
+
+
+rule st_two_mva_tuples: # to turn the flat tuples into
+	input:
+		files = cfg.outputs+"root/mva_cut/{decay}/{event_type}/{decay_model}/{tuple_id}.root", # this is a flat tuple with MVA branch cut at 0.6 and mass cuts
+		bdt = cfg.outputs+"root/xgb_st2/{decay}.root"
+	output: cfg.outputs+"root/mva_st2/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
+	log: cfg.logs+"mva_st2/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
+	run:
+		cmd = "python {cfg.analysis_scripts}stage2.py --input {input.files} --output {output} --decay {wildcards.decay} --mva {input.bdt} &> {log}"
+		shell(cmd)
+
+rule st_two_train_xgb:
+	input:
+		signal = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zbb_ecm91/signal/training.pkl",
+		bbbar = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zbb_ecm91/inclusive/training.pkl",
+		ccbar = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zcc_ecm91/inclusive/training.pkl",
+		qqbar = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zuds_ecm91/inclusive/training.pkl",
+		signal_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zbb_ecm91/signal/eff.json",
+		bbbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zbb_ecm91/inclusive/eff.json",
+		ccbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zcc_ecm91/inclusive/eff.json",
+		qqbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zuds_ecm91/inclusive/eff.json",
+	output:
+		root = cfg.outputs+"root/xgb_st2/{decay}.root",
+		joblib = cfg.outputs+"root/xgb_st2/{decay}.joblib",
+		roc_plot = cfg.outputs+"plots/xgb_st2/ROC/{decay}.pdf",
+	log: cfg.logs+"xgb_st2/{decay}.log"
+	#benchmark: cfg.benchmarks+"xgb/{decay}.txt"
+	shell: "python {cfg.analysis_scripts}/train_xgb_stage2.py --decay {wildcards.decay} --bbbar {input.bbbar} --ccbar {input.ccbar} --qqbar {input.qqbar} --signal {input.signal} --bbbar_eff {input.bbbar_eff} --ccbar_eff {input.ccbar_eff} --qqbar_eff {input.qqbar_eff} --signal_eff {input.signal_eff} --output {output.root} --output_joblib {output.joblib} --roc_plot {output.roc_plot} &> {log}"
+
+rule st_two_prepare_training:
+	input: lambda wildcards: expand(cfg.outputs+"root/training_st2/{{decay}}/{{event_type}}/{{decay_model}}/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay][wildcards.event_type][wildcards.decay_model], mode="id"))
+	output:
+		pkl =  cfg.outputs+"root/pickled_st2/{decay}/{event_type}/{decay_model}/training.pkl",
+		eff =  cfg.outputs+"root/pickled_st2/{decay}/{event_type}/{decay_model}/eff.json",
+	log: cfg.logs+"pickled_st2/{decay}/{event_type}/{decay_model}/training.log"
+    #benchmark: cfg.benchmarks+"pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
+	shell: "python {cfg.analysis_scripts}/prepare_stage2_training.py --input {input} --output {output.pkl} --output_eff {output.eff} --vars train_vars_stage2 --decay {wildcards.decay} &> {log}"
+
+rule st_two_training_tuples: # to turn the flat tuples into
+	input: cfg.outputs+"root/mva_cut/{decay}/{event_type}/{decay_model}/{tuple_id}.root" # this is a flat tuple with MVA branch cut at 0.6 and mass cuts
+	output: cfg.outputs+"root/training_st2/{decay}/{event_type}/{decay_model}/{tuple_id}.root"
+	log: cfg.logs+"training_st2/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
+	run:
+		cmd = "python {cfg.analysis_scripts}stage2.py --input {input} --output {output} --decay {wildcards.decay} --training &> {log}"
+		shell(cmd)
 
 rule bkg_combined_plot:
     input:
@@ -37,7 +151,7 @@ rule bkg_combined_plot:
         inclusive_qqbar = lambda wildcards: expand(cfg.outputs+"json/bkg_matching/{{decay}}/p8_ee_Zuds_ecm91/inclusive/{tuple_id}.json", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"], mode="id")),
     output: cfg.plots+"mva1_bkgs_combined/{decay}_{mva_cut}.png"
     log: cfg.plots+"plots/mva1_bkgs_combined/{decay}_{mva_cut}.log"
-    shell: "python {cfg.analysis_scripts}/bkg_combined_plot.py --signal {input.signal} --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar} 
+    shell: "python {cfg.analysis_scripts}/bkg_combined_plot.py --signal {input.signal} --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar}"
 
 rule bkg_plot:
     input: lambda wildcards: expand(cfg.outputs+"json/bkg_matching/{{decay}}/{{event_type}}/{{decay_model}}/{tuple_id}.json", tuple_id=cfg.blacklister(eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay][wildcards.event_type][wildcards.decay_model], mode="id"))
@@ -57,7 +171,7 @@ rule bkg_matching:
     benchmark: cfg.benchmarks+"json/bkg_matching/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
     shell: "python {cfg.analysis_scripts}/bkg_matching.py --input_files {input} --tree_name events --decay {wildcards.decay} --output_file {output} &> {log}"
 
-# python scripts/cut.py --output test_cut.root --cut 'EVT_MVA1>0.6' --input output/root/stage1/Bd2KstNuNu/p8_ee_Zuds_ecm91/inclusive/357.root 
+# python scripts/cut.py --output test_cut.root --cut 'EVT_MVA1>0.6' --input output/root/stage1/Bd2KstNuNu/p8_ee_Zuds_ecm91/inclusive/357.root
 rule mva_cut:
     input:
         tuple_file = cfg.outputs+"root/stage1/{decay}/{event_type}/{decay_model}/{tuple_id}.root",
@@ -78,7 +192,7 @@ rule mva_plots:
     output: cfg.outputs+"plots/mva/{decay}.pdf"
     log: cfg.logs+"plots/mva/{decay}.log"
     #benchmark: cfg.benchmarks+"plots/mva/{decay}.txt"
-    shell: "python {cfg.analysis_scripts}/mva_plot.py --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar} --signal {input.signal} --output {output} &> {log}"
+    shell: "python {cfg.analysis_scripts}/mva_plot.py --inclusive_bbbar {input.inclusive_bbbar} --inclusive_ccbar {input.inclusive_ccbar} --inclusive_qqbar {input.inclusive_qqbar} --signal {input.signal} --output {output} --var EVT_MVA1 &> {log}"
 
 rule mva_tuples:
     input: cfg.outputs+"root/xgb/{decay}.root"
@@ -113,7 +227,7 @@ rule train_xgb:
         roc_plot = cfg.outputs+"plots/xgb/ROC/{decay}.pdf",
     log: cfg.logs+"xgb/{decay}.log"
     #benchmark: cfg.benchmarks+"xgb/{decay}.txt"
-    shell: "python {cfg.analysis_scripts}/train_xgb.py --decay {wildcards.decay} --vars normal --inclusive_bbbar_pkl {input.inclusive_bbbar_pkl} --inclusive_ccbar_pkl {input.inclusive_ccbar_pkl} --inclusive_qqbar_pkl {input.inclusive_qqbar_pkl} --signal_pkl {input.signal_pkl} --inclusive_bbbar_root {input.inclusive_bbbar_root} --inclusive_ccbar_root {input.inclusive_ccbar_root} --inclusive_qqbar_root {input.inclusive_qqbar_root} --signal_root {input.signal_root} --output_root {output.root} --output_joblib {output.joblib} --roc_plot {output.roc_plot} &> {log}" # --decay {wildcards.decay} 
+    shell: "python {cfg.analysis_scripts}/train_xgb.py --decay {wildcards.decay} --vars normal --inclusive_bbbar_pkl {input.inclusive_bbbar_pkl} --inclusive_ccbar_pkl {input.inclusive_ccbar_pkl} --inclusive_qqbar_pkl {input.inclusive_qqbar_pkl} --signal_pkl {input.signal_pkl} --inclusive_bbbar_root {input.inclusive_bbbar_root} --inclusive_ccbar_root {input.inclusive_ccbar_root} --inclusive_qqbar_root {input.inclusive_qqbar_root} --signal_root {input.signal_root} --output_root {output.root} --output_joblib {output.joblib} --roc_plot {output.roc_plot} &> {log}" # --decay {wildcards.decay}
 
 # python ./scripts/pickler.py --input ./test_output/stage1_Bd2KstNuNu.root --output ./test_output/Bd2KstNuNu.pkl
 rule pickle:
@@ -121,7 +235,7 @@ rule pickle:
     output: cfg.outputs+"root/pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.pkl"
     log: cfg.logs+"pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.log"
     #benchmark: cfg.benchmarks+"pickled/{decay}/{event_type}/{decay_model}/{tuple_id}.txt"
-    shell: "python {cfg.analysis_scripts}/pickler.py --input {input} --output {output} &> {log}"
+    shell: "python {cfg.analysis_scripts}/pickler.py --input {input} --output {output} --vars train_vars_vtx &> {log}"
 
 # test with python ./scripts/stage1.py --output ./test_output/stage1_Bd2KstNuNu.root --input root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/spring2021/IDEA/p8_ee_Zbb_ecm91/events_132614370.root --decay Bd2KstNuNu --training
 rule training_tuples:

@@ -1,20 +1,21 @@
-def run(input_file, output_file):
+from config import train_var_lists
+
+def run(input_files, output_file, vars_list):
     import uproot
-    from bdt_config import train_vars_vtx, loc
-    inf = uproot.open(input_file)
-    tree = inf['events']
-    vars_list = train_vars_vtx.copy()
-    df = tree.arrays(library="pd", how="zip", filter_name=train_vars_vtx)
+    df = uproot.concatenate( [inf+":events" for inf in input_files], library="pd", how="zip", filter_name=vars_list )
     df.to_pickle(output_file)
 
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Applies preselection cuts", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--input', type=str, required=True, help='Select the input file(s).')
+    parser.add_argument('--input', nargs="+", required=True, help='Select the input file(s).')
     parser.add_argument('--output', type=str, required=True, help='Select the output file.')
+    parser.add_argument('--vars', type=str, required=True, help='Select the variables to keep, e.g "train_vars_vtx", "train_vars_stage2"')
     args = parser.parse_args()
 
-    run(args.input, args.output)
+    assert( args.vars in train_var_lists.keys() )
+
+    run(args.input, args.output, vars_list=train_var_lists[args.vars])
 
 if __name__ == '__main__':
     main()

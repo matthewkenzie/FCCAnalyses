@@ -1,7 +1,7 @@
 analysis_scripts = "scripts/"
-outputs = "output/"
+outputs = "/storage/epp2/phutmn/FCC/FCCAnalyses/examples/FCCee/flavour/b2snunu/output/"
 plots = f"{outputs}plots/"
-snakemake_flags = f"{outputs}snakemake_flags/"
+snakemake_flags = f"output/snakemake_flags/"
 logs = f"logs/"
 benchmarks = f"benchmarks/"
 input_mc = f"{outputs}/input_mc/"
@@ -16,6 +16,12 @@ event_types = {
 }
 decays = ["Bd2KstNuNu", "Bs2PhiNuNu"]#, "Bu2KNuNu"]
 samples = set()
+
+label_map = { 'p8_ee_Zbb_ecm91': r'$Z\to b\bar{b}$',
+              'p8_ee_Zcc_ecm91': r'$Z\to c\bar{c}$',
+              'p8_ee_Zuds_ecm91': r'$Z\to q\{bar}q$'
+            }
+
 
 decay_to_candidates = {
     "Bd2KstNuNu": "KPi",
@@ -224,12 +230,12 @@ def stage1_branches(candidates):
     return [
             "MC_PDG","MC_M1","MC_M2","MC_n","MC_D1","MC_D2","MC_D3","MC_D4",
             "MC_p","MC_pt","MC_px","MC_py","MC_pz","MC_eta","MC_phi",
-            "MC_orivtx_x","MC_orivtx_y","MC_orivtx_z", 
+            "MC_orivtx_x","MC_orivtx_y","MC_orivtx_z",
             "MC_endvtx_x", "MC_endvtx_y", "MC_endvtx_z", "MC_e","MC_m",
             "EVT_ThrustEmin_E",          "EVT_ThrustEmax_E",
             "EVT_ThrustEmin_Echarged",   "EVT_ThrustEmax_Echarged",
             "EVT_ThrustEmin_Eneutral",   "EVT_ThrustEmax_Eneutral",
-            "EVT_ThrustEmin_N",          "EVT_ThrustEmax_N",                
+            "EVT_ThrustEmin_N",          "EVT_ThrustEmax_N",
             "EVT_ThrustEmin_Ncharged",   "EVT_ThrustEmax_Ncharged",
             "EVT_ThrustEmin_Nneutral",   "EVT_ThrustEmax_Nneutral",
             "EVT_ThrustEmin_NDV",        "EVT_ThrustEmax_NDV",
@@ -239,14 +245,14 @@ def stage1_branches(candidates):
             "EVT_Thrust_Z",  "EVT_Thrust_ZErr",
 
             "EVT_NtracksPV", "EVT_NVertex", f"EVT_N{candidates}",
-            
+
             "EVT_dPV2DVmin","EVT_dPV2DVmax","EVT_dPV2DVave",
 
-            "MC_Vertex_x", "MC_Vertex_y", "MC_Vertex_z", 
+            "MC_Vertex_x", "MC_Vertex_y", "MC_Vertex_z",
             "MC_Vertex_ntrk", "MC_Vertex_n",
-            
+
             "MC_Vertex_PDG","MC_Vertex_PDGmother","MC_Vertex_PDGgmother",
-            
+
             "Vertex_x", "Vertex_y", "Vertex_z",
             "Vertex_xErr", "Vertex_yErr", "Vertex_zErr",
             "Vertex_isPV", "Vertex_ntrk", "Vertex_chi2", "Vertex_n",
@@ -256,14 +262,14 @@ def stage1_branches(candidates):
             "Vertex_d2PVErr", "Vertex_d2PVxErr", "Vertex_d2PVyErr", "Vertex_d2PVzErr",
             "Vertex_mass",
             "DV_d0","DV_z0",
-            
-            f"True{candidates}_vertex", f"True{candidates}_d0", f"True{candidates}_z0", 
-            
+
+            f"True{candidates}_vertex", f"True{candidates}_d0", f"True{candidates}_z0",
+
             f"{candidates}Candidates_mass", f"{candidates}Candidates_vertex", f"{candidates}Candidates_mcvertex", f"{candidates}Candidates_B",
             f"{candidates}Candidates_truth",
             f"{candidates}Candidates_px", f"{candidates}Candidates_py", f"{candidates}Candidates_pz", f"{candidates}Candidates_p", f"{candidates}Candidates_q",
             f"{candidates}Candidates_d0",  f"{candidates}Candidates_z0",f"{candidates}Candidates_anglethrust",
-            
+
             f"{candidates}Candidates_h1px", f"{candidates}Candidates_h1py", f"{candidates}Candidates_h1pz",
             f"{candidates}Candidates_h1p", f"{candidates}Candidates_h1q", f"{candidates}Candidates_h1m", f"{candidates}Candidates_h1type",
             f"{candidates}Candidates_h1d0", f"{candidates}Candidates_h1z0",
@@ -305,3 +311,92 @@ def list_to_constraints(l):
         constraints = f"{constraints}|{item}"
     constraints = f"{constraints})"
     return constraints
+
+#First stage BDT including event-level vars
+train_vars = ["EVT_ThrustEmin_E",
+              "EVT_ThrustEmax_E",
+              "EVT_ThrustEmin_Echarged",
+              "EVT_ThrustEmax_Echarged",
+              "EVT_ThrustEmin_Eneutral",
+              "EVT_ThrustEmax_Eneutral",
+              "EVT_ThrustEmin_Ncharged",
+              "EVT_ThrustEmax_Ncharged",
+              "EVT_ThrustEmin_Nneutral",
+              "EVT_ThrustEmax_Nneutral"
+              ]
+
+#First stage BDT including event-level vars and vertex vars
+#This is the default list used in the analysis
+train_vars_vtx = [*train_vars, *[
+                  "EVT_NtracksPV",
+                  "EVT_NVertex",
+                  "EVT_NKPi",
+                  "EVT_ThrustEmin_NDV",
+                  "EVT_ThrustEmax_NDV",
+                  "EVT_dPV2DVmin",
+                  "EVT_dPV2DVmax",
+                  "EVT_dPV2DVave"
+                  ]]
+
+#Second stage training variables
+train_vars_stage2 = ["EVT_CandMass",
+                "EVT_CandN",
+                "EVT_CandVtxFD",
+                "EVT_CandVtxChi2",
+                "EVT_CandPx",
+                "EVT_CandPy",
+                "EVT_CandPz",
+                "EVT_CandP",
+                "EVT_CandD0",
+                "EVT_CandZ0",
+                "EVT_CandAngleThrust",
+                "EVT_DVd0_min",
+                "EVT_DVd0_max",
+                "EVT_DVd0_ave",
+                "EVT_DVz0_min",
+                "EVT_DVz0_max",
+                "EVT_DVz0_ave",
+                "EVT_PVmass",
+                "EVT_Nominal_B_E"
+               ]
+
+fit_cut_vars = [ "EVT_MVA1",
+                 "EVT_MVA2",
+                 "EVT_ThrustDiff_E"
+               ]
+
+train_var_lists = { "train_vars" : train_vars,
+                    "train_vars_vtx" : train_vars_vtx,
+                    "train_vars_stage2" : train_vars_stage2,
+                    "fit_cut_vars" : fit_cut_vars
+                  }
+
+
+#Decay modes used in first stage training and their respective file names
+mode_names = {"Bd2KstNuNu": "p8_ee_Zbb_ecm91_EvtGen_Bd2KstNuNu",
+              "uds": "p8_ee_Zuds_ecm91",
+              "cc": "p8_ee_Zcc_ecm91",
+              "bb": "p8_ee_Zbb_ecm91"
+              }
+
+#Hemisphere energy difference cut, applied offline prior to MVA2 optimisation
+energy_difference_cut = ">5"
+mva1_min = 0.90
+mva2_min = 0.90
+mva1_max = 0.999
+mva2_max = 0.999
+
+# B production fractions
+prod_frac = {"Bu": 0.43,
+             "Bd": 0.43,
+             "Bs": 0.096,
+             "Lb": 0.037,
+             "Bc": 0.0004
+            }
+
+prod_frac["Bd2KstNuNu"] = prod_frac["Bd"]
+prod_frac["Bs2PhiNuNu"] = prod_frac["Bs"]
+
+signal_bfs = {"Bd2KstNuNu": 1e-5,
+              "Bs2PhiNuNu": 0.5e-5 # to include phi->KK
+             }

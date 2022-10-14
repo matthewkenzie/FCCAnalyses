@@ -19,6 +19,14 @@ namespace myFinalSel{
 		   ROOT::VecOps::RVec<int> truevertex,
 		   int CandInd);
 
+  int selB2SCand( ROOT::VecOps::RVec<float> mass,
+			      ROOT::VecOps::RVec<int> vertex_ind,
+			      ROOT::VecOps::RVec<float> vertex_chi2 );
+
+  int selB2SCandTM( ROOT::VecOps::RVec<int> mcvertex,
+			        ROOT::VecOps::RVec<int> truevertex,
+			        int CandInd);
+
   float get_min(ROOT::VecOps::RVec<float> in,
 		float val);
   float get_max(ROOT::VecOps::RVec<float> in,

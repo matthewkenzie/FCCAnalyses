@@ -19,7 +19,6 @@ rc('text', usetex=True)
 
 #Local code
 import config as cfg
-from bdt_config import loc, train_vars, train_vars_vtx, mode_names
 
 def run(vars, signal_pkl, bbbar_pkl, ccbar_pkl, qqbar_pkl, signal_root, bbbar_root, ccbar_root, qqbar_root, output_root, output_joblib, roc_plot, decay):
 
@@ -27,9 +26,9 @@ def run(vars, signal_pkl, bbbar_pkl, ccbar_pkl, qqbar_pkl, signal_root, bbbar_ro
 
     #Bd -> Kst nu nu signal
     if(vars=="normal"):
-        vars_list = train_vars
+        vars_list = cfg.train_vars
     elif(vars=="vtx"):
-        vars_list = train_vars_vtx
+        vars_list = cfg.train_vars_vtx
     print("TRAINING VARS")
     print(vars_list)
 
@@ -71,7 +70,7 @@ def run(vars, signal_pkl, bbbar_pkl, ccbar_pkl, qqbar_pkl, signal_root, bbbar_ro
     print(cfg.stage1_efficiencies)
     print("Actual efficiencies")
     print(stage1_efficiencies)
-    
+
     df_sig = df_sig.sample(int(1e6), random_state=10)
     print(f"Number of signal events: {len(df_sig)}")
 
@@ -162,7 +161,7 @@ def run(vars, signal_pkl, bbbar_pkl, ccbar_pkl, qqbar_pkl, signal_root, bbbar_ro
     joblib.dump(bdt, output_joblib)
 
 def main():
-    parser = argparse.ArgumentParser(description='Train xgb model for Bc -> tau nu vs. Z -> qq, cc, bb')
+    parser = argparse.ArgumentParser(description='Train xgb model for Z -> bb -> b2snunu vs. Z -> qq, cc, bb')
     parser.add_argument("--vars", choices=["normal","vtx"], required=True, help="Event-level vars (normal) or added vertex vars (vtx)")
     parser.add_argument("--signal_pkl", nargs="+", required=True, help="signal ntuples")
     parser.add_argument("--inclusive_bbbar_pkl", nargs="+", required=True, help="bkg Z -> bb ntuples")
