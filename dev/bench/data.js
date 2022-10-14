@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1665740738971,
+  "lastUpdate": 1665740740666,
   "repoUrl": "https://github.com/matthewkenzie/FCCAnalyses",
   "entries": {
     "Benchmark": [
@@ -45,6 +45,45 @@ window.BENCHMARK_DATA = {
             "unit": "Seconds",
             "range": 10,
             "extra": "Analysis path: examples/FCCee/test"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew Kenzie",
+            "username": "matthewkenzie"
+          },
+          "committer": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew Kenzie",
+            "username": "matthewkenzie"
+          },
+          "distinct": true,
+          "id": "6c5611f8da8a589b9c51e82fddd68386ad8f996d",
+          "message": "Mods for running stage2 of the analysis\n\nAdditions for making files and training the stage2 MVA.\nCan also make the background splines for efficiency and cut\noptimisation.",
+          "timestamp": "2022-10-14T10:34:20+01:00",
+          "tree_id": "c51e622ee5d18a7f422624ba71e18cf09749907e",
+          "url": "https://github.com/matthewkenzie/FCCAnalyses/commit/6c5611f8da8a589b9c51e82fddd68386ad8f996d"
+        },
+        "date": 1665740740072,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "prod | Events processed per second: examples/FCCee/higgs/mH-recoil/mumu",
+            "value": 6.858794828987431,
+            "unit": "Evt/s"
+          },
+          {
+            "name": "prod | Events processed per second: examples/FCCee/flavour/Bc2TauNu",
+            "value": 5.104762234877696,
+            "unit": "Evt/s"
+          },
+          {
+            "name": "prod | Events processed per second: examples/FCCee/test",
+            "value": 6.953661070961262,
+            "unit": "Evt/s"
           }
         ]
       }
