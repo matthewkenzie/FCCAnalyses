@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['architecture_5fid_138',['ARCHITECTURE_ID',['../_c_make_c_x_x_compiler_id_8cpp.html#aba35d0d200deaeb06aee95ca297acb28',1,'CMakeCXXCompilerId.cpp']]]
+  ['_5fstr_0',['_STR',['../onnxtest_8cpp.html#a34fbaf7ed82e04e522ca124b6aea8db1',1,'onnxtest.cpp']]]
 ];
