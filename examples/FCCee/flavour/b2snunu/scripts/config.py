@@ -19,7 +19,7 @@ samples = set()
 
 label_map = { 'p8_ee_Zbb_ecm91': r'$Z\to b\bar{b}$',
               'p8_ee_Zcc_ecm91': r'$Z\to c\bar{c}$',
-              'p8_ee_Zuds_ecm91': r'$Z\to q\{bar}q$'
+              'p8_ee_Zuds_ecm91': r'$Z\to q\bar{q}$'
             }
 
 
@@ -385,6 +385,10 @@ mva1_min = 0.90
 mva2_min = 0.90
 mva1_max = 0.999
 mva2_max = 0.999
+
+# spline bins
+mva1_spl_bins = 10
+mva2_spl_bins = 20
 
 # B production fractions
 prod_frac = {"Bu": 0.43,

@@ -7,6 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy import interpolate
+from iminuit import cost, Minuit
 
 import config as cfg
 
@@ -14,6 +15,8 @@ def read_eff(fname):
     with open(fname) as f:
         dic = json.load(f)
     return dic['efficiency']
+
+def fit_spline(
 
 def run(args):
 
@@ -44,9 +47,8 @@ def run(args):
     df['log_EVT_MVA1'] = -np.log( 1. - df['EVT_MVA1'] )
     df['log_EVT_MVA2'] = -np.log( 1. - df['EVT_MVA2'] )
 
-    for bins, mva in zip([10,20],['EVT_MVA1', 'EVT_MVA2']):
+    for bins, mva in zip([cfg.mva1_spl_bins, cfg.mva2_spl_bins],['EVT_MVA1', 'EVT_MVA2']):
 
-        #bins = 10
         fig, ax = plt.subplots()
 
         if mva=='EVT_MVA1':
@@ -55,12 +57,6 @@ def run(args):
         else:
             xmin = -np.log( 1. - cfg.mva2_min )
             xmax = -np.log( 1. - cfg.mva2_max )
-
-        # plot comps
-        #for mode in bfs.keys():
-            #subdf = df[ df['mode']==mode ]
-            #print(subdf)
-            #ax.hist( subdf[f'log_{mva}'], bins=bins, range=(xmin,xmax), weights=subdf['xswt'] )
 
         ax.hist( [ df[ df['mode']==mode ][f'log_{mva}'] for mode in bfs.keys() ] , stacked=True, bins=bins, range=(xmin,xmax), weights=[ df[ df['mode']==mode ]['xswt'] for mode in bfs.keys() ], label=[ cfg.label_map[mode] for mode in bfs.keys() ] )
 
@@ -80,6 +76,17 @@ def run(args):
         spl_vals = interpolate.splev( xvals, spline )
 
         ax.plot( xvals, spl_vals, c='r', label='Spline Fit' )
+
+        # expon fit
+        #def nll(
+        #def model(x, N, p):
+            #return N * np.exp(-p*x)
+
+        #c = cost.LeastSquares(cx, w, err, model)
+        #mi = Minuit(c, N=sum(w), p=0.1)
+        #mi.migrad()
+        #mi.hesse()
+
 
         ax.set_xlabel(f"$-\log(1-{mva.replace('EVT_','')})$")
         ax.set_xlim(xmin, xmax)
