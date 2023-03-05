@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1665740843665,
+  "lastUpdate": 1678053337947,
   "repoUrl": "https://github.com/matthewkenzie/FCCAnalyses",
   "entries": {
     "Benchmark": [
@@ -336,6 +336,51 @@ window.BENCHMARK_DATA = {
             "name": "prod | Events processed per second: examples/FCCee/test",
             "value": 5.912849866720293,
             "unit": "Evt/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew Kenzie",
+            "username": "matthewkenzie"
+          },
+          "committer": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew Kenzie",
+            "username": "matthewkenzie"
+          },
+          "distinct": true,
+          "id": "e548d32a26e78c99daa1c3ab430f406362b2101f",
+          "message": "a few changes",
+          "timestamp": "2023-03-05T21:45:41Z",
+          "tree_id": "46377686d97c32e9ef54b56058e959e7565cc730",
+          "url": "https://github.com/matthewkenzie/FCCAnalyses/commit/e548d32a26e78c99daa1c3ab430f406362b2101f"
+        },
+        "date": 1678053337033,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "nightly | Time spent running the analysis: examples/FCCee/higgs/mH-recoil/mumu",
+            "value": 11.338659286499023,
+            "unit": "Seconds",
+            "range": 10,
+            "extra": "Analysis path: examples/FCCee/higgs/mH-recoil/mumu"
+          },
+          {
+            "name": "nightly | Time spent running the analysis: examples/FCCee/flavour/Bc2TauNu",
+            "value": 14.836479187011719,
+            "unit": "Seconds",
+            "range": 10,
+            "extra": "Analysis path: examples/FCCee/flavour/Bc2TauNu"
+          },
+          {
+            "name": "nightly | Time spent running the analysis: examples/FCCee/test",
+            "value": 11.87746810913086,
+            "unit": "Seconds",
+            "range": 10,
+            "extra": "Analysis path: examples/FCCee/test"
           }
         ]
       }
