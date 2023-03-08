@@ -86,18 +86,18 @@ rule sensitivity:
 		signal_eff = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zbb_ecm91/signal_eff.json",
 		bbbar_eff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zbb_ecm91/inclusive_eff.json",
 		ccbar_eff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zcc_ecm91/inclusive_eff.json",
-		qqbar_eff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zuds_ecm91/inclusive_eff.json"
+		qqbar_eff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zuds_ecm91/inclusive_eff.json",
+		path     = cfg.outputs+"root/mva_st2_pkl/{decay}",
+		path_eff = cfg.outputs+"root/efficiency_st2/{decay}"
 	output:
 		pkl = cfg.outputs+"root/sensitivity/{decay}/sensitivity.pkl",
-		eff = cfg.outputs+"root/sensitivity/{decay}/sensitivity.json"
+		eff = cfg.outputs+"root/sensitivity/{decay}/sensitivity.json",
+		out_path = cfg.outputs+"root/sensitivity/{decay}",
+		plt_path = cfg.outputs+"plots/sensitivity/{decay}"
 	log: cfg.logs+"sensitivity/{decay}.log"
 	run:
-		path     = cfg.outputs+"root/mva_st2_pkl/{decay}"
-		path_eff = cfg.outputs+"root/efficiency_st2/{decay}"
-		out_path = cfg.outputs+"root/sensitivity/{decay}"
-		plt_path = cfg.outputs+"plots/sensitivity/{decay}"
-		cmd = "python {cfg.analysis_scripts}sensitivity.py --channel {decay} --path {path} --path_eff {path_eff} --plot_path {plt_path} --output_path {out_path}"
-		run(cmd)
+		cmd = "python {cfg.analysis_scripts}sensitivity.py --channel {wildcards.decay} --path {input.path} --path_eff {input.path_eff} --plot_path {output.plt_path} --output_path {output.out_path}"
+		shell(cmd)
 
 rule st_two_efficiency:
 	input: lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/{{event_type}}/{{decay_model}}/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay][wildcards.event_type][wildcards.decay_model], mode="id"))
