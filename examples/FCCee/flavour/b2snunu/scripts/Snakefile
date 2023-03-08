@@ -38,38 +38,73 @@ rule st_two_collector:
 		bbbar  = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zbb_ecm91/inclusive.pkl",
 		ccbar  = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zcc_ecm91/inclusive.pkl",
 		qqbar  = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zuds_ecm91/inclusive.pkl",
-		spl1   = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA1.pkl",
-		spl2   = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA2.pkl",
 		mpl1   = cfg.outputs+"plots/mva_st2/{decay}_mva1.pdf",
 		mpl2   = cfg.outputs+"plots/mva_st2/{decay}_mva2.pdf",
 		eduff  = cfg.outputs+"plots/mva_st2/{decay}_ediff.pdf",
+		sigeff = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zbb_ecm91/signal_eff.json",
+		bbeff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zbb_ecm91/inclusive_eff.json",
+		cceff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zcc_ecm91/inclusive_eff.json",
+		qqeff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zuds_ecm91/inclusive_eff.json",
+		sensp  = cfg.outputs+"root/sensitivity/{decay}/sensitivity.pkl",
+		sensj  = cfg.outputs+"root/sensitivity/{decay}/sensitivity.json"
 		#inclusive_bbbar = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zbb_ecm91/inclusive/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zbb_ecm91"]["inclusive"], mode="id")),
 		#inclusive_ccbar = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zcc_ecm91/inclusive/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zcc_ecm91"]["inclusive"], mode="id")),
 		#inclusive_qqbar = lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/p8_ee_Zuds_ecm91/inclusive/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay]["p8_ee_Zuds_ecm91"]["inclusive"], mode="id")),
 	output: cfg.snakemake_flags+"{decay}_st2_done"
 	shell: "touch {output}"
 
-rule bkg_mva_splines:
-	input:
-		bbbar = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zbb_ecm91/inclusive.pkl",
-		ccbar = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zcc_ecm91/inclusive.pkl",
-		qqbar = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zuds_ecm91/inclusive.pkl",
-		bbbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zbb_ecm91/inclusive/eff.json",
-		ccbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zcc_ecm91/inclusive/eff.json",
-		qqbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zuds_ecm91/inclusive/eff.json",
-	output:
-		spl1 = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA1.pkl",
-		spl2 = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA2.pkl",
-		pl1  = cfg.outputs+"plots/bkg_splines/{decay}/bkg_spl_EVT_MVA1.pdf",
-		pl2  = cfg.outputs+"plots/bkg_splines/{decay}/bkg_spl_EVT_MVA2.pdf"
-	log: cfg.logs+"bkg_splines/{decay}.log"
-	run:
-		fpath = cfg.outputs+"root/mva_st2_pkl/"+wildcards.decay
-		epath = cfg.outputs+"root/pickled_st2/"+wildcards.decay
-		opath = output.spl1.replace('_EVT_MVA1','')
-		ppath = output.pl1.replace('_EVT_MVA1','')
+## don't need these anymore. now handled by sensitivity
+#rule bkg_mva_splines:
+	#input:
+		#bbbar = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zbb_ecm91/inclusive.pkl",
+		#ccbar = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zcc_ecm91/inclusive.pkl",
+		#qqbar = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zuds_ecm91/inclusive.pkl",
+		#bbbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zbb_ecm91/inclusive/eff.json",
+		#ccbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zcc_ecm91/inclusive/eff.json",
+		#qqbar_eff = cfg.outputs+"root/pickled_st2/{decay}/p8_ee_Zuds_ecm91/inclusive/eff.json",
+	#output:
+		#spl1 = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA1.pkl",
+		#spl2 = cfg.outputs+"root/bkg_splines/{decay}/bkg_spl_EVT_MVA2.pkl",
+		#pl1  = cfg.outputs+"plots/bkg_splines/{decay}/bkg_spl_EVT_MVA1.pdf",
+		#pl2  = cfg.outputs+"plots/bkg_splines/{decay}/bkg_spl_EVT_MVA2.pdf"
+	#log: cfg.logs+"bkg_splines/{decay}.log"
+	#run:
+		#fpath = cfg.outputs+"root/mva_st2_pkl/"+wildcards.decay
+		#epath = cfg.outputs+"root/pickled_st2/"+wildcards.decay
+		#opath = output.spl1.replace('_EVT_MVA1','')
+		#ppath = output.pl1.replace('_EVT_MVA1','')
 
-		cmd = f"python {cfg.analysis_scripts}bkg_mva_splines.py --path {fpath} --path_eff {epath} --output {opath} --output_plot {ppath} &> {log}"
+		#cmd = f"python {cfg.analysis_scripts}bkg_mva_splines.py --path {fpath} --path_eff {epath} --output {opath} --output_plot {ppath} &> {log}"
+		#shell(cmd)
+
+rule sensitivity:
+	input:
+		signal = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zbb_ecm91/signal.pkl",
+		bbbar  = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zbb_ecm91/inclusive.pkl",
+		ccbar  = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zcc_ecm91/inclusive.pkl",
+		qqbar  = cfg.outputs+"root/mva_st2_pkl/{decay}/p8_ee_Zuds_ecm91/inclusive.pkl",
+		signal_eff = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zbb_ecm91/signal_eff.json",
+		bbbar_eff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zbb_ecm91/inclusive_eff.json",
+		ccbar_eff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zcc_ecm91/inclusive_eff.json",
+		qqbar_eff  = cfg.outputs+"root/efficiency_st2/{decay}/p8_ee_Zuds_ecm91/inclusive_eff.json"
+	output:
+		pkl = cfg.outputs+"root/sensitivity/{decay}/sensitivity.pkl",
+		eff = cfg.outputs+"root/sensitivity/{decay}/sensitivity.json"
+	log: cfg.logs+"sensitivity/{decay}.log"
+	run:
+		path     = cfg.outputs+"root/mva_st2_pkl/{decay}"
+		path_eff = cfg.outputs+"root/efficiency_st2/{decay}"
+		out_path = cfg.outputs+"root/sensitivity/{decay}"
+		plt_path = cfg.outputs+"plots/sensitivity/{decay}"
+		cmd = "python {cfg.analysis_scripts}sensitivity.py --channel {decay} --path {path} --path_eff {path_eff} --plot_path {plt_path} --output_path {out_path}"
+		run(cmd)
+
+rule st_two_efficiency:
+	input: lambda wildcards: expand(cfg.outputs+"root/mva_st2/{{decay}}/{{event_type}}/{{decay_model}}/{tuple_id}.root", tuple_id=cfg.blacklister(eos_cache[wildcards.decay][wildcards.event_type][wildcards.decay_model]["expected_output_ids"], cfg.tuple_id_blacklist[wildcards.decay][wildcards.event_type][wildcards.decay_model], mode="id"))
+	output: cfg.outputs+"root/efficiency_st2/{decay}/{event_type}/{decay_model}_eff.json"
+	log: cfg.logs+"efficiency_st2/{decay}/{event_type}/{decay_model}.log"
+	run:
+		cmd = "python {cfg.analysis_scripts}compute_workflow_efficiencies.py --channel {wildcards.decay} --evtype {wildcards.event_type} --dec {wildcards.decay_model} --output {output}"
 		shell(cmd)
 
 rule st_two_pickle:

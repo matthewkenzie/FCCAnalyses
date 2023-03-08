@@ -19,7 +19,10 @@ samples = set()
 
 label_map = { 'p8_ee_Zbb_ecm91': r'$Z\to b\bar{b}$',
               'p8_ee_Zcc_ecm91': r'$Z\to c\bar{c}$',
-              'p8_ee_Zuds_ecm91': r'$Z\to q\bar{q}$'
+              'p8_ee_Zuds_ecm91': r'$Z\to q\bar{q}$',
+              'Bd2KstNuNu': r'$B^0 \to K^{*0} \nu \bar{\nu}$',
+              'Bs2PhiNuNu': r'$B_s^0 \to \phi \nu \bar{\nu}$',
+              'Bu2KNuNu'  : r'B^+ \to K^+ \nu \bar{nu}$'
             }
 
 
@@ -116,6 +119,45 @@ training_proportions = {
         },
         "p8_ee_Zuds_ecm91": {
             "inclusive": 1000/10000,
+        },
+    },
+}
+
+number_of_files = {
+    "Bd2KstNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 1000,
+            "inclusive": 10000,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 10000,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 10000,
+        },
+    },
+    "Bs2PhiNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 1000,
+            "inclusive": 10000,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 10000,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 10000,
+        },
+    },
+    "Bu2KNuNu": {
+        "p8_ee_Zbb_ecm91": {
+            "signal": 1000,
+            "inclusive": 10000,
+        },
+        "p8_ee_Zcc_ecm91": {
+            "inclusive": 10000,
+        },
+        "p8_ee_Zuds_ecm91": {
+            "inclusive": 10000,
         },
     },
 }
@@ -362,7 +404,8 @@ train_vars_stage2 = ["EVT_CandMass",
 
 fit_cut_vars = [ "EVT_MVA1",
                  "EVT_MVA2",
-                 "EVT_ThrustDiff_E"
+                 "EVT_ThrustDiff_E",
+                 "EVT_CandMass"
                ]
 
 train_var_lists = { "train_vars" : train_vars,
@@ -381,6 +424,7 @@ mode_names = {"Bd2KstNuNu": "p8_ee_Zbb_ecm91_EvtGen_Bd2KstNuNu",
 
 #Hemisphere energy difference cut, applied offline prior to MVA2 optimisation
 energy_difference_cut = ">5"
+ediff_min = 5
 mva1_min = 0.90
 mva2_min = 0.90
 mva1_max = 0.999
@@ -400,7 +444,37 @@ prod_frac = {"Bu": 0.43,
 
 prod_frac["Bd2KstNuNu"] = prod_frac["Bd"]
 prod_frac["Bs2PhiNuNu"] = prod_frac["Bs"]
+prod_frac["Bu2KNuNu"]   = prod_frac["Bu"]
 
-signal_bfs = {"Bd2KstNuNu": 1e-5,
-              "Bs2PhiNuNu": 0.5e-5 # to include phi->KK
+kst_kpi_bf = 0.9975
+phi_kk_bf  = 0.491
+
+dec_frac = {}
+dec_frac["Bd2KstNuNu"] = kst_kpi_bf
+dec_frac["Bs2PhiNuNu"] = phi_kk_bf
+dec_frac["Bu2KNuNu"]   = 1
+
+# for sensitivity estimate
+sens_scan_grid_points = 25
+sens_scan_bf_points = 25
+sens_scan_bf_range = { "Bd2KstNuNu": [-6,-2], # in powers of base 10 i.e. 1e-6 - 1e-2
+                       "Bs2PhiNuNu": [-6,-2]
+                     }
+
+# from Table 1 in CEPC paper
+signal_bfs = {"Bd2KstNuNu": 9.19e-6,
+              "Bs2PhiNuNu": 9.93e-6,
+              "Bu2KNuNu"  : 3.98e-6
              }
+
+# from Table 1 in CEPC paper
+sm_preds   = {"Bd2KstNuNu": (9.19e-6,0.99e-6),
+              "Bs2PhiNuNu": (9.93e-6,0.72e-6),
+              "Bu2KNuNu"  : (3.98e-6,0.47e-6),
+             }
+
+# from Table 1 in CEPC paper
+best_limits = {"Bd2KstNuNu": 1.8e-5,
+               "Bs2PhiNuNu": 5.4e-3,
+               "Bu2KNuNu"  : 1.6e-5
+              }

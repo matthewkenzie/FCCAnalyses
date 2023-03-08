@@ -16,8 +16,6 @@ def read_eff(fname):
         dic = json.load(f)
     return dic['efficiency']
 
-def fit_spline(
-
 def run(args):
 
     bfs = cfg.branching_fractions
