@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1678316986792,
+  "lastUpdate": 1678316988591,
   "repoUrl": "https://github.com/matthewkenzie/FCCAnalyses",
   "entries": {
     "Benchmark": [
@@ -549,6 +549,45 @@ window.BENCHMARK_DATA = {
             "unit": "Seconds",
             "range": 10,
             "extra": "Analysis path: examples/FCCee/test"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew Kenzie",
+            "username": "matthewkenzie"
+          },
+          "committer": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew Kenzie",
+            "username": "matthewkenzie"
+          },
+          "distinct": true,
+          "id": "81dd8a5c9b987aecc6bd4fc161bb9d4fec961d21",
+          "message": "can  now run the full chain to the sensitivity",
+          "timestamp": "2023-03-08T23:00:35Z",
+          "tree_id": "4e14664c85d9eea03964c2645d1aaed1111fdf9a",
+          "url": "https://github.com/matthewkenzie/FCCAnalyses/commit/81dd8a5c9b987aecc6bd4fc161bb9d4fec961d21"
+        },
+        "date": 1678316987877,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "prod | Events processed per second: examples/FCCee/higgs/mH-recoil/mumu",
+            "value": 8.224341580739573,
+            "unit": "Evt/s"
+          },
+          {
+            "name": "prod | Events processed per second: examples/FCCee/flavour/Bc2TauNu",
+            "value": 6.032881452345604,
+            "unit": "Evt/s"
+          },
+          {
+            "name": "prod | Events processed per second: examples/FCCee/test",
+            "value": 8.153490998315807,
+            "unit": "Evt/s"
           }
         ]
       }
