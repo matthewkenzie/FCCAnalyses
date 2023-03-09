@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1678385591707,
+  "lastUpdate": 1678385692700,
   "repoUrl": "https://github.com/matthewkenzie/FCCAnalyses",
   "entries": {
     "Benchmark": [
@@ -924,6 +924,51 @@ window.BENCHMARK_DATA = {
             "name": "nightly | Events processed per second: examples/FCCee/test",
             "value": 7.941883712361959,
             "unit": "Evt/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew Kenzie",
+            "username": "matthewkenzie"
+          },
+          "committer": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew Kenzie",
+            "username": "matthewkenzie"
+          },
+          "distinct": true,
+          "id": "4aaa1d8ea6c7565d6a1d54dc84234c4266e36be4",
+          "message": "updates for the sensitivity which now runs much quicker",
+          "timestamp": "2023-03-09T18:01:48Z",
+          "tree_id": "a5935aa3e29b3f669e081abe8167f990af4aa3a5",
+          "url": "https://github.com/matthewkenzie/FCCAnalyses/commit/4aaa1d8ea6c7565d6a1d54dc84234c4266e36be4"
+        },
+        "date": 1678385690447,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "prod | Time spent running the analysis: examples/FCCee/higgs/mH-recoil/mumu",
+            "value": 16.085240602493286,
+            "unit": "Seconds",
+            "range": 10,
+            "extra": "Analysis path: examples/FCCee/higgs/mH-recoil/mumu"
+          },
+          {
+            "name": "prod | Time spent running the analysis: examples/FCCee/flavour/Bc2TauNu",
+            "value": 21.104072093963623,
+            "unit": "Seconds",
+            "range": 10,
+            "extra": "Analysis path: examples/FCCee/flavour/Bc2TauNu"
+          },
+          {
+            "name": "prod | Time spent running the analysis: examples/FCCee/test",
+            "value": 15.303427934646606,
+            "unit": "Seconds",
+            "range": 10,
+            "extra": "Analysis path: examples/FCCee/test"
           }
         ]
       }
