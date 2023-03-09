@@ -455,6 +455,7 @@ dec_frac["Bs2PhiNuNu"] = phi_kk_bf
 dec_frac["Bu2KNuNu"]   = 1
 
 # for sensitivity estimate
+nZ = 3e12
 sens_scan_grid_points = 25
 sens_scan_bf_points = 25
 sens_scan_bf_range = { "Bd2KstNuNu": [-6,-2], # in powers of base 10 i.e. 1e-6 - 1e-2

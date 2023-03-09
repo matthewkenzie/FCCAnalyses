@@ -92,8 +92,8 @@ rule sensitivity:
 	output:
 		pkl = cfg.outputs+"root/sensitivity/{decay}/sensitivity.pkl",
 		eff = cfg.outputs+"root/sensitivity/{decay}/sensitivity.json",
-		out_path = cfg.outputs+"root/sensitivity/{decay}",
-		plt_path = cfg.outputs+"plots/sensitivity/{decay}"
+		out_path = directory(cfg.outputs+"root/sensitivity/{decay}"),
+		plt_path = directory(cfg.outputs+"plots/sensitivity/{decay}")
 	log: cfg.logs+"sensitivity/{decay}.log"
 	run:
 		cmd = "python {cfg.analysis_scripts}sensitivity.py --channel {wildcards.decay} --path {input.path} --path_eff {input.path_eff} --plot_path {output.plt_path} --output_path {output.out_path}"

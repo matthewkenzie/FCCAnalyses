@@ -28,119 +28,118 @@ def getN( df, bfeff, nZ, ediff, mva1, mva2 ):
     n = nZ * bfeff * get_cut_eff( df, ediff, mva1, mva2 )
     return n
 
-def sens_at_given_bf(args, sigbf=1e-5, nZ=3e12, point=None):
-
-    plotdir = args.plot_path
-    outdir  = args.output_path
-    if point is not None:
-        plotdir += f"/p{point}"
-        outdir += f"/p{point}"
-        os.system(f"mkdir -p {plotdir}")
-        os.system(f"mkdir -p {outdir}")
-
-    # backgrounds
-    bfs = cfg.branching_fractions
-    effs = { mode : read_eff(f"{args.path_eff}/{mode}/inclusive_eff.json") for mode in bfs.keys() }
-    dfs  = { mode : pd.read_pickle(f"{args.path}/{mode}/inclusive.pkl") for mode in bfs.keys() }
-
-    # signal
-    sigeff = read_eff(f"{args.path_eff}/p8_ee_Zbb_ecm91/signal_eff.json")
-    sigdf  = pd.read_pickle(f"{args.path}/p8_ee_Zbb_ecm91/signal.pkl")
-
-    # collated
-    bfeff = {}
-    for mode in bfs.keys():
-        bfeff[mode] = bfs[mode] * effs[mode]
-    bfeff[args.channel] = cfg.branching_fractions["p8_ee_Zbb_ecm91"] * cfg.prod_frac[args.channel] * cfg.dec_frac[args.channel] * sigbf * sigeff
-    dfs[args.channel] = sigdf
-
-    # EVT_MVA1 vs EVT_MVA2
+def get_eff_map(df, mode, args):
     xmin, xmax = cfg.mva1_min, 1
     ymin, ymax = cfg.mva2_min, 1
-
-    # do the evaluation in a sparse grid
-    grid_df = pd.DataFrame()
-    desc = f'Scanning efficiency {cfg.sens_scan_grid_points}x{cfg.sens_scan_grid_points} grid'
     xspace = np.linspace(xmin, xmax, cfg.sens_scan_grid_points)
     yspace = np.linspace(ymin, ymax, cfg.sens_scan_grid_points)
     X, Y = np.meshgrid(xspace, yspace)
     xflat, yflat = X.flatten(), Y.flatten()
-    grid_df['MVA1'] = xflat
-    grid_df['MVA2'] = yflat
-    predN = {}
-    for mode in bfeff.keys():
-        zflat = np.array( [ getN( dfs[mode], bfeff[mode], nZ, ediff=cfg.ediff_min, mva1=x, mva2=y ) for x, y in tqdm(zip(xflat,yflat), total=len(xflat), ascii=True, desc=f"{mode:15s} - {desc}", position=1, leave=False) ] )
-        grid_df[f'N_{mode}'] = zflat
-        # now create a bivariate spline to interpolate the grid
-        predN[mode] = interpolate.RectBivariateSpline(xspace, yspace, zflat.reshape(X.shape))
-        with open(f"{outdir}/N_{mode}_spline.pkl","wb") as f:
-            pickle.dump(predN[mode],f)
+    desc = f'{mode:15s} - Scanning efficiency {cfg.sens_scan_grid_points}x{cfg.sens_scan_grid_points} grid'
+    zflat = np.array( [ get_cut_eff( df, ediff=cfg.ediff_min, mva1=x, mva2=y ) for x,y in tqdm(zip(xflat,yflat), total=len(xflat), ascii=True, desc=desc) ] )
+    spline = interpolate.RectBivariateSpline(xspace, yspace, zflat.reshape(X.shape))
 
-        fig, ax = plt.subplots()
-        cb = ax.imshow(zflat.reshape(X.shape), extent=[xmin,xmax,ymin,ymax], origin='lower', aspect='auto', interpolation='bicubic')
-        fig.colorbar(cb)
-        ax.set_xlabel('EVT MVA1')
-        ax.set_ylabel('EVT MVA2')
-        fig.suptitle( f"{cfg.label_map[args.channel]} - {cfg.label_map[mode]}" )
-        fig.savefig(f"{plotdir}/predN_{mode}.pdf")
-        plt.close()
+    # save grid
+    grid_df = pd.DataFrame( {"x": xflat, "y": yflat, "z": zflat} )
+    grid_df.to_pickle(f"{args.output_path}/{mode}_grid_scan.pkl")
 
-    # save the grid
-    grid_df.to_pickle(f"{outdir}/grid_scan.pkl")
+    # save spline
+    with open(f"{args.output_path}/{mode}_spline.pkl","wb") as f:
+        pickle.dump(spline,f)
 
-    # now make the FOM in a tighter grid based on the interpolation
-    xspace = np.linspace(xmin,xmax, 100)
-    yspace = np.linspace(ymin,ymax, 100)
-    totB = predN['p8_ee_Zbb_ecm91'](xspace,yspace) + predN['p8_ee_Zcc_ecm91'](xspace,yspace) + predN['p8_ee_Zuds_ecm91'](xspace,yspace)
-    totS = predN[args.channel](xspace,yspace)
-    with np.errstate(divide='ignore', invalid='ignore'):
-        FOM  = np.nan_to_num( totS / np.sqrt(totS + totB) )
-
-    # now make interpolation for the FOM itself
-    fFOM = interpolate.RectBivariateSpline(xspace,yspace,FOM)
-    with open(f"{outdir}/FOM_spline.pkl","wb") as f:
-        pickle.dump(fFOM, f)
-
-    # and find the maximum
-    optf = lambda pos: -fFOM.ev(pos[0],pos[1])
-    res = optimize.basinhopping( optf, [0.98,0.98] )
-
-    max_fom = fFOM.ev(res.x[0],res.x[1])
-    #print('Optimum FOM at', res.x, max_fom )
-
+    # make plot
     fig, ax = plt.subplots()
-    im = ax.imshow( FOM, extent=[xmin,xmax,ymin,ymax], origin='lower', aspect='auto', interpolation='bicubic')
-    ax.plot( res.x[0], res.x[1], 'rX' )
-    cb = fig.colorbar(im)
-    cb.set_label( r"$S/\sqrt{S+B}$")
+    cb = ax.imshow(zflat.reshape(X.shape), extent=[xmin,xmax,ymin,ymax], origin='lower', aspect='auto', interpolation='bicubic')
+    fig.colorbar(cb)
     ax.set_xlabel('EVT MVA1')
     ax.set_ylabel('EVT MVA2')
-    fig.suptitle( f"{cfg.label_map[args.channel]}" + r" - $S/\sqrt{S+B}$" )
-    fig.savefig(f"{plotdir}/fom.pdf")
+    fig.suptitle( f"{cfg.label_map[args.channel]} - {cfg.label_map[mode]}" )
+    fig.savefig(f"{args.plot_path}/eff_map_{mode}.pdf")
     plt.close()
 
-    return res.x[0], res.x[1], max_fom
+    return xflat, yflat, zflat, spline
 
 def run(args):
 
+    # create the efficiency map splines
+    bkg_modes = cfg.branching_fractions.keys()
+
+    # backgrounds
+    dfs = { mode: pd.read_pickle(f"{args.path}/{mode}/inclusive.pkl") for mode in bkg_modes }
+    # signal (give the key the channel name so the label looks nice on plots)
+    dfs[args.channel] = pd.read_pickle(f"{args.path}/p8_ee_Zbb_ecm91/signal.pkl")
+
+    eff_maps = {}
+    for mode, df in dfs.items():
+        x, y, z, spl = get_eff_map( df, mode, args )
+        eff_maps[mode] = spl
+
+    # now contruct FOM map in a tighter grid based on the interpolations
+    xmin, xmax = cfg.mva1_min, 1
+    ymin, ymax = cfg.mva2_min, 1
+    xspace = np.linspace(xmin,xmax, 100)
+    yspace = np.linspace(ymin,ymax, 100)
+
+    # now construct the nBkg map
+    bfs = cfg.branching_fractions
+    effs = { mode : read_eff(f"{args.path_eff}/{mode}/inclusive_eff.json") for mode in bfs.keys() }
+    predNB = { mode: cfg.nZ * bfs[mode] * effs[mode] * eff_maps[mode](xspace, yspace) for mode in bfs.keys() }
+
+    # now contruct the nSig map (not including the BF hypoth that comes in a moment)
+    sigeff = read_eff(f"{args.path_eff}/p8_ee_Zbb_ecm91/signal_eff.json")
+    predNSnoBF = cfg.nZ * cfg.prod_frac[args.channel] * cfg.dec_frac[args.channel] * sigeff * eff_maps[args.channel](xspace, yspace)
+
+    # now construct FOM for different BF hypotheses
     bfs = np.logspace(*cfg.sens_scan_bf_range[args.channel],cfg.sens_scan_bf_points)
     foms = []
-    for i, bf in tqdm(enumerate(bfs), desc='Scanning BF values', position=0, total=cfg.sens_scan_bf_points, ascii=True):
-        x, y, fom = sens_at_given_bf(args, sigbf=bf, point=i+1)
-        foms.append(fom)
+    for i, bf in tqdm(enumerate(bfs), desc='Scanning BF values', total=cfg.sens_scan_bf_points, ascii=True):
+        totB = predNB['p8_ee_Zbb_ecm91'] + predNB['p8_ee_Zcc_ecm91'] + predNB['p8_ee_Zuds_ecm91']
+        totS = bf * predNSnoBF
+
+        # ignore zero div errors and convert NaN to zero
+        with np.errstate(divide='ignore', invalid='ignore'):
+            FOM  = np.nan_to_num( totS / np.sqrt(totS + totB) )
+
+        # now make interpolation for the FOM itself
+        fFOM = interpolate.RectBivariateSpline(xspace,yspace,FOM)
+        with open(f"{args.output_path}/FOM_spline_p{i+1}.pkl","wb") as f:
+            pickle.dump(fFOM, f)
+
+        # and find the maximum
+        optf = lambda pos: -fFOM.ev(pos[0],pos[1])
+        #res = optimize.basinhopping( optf, [0.98,0.98] )
+        res = optimize.minimize( optf, x0=[0.98,0.98], bounds=[(0.9,1),(0.9,1)] )
+        max_fom = fFOM.ev(res.x[0],res.x[1])
+
+        # plot the FOM
+        fig, ax = plt.subplots()
+        im = ax.imshow( FOM, extent=[xmin,xmax,ymin,ymax], origin='lower', aspect='auto', interpolation='bicubic')
+        ax.plot( res.x[0], res.x[1], 'rX' )
+        cb = fig.colorbar(im)
+        cb.set_label( r"$S/\sqrt{S+B}$")
+        ax.set_xlabel('EVT MVA1')
+        ax.set_ylabel('EVT MVA2')
+        fig.suptitle( f"{cfg.label_map[args.channel]}" + r" - $S/\sqrt{S+B}$" )
+        fig.savefig(f"{args.plot_path}/fom_p{i+1}.pdf")
+        plt.close()
+
+        foms.append( max_fom )
+
+    # now plot and interpolate the scan result
     foms = np.array(foms)
-    df = pd.DataFrame( { 'bfs': bfs, 'foms': foms, 'excl': 1/foms } )
+    df = pd.DataFrame( { 'bfs': bfs, 'foms': foms, 'sens': 1/foms } )
     df.to_pickle( f"{args.output_path}/sensitivity.pkl" )
 
+    # interpolate in the exponent space
     xexp = np.linspace(*cfg.sens_scan_bf_range[args.channel],cfg.sens_scan_bf_points)
     _f = interpolate.interp1d(xexp,1/foms,kind='cubic')
-
     sens = _f( np.log10( cfg.sm_preds[args.channel][0] ) )
     print('Estimate of sensitivty at SM', sens )
     with open(f"{args.output_path}/sensitivity.json","w") as f:
         dic = { "sensitivity" : float(sens) }
         json.dump(dic,f)
 
+    # plot the result
     xinter = np.linspace(*cfg.sens_scan_bf_range[args.channel],100)
     y = _f( xinter )
     x = np.logspace(*cfg.sens_scan_bf_range[args.channel],100)
@@ -154,6 +153,134 @@ def run(args):
     ax.set_xscale('log')
     fig.tight_layout()
     fig.savefig(f"{args.plot_path}/sensitivity.pdf")
+
+
+#def sens_at_given_bf(args, sigbf=1e-5, nZ=3e12, point=None):
+
+    #plotdir = args.plot_path
+    #outdir  = args.output_path
+    #if point is not None:
+        #plotdir += f"/p{point}"
+        #outdir += f"/p{point}"
+        #os.system(f"mkdir -p {plotdir}")
+        #os.system(f"mkdir -p {outdir}")
+
+    ## backgrounds
+    #bfs = cfg.branching_fractions
+    #effs = { mode : read_eff(f"{args.path_eff}/{mode}/inclusive_eff.json") for mode in bfs.keys() }
+    #dfs  = { mode : pd.read_pickle(f"{args.path}/{mode}/inclusive.pkl") for mode in bfs.keys() }
+
+    ## signal
+    #sigeff = read_eff(f"{args.path_eff}/p8_ee_Zbb_ecm91/signal_eff.json")
+    #sigdf  = pd.read_pickle(f"{args.path}/p8_ee_Zbb_ecm91/signal.pkl")
+
+    ## collated
+    #bfeff = {}
+    #for mode in bfs.keys():
+        #bfeff[mode] = bfs[mode] * effs[mode]
+    #bfeff[args.channel] = cfg.branching_fractions["p8_ee_Zbb_ecm91"] * cfg.prod_frac[args.channel] * cfg.dec_frac[args.channel] * sigbf * sigeff
+    #dfs[args.channel] = sigdf
+
+    ## EVT_MVA1 vs EVT_MVA2
+    #xmin, xmax = cfg.mva1_min, 1
+    #ymin, ymax = cfg.mva2_min, 1
+
+    ## do the evaluation in a sparse grid
+    #grid_df = pd.DataFrame()
+    #desc = f'Scanning efficiency {cfg.sens_scan_grid_points}x{cfg.sens_scan_grid_points} grid'
+    #xspace = np.linspace(xmin, xmax, cfg.sens_scan_grid_points)
+    #yspace = np.linspace(ymin, ymax, cfg.sens_scan_grid_points)
+    #X, Y = np.meshgrid(xspace, yspace)
+    #xflat, yflat = X.flatten(), Y.flatten()
+    #grid_df['MVA1'] = xflat
+    #grid_df['MVA2'] = yflat
+    #predN = {}
+    #for mode in bfeff.keys():
+        #zflat = np.array( [ getN( dfs[mode], bfeff[mode], nZ, ediff=cfg.ediff_min, mva1=x, mva2=y ) for x, y in tqdm(zip(xflat,yflat), total=len(xflat), ascii=True, desc=f"{mode:15s} - {desc}", position=1, leave=False) ] )
+        #grid_df[f'N_{mode}'] = zflat
+        ## now create a bivariate spline to interpolate the grid
+        #predN[mode] = interpolate.RectBivariateSpline(xspace, yspace, zflat.reshape(X.shape))
+        #with open(f"{outdir}/N_{mode}_spline.pkl","wb") as f:
+            #pickle.dump(predN[mode],f)
+
+        #fig, ax = plt.subplots()
+        #cb = ax.imshow(zflat.reshape(X.shape), extent=[xmin,xmax,ymin,ymax], origin='lower', aspect='auto', interpolation='bicubic')
+        #fig.colorbar(cb)
+        #ax.set_xlabel('EVT MVA1')
+        #ax.set_ylabel('EVT MVA2')
+        #fig.suptitle( f"{cfg.label_map[args.channel]} - {cfg.label_map[mode]}" )
+        #fig.savefig(f"{plotdir}/predN_{mode}.pdf")
+        #plt.close()
+
+    ## save the grid
+    #grid_df.to_pickle(f"{outdir}/grid_scan.pkl")
+
+    ## now make the FOM in a tighter grid based on the interpolation
+    #xspace = np.linspace(xmin,xmax, 100)
+    #yspace = np.linspace(ymin,ymax, 100)
+    #totB = predN['p8_ee_Zbb_ecm91'](xspace,yspace) + predN['p8_ee_Zcc_ecm91'](xspace,yspace) + predN['p8_ee_Zuds_ecm91'](xspace,yspace)
+    #totS = predN[args.channel](xspace,yspace)
+    #with np.errstate(divide='ignore', invalid='ignore'):
+        #FOM  = np.nan_to_num( totS / np.sqrt(totS + totB) )
+
+    ## now make interpolation for the FOM itself
+    #fFOM = interpolate.RectBivariateSpline(xspace,yspace,FOM)
+    #with open(f"{outdir}/FOM_spline.pkl","wb") as f:
+        #pickle.dump(fFOM, f)
+
+    ## and find the maximum
+    #optf = lambda pos: -fFOM.ev(pos[0],pos[1])
+    #res = optimize.basinhopping( optf, [0.98,0.98] )
+
+    #max_fom = fFOM.ev(res.x[0],res.x[1])
+    ##print('Optimum FOM at', res.x, max_fom )
+
+    #fig, ax = plt.subplots()
+    #im = ax.imshow( FOM, extent=[xmin,xmax,ymin,ymax], origin='lower', aspect='auto', interpolation='bicubic')
+    #ax.plot( res.x[0], res.x[1], 'rX' )
+    #cb = fig.colorbar(im)
+    #cb.set_label( r"$S/\sqrt{S+B}$")
+    #ax.set_xlabel('EVT MVA1')
+    #ax.set_ylabel('EVT MVA2')
+    #fig.suptitle( f"{cfg.label_map[args.channel]}" + r" - $S/\sqrt{S+B}$" )
+    #fig.savefig(f"{plotdir}/fom.pdf")
+    #plt.close()
+
+    #return res.x[0], res.x[1], max_fom
+
+#def run(args):
+
+    #bfs = np.logspace(*cfg.sens_scan_bf_range[args.channel],cfg.sens_scan_bf_points)
+    #foms = []
+    #for i, bf in tqdm(enumerate(bfs), desc='Scanning BF values', position=0, total=cfg.sens_scan_bf_points, ascii=True):
+        #x, y, fom = sens_at_given_bf(args, sigbf=bf, point=i+1)
+        #foms.append(fom)
+    #foms = np.array(foms)
+    #df = pd.DataFrame( { 'bfs': bfs, 'foms': foms, 'excl': 1/foms } )
+    #df.to_pickle( f"{args.output_path}/sensitivity.pkl" )
+
+    #xexp = np.linspace(*cfg.sens_scan_bf_range[args.channel],cfg.sens_scan_bf_points)
+    #_f = interpolate.interp1d(xexp,1/foms,kind='cubic')
+
+    #sens = _f( np.log10( cfg.sm_preds[args.channel][0] ) )
+    #print('Estimate of sensitivty at SM', sens )
+    #with open(f"{args.output_path}/sensitivity.json","w") as f:
+        #dic = { "sensitivity" : float(sens) }
+        #json.dump(dic,f)
+
+    #xinter = np.linspace(*cfg.sens_scan_bf_range[args.channel],100)
+    #y = _f( xinter )
+    #x = np.logspace(*cfg.sens_scan_bf_range[args.channel],100)
+    #fig, ax = plt.subplots()
+    #ax.plot(x, 100*y, 'b-', label='Sensitivity (FCCee)')
+    #ax.axvline( cfg.best_limits[args.channel], color='g', ls=':', label='Current Limit' )
+    #ax.axvspan( cfg.sm_preds[args.channel][0]-cfg.sm_preds[args.channel][1], cfg.sm_preds[args.channel][0]+cfg.sm_preds[args.channel][1], ec='none', fc='r', alpha=0.5, label='SM Prediction')
+    #ax.set_xlabel( f"BF({cfg.label_map[args.channel]})" )
+    #ax.set_ylabel( r"$\sqrt{S+B}/S$ (%)" )
+    #ax.legend()
+    #ax.set_xscale('log')
+    #fig.tight_layout()
+    #fig.savefig(f"{args.plot_path}/sensitivity.pdf")
 
 def main():
     default_base_path = "/storage/epp2/phutmn/FCC/FCCAnalyses/examples/FCCee/flavour/b2snunu/output/root"
