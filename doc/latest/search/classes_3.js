@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['externalrecombiner_0',['ExternalRecombiner',['../class_external_recombiner.html',1,'']]]
+  ['exclusivejetclusteringhelper_0',['ExclusiveJetClusteringHelper',['../classjetClusteringHelper_1_1ExclusiveJetClusteringHelper.html',1,'jetClusteringHelper']]],
+  ['externalrecombiner_1',['ExternalRecombiner',['../classExternalRecombiner.html',1,'']]]
 ];
