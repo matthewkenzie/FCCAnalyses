@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1718282241293,
+  "lastUpdate": 1718282243303,
   "repoUrl": "https://github.com/matthewkenzie/FCCAnalyses",
   "entries": {
     "Benchmark": [
@@ -1290,6 +1290,60 @@ window.BENCHMARK_DATA = {
             "unit": "Seconds",
             "range": 10,
             "extra": "Analysis path: examples/FCCee/vertex_lcfiplus/analysis_V0.py"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew",
+            "username": "matthewkenzie"
+          },
+          "committer": {
+            "email": "matthew.william.kenzie@cern.ch",
+            "name": "Matthew",
+            "username": "matthewkenzie"
+          },
+          "distinct": true,
+          "id": "e62c51a047f545f4f6662a8ab455b2e7f4667829",
+          "message": "First commit of B2Inv stage1 script\n\nThis is based off the old style b2snunu stage1 script.\nThe latest code uses slightly different more uniform style which we\nshould move to.",
+          "timestamp": "2024-06-13T14:20:21+02:00",
+          "tree_id": "8a4dee9f8b03c6c246b3f3492cd99fed2a69904b",
+          "url": "https://github.com/matthewkenzie/FCCAnalyses/commit/e62c51a047f545f4f6662a8ab455b2e7f4667829"
+        },
+        "date": 1718282242537,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "prod | Events processed per second: examples/FCCee/weaver/analysis_inference.py",
+            "value": 2.5017791376751375,
+            "unit": "Evt/s"
+          },
+          {
+            "name": "prod | Events processed per second: case-studies/analysis_example/scripts/analysis_example.py",
+            "value": 7.13383795540722,
+            "unit": "Evt/s"
+          },
+          {
+            "name": "prod | Events processed per second: examples/FCCee/higgs/mH-recoil/mumu/analysis_stage1.py",
+            "value": 6.655191075822996,
+            "unit": "Evt/s"
+          },
+          {
+            "name": "prod | Events processed per second: examples/FCCee/flavour/Bc2TauNu/analysis_B2TauNu_truth.py",
+            "value": 5.5066033489065,
+            "unit": "Evt/s"
+          },
+          {
+            "name": "prod | Events processed per second: examples/FCCee/test/jet_constituents.py",
+            "value": 5.539536294381691,
+            "unit": "Evt/s"
+          },
+          {
+            "name": "prod | Events processed per second: examples/FCCee/vertex_lcfiplus/analysis_V0.py",
+            "value": 2.4254425634780614,
+            "unit": "Evt/s"
           }
         ]
       }
