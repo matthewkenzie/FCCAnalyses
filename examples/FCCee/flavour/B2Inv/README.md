@@ -1,5 +1,10 @@
 Some notes from Matt
 
+### Variable Plotting
+
+ - `variable_plotter.py` is a simple plotting script that reads from `config.py`
+ - example usage `python -i variable_plotter.py` then can interactively make some plots
+
 ### Stage 0 Script
 
  - `stage0.py` is a script that produces some initial files for investigation and BDT training
