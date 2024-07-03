@@ -11,7 +11,7 @@ processList = {
 prodTag     = "FCCee/winter2023/IDEA/"
 
 #Optional: output directory, default is local running directory
-outputDir   = "/r01/lhcb/mkenzie/fcc/B2Inv/stage0"
+outputDir   = "/r01/lhcb/mkenzie/fcc/B2Inv/stage0_v2"
 
 #Optional: analysisName, default is ""
 analysisName = "B2Inv"
@@ -117,19 +117,19 @@ class RDFanalysis():
             .Define("MC_ep_orivtx_x", "(MCParticle::get_vertex_x(MC_ee)).at(1)")
             .Define("MC_ep_orivtx_y", "(MCParticle::get_vertex_y(MC_ee)).at(1)")
             .Define("MC_ep_orivtx_z", "(MCParticle::get_vertex_z(MC_ee)).at(1)")
-            .Define("MC_Z_p",         "MCParticle::get_p(MC_Z)")
-            .Define("MC_Z_pt",        "MCParticle::get_pt(MC_Z)")
-            .Define("MC_Z_px",        "MCParticle::get_px(MC_Z)")
-            .Define("MC_Z_py",        "MCParticle::get_py(MC_Z)")
-            .Define("MC_Z_pz",        "MCParticle::get_pz(MC_Z)")
-            .Define("MC_Z_e",         "MCParticle::get_e(MC_Z)")
-            .Define("MC_Z_m",         "MCParticle::get_mass(MC_Z)")
-            .Define("MC_Z_q",         "MCParticle::get_charge(MC_Z)")
-            .Define("MC_Z_eta",       "MCParticle::get_eta(MC_Z)")
-            .Define("MC_Z_phi",       "MCParticle::get_phi(MC_Z)")
-            .Define("MC_Z_orivtx_x",  "MCParticle::get_vertex_x(MC_Z)")
-            .Define("MC_Z_orivtx_y",  "MCParticle::get_vertex_y(MC_Z)")
-            .Define("MC_Z_orivtx_z",  "MCParticle::get_vertex_z(MC_Z)")
+            .Define("MC_Z_p",         "(MCParticle::get_p(MC_Z)).at(0)")
+            .Define("MC_Z_pt",        "(MCParticle::get_pt(MC_Z)).at(0)")
+            .Define("MC_Z_px",        "(MCParticle::get_px(MC_Z)).at(0)")
+            .Define("MC_Z_py",        "(MCParticle::get_py(MC_Z)).at(0)")
+            .Define("MC_Z_pz",        "(MCParticle::get_pz(MC_Z)).at(0)")
+            .Define("MC_Z_e",         "(MCParticle::get_e(MC_Z)).at(0)")
+            .Define("MC_Z_m",         "(MCParticle::get_mass(MC_Z)).at(0)")
+            .Define("MC_Z_q",         "(MCParticle::get_charge(MC_Z)).at(0)")
+            .Define("MC_Z_eta",       "(MCParticle::get_eta(MC_Z)).at(0)")
+            .Define("MC_Z_phi",       "(MCParticle::get_phi(MC_Z)).at(0)")
+            .Define("MC_Z_orivtx_x",  "(MCParticle::get_vertex_x(MC_Z)).at(0)")
+            .Define("MC_Z_orivtx_y",  "(MCParticle::get_vertex_y(MC_Z)).at(0)")
+            .Define("MC_Z_orivtx_z",  "(MCParticle::get_vertex_z(MC_Z)).at(0)")
             .Define("MC_q1_PDG",      "(MCParticle::get_pdg(MC_qq)).at(0)")
             .Define("MC_q1_p",        "(MCParticle::get_p(MC_qq)).at(0)")
             .Define("MC_q1_pt",       "(MCParticle::get_pt(MC_qq)).at(0)")
