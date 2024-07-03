@@ -95,7 +95,7 @@ def get_weights():
     
     return hist_weights
 
-def plot(varname, stack=True, weight=True, density=True, remove_outliers=True, interactive=False, save=None, bins=50, range=None, total=["background"], components=["signal", "background"]):
+def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, interactive=False, save=None, bins=50, range=None, total=["background"], components=["signal", "background"]):
     
     """ 
     plot( varname, **opts ) will plot a variable
@@ -105,7 +105,7 @@ def plot(varname, stack=True, weight=True, density=True, remove_outliers=True, i
     varname : str
         The variable to plot (must be branchname in tree). 
         If not available those that are will be listed.
-    stack : bool, optional
+    stacked : bool, optional
         Stack histograms by their "allocation". Default: true
     weight : bool, optional
         Weight histograms by their expected branching fraction 
@@ -148,7 +148,7 @@ def plot(varname, stack=True, weight=True, density=True, remove_outliers=True, i
         if not weight:
             hist_w = None
 
-        if stack:
+        if stacked:
             hist_opts = dict( stacked=True, histtype='stepfilled', alpha=1 )
         else:
             hist_opts = dict( stacked=False, histtype='step', lw=2 )
@@ -172,7 +172,7 @@ def plot(varname, stack=True, weight=True, density=True, remove_outliers=True, i
             **hist_opts
         )
 
-        if allocation in total and stack:
+        if allocation in total and stacked:
             ax.hist( 
                 np.concatenate( hist_x), 
                 bins = bins,
@@ -198,6 +198,21 @@ def plot(varname, stack=True, weight=True, density=True, remove_outliers=True, i
     if save is not None:
         fig.savefig(save)
 
+def make_plots():
+
+    outpath = f"{args.inputpath}/plots"
+    if not os.path.exists( outpath ):
+        os.system( f"mkdir -p {outpath}" )
+    
+    for stacked in [True, False]:
+        suffix = "_stacked" if stacked else ""
+        plot( "EVT_Thrust_Emin_e", bins=100, range=(0,50), stacked=stacked, save=f"{outpath}/EVT_Thrust_Emin_e{suffix}.pdf" ) 
+        plot( "EVT_Thrust_Emax_e", bins=100, range=(0,50), stacked=stacked, save=f"{outpath}/EVT_Thrust_Emin_e{suffix}.pdf" )
+        plot( "MC_Z_pz", stacked=stacked, save=f"{outpath}/MC_Z_pz{suffix}.pdf")
+
 if __name__=="__main__":
+
+    make_plots()
+
     print( plot.__doc__ )
 
