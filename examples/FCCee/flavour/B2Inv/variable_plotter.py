@@ -212,7 +212,7 @@ def make_plots():
 
 if __name__=="__main__":
 
-    make_plots()
+    #make_plots()
 
     print( plot.__doc__ )
 
