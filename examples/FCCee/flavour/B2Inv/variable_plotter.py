@@ -199,7 +199,7 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
     if varname in cfg.variable_plot_titles:
         ax.set_xlabel( cfg.variable_plot_titles[varname] )
     else:
-        ax.set_xlabel(varname)
+        ax.set_xlabel(f'{varname} (cut={cut})')
     ax.set_ylabel('Density')
 
     if interactive:
