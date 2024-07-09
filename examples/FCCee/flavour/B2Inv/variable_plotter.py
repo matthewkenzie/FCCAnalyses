@@ -4,6 +4,7 @@ import numpy as np
 import uproot
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import awkward as ak  # Needed if using awkward arrays
 plt.style.use('fcc.mplstyle')
 
 # go configure 
@@ -45,23 +46,30 @@ def check_var(folder, varname):
         raise RuntimeError( f"No branch {varname} found in files at path {folder}. Try one from the list above." )
     return True
 
-def as_array(folder, varname):
+def as_array(folder, varname, cut):
     path = os.path.join( args.inputpath, folder, "*.root" )
     try: 
-        arr = uproot.concatenate( path+":events", expressions=varname, library="np" )[varname]
+        # awkward array instead of numpy -> allows variable length elements
+        #arr = uproot.concatenate( path+":events", expressions=varname, library="np")[varname]
+        arr = uproot.concatenate( path+":events", expressions=varname, cut=cut)[varname]
     except:
         branches = get_list_of_branches(folder)
         print( f"Branches found in files at path {folder}:" )
         for br in branches:
             print('  ', br)
         raise RuntimeError( f"Cannot process expression {varname} in files at path {folder}. Try combinations of branches from the list above." )
-    return arr 
+    # Numpy option
+    #return arr
+    # Return awkward array as a flattened ndarray
+    return ak.to_numpy(ak.ravel(arr))
 
+# Should work as-is after flattening awkward array `values`
 def outlier_removal(values, threshold=7):
     mean = np.mean(values)
     sdev = np.std(values)
     pull = (values - mean)/sdev
     values = values[ np.abs(pull)<=threshold ]
+
     return values
 
 def histogram_settings():
@@ -95,7 +103,7 @@ def get_weights():
     
     return hist_weights
 
-def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, interactive=False, save=None, bins=50, range=None, total=["background"], components=["signal", "background"]):
+def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, interactive=False, save=None, bins=50, range=None, total=["background"], components=["signal", "background"], cut=None):
     
     """ 
     plot( varname, **opts ) will plot a variable
@@ -119,12 +127,14 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
         Show the plot interactively after its made. Default: false
     save : str, optional
         Save file for the plot. If None then no plot is saved. Default: none 
+    cuts : str, optional
+        Cut branch varname according to a (valid) ROOT expression. Default: none
     """
 
     if remove_outliers:
-        values = { sample: outlier_removal(as_array(sample, varname)) for sample in cfg.samples }
+        values = { sample: outlier_removal(as_array(sample, varname, cut)) for sample in cfg.samples }
     else:
-        values = { sample: as_array(sample, varname) for sample in cfg.samples }
+        values = { sample: as_array(sample, varname, cut) for sample in cfg.samples }
 
     if range is None:
         xmin = min( [ min(values[sample]) for sample in values ] )
