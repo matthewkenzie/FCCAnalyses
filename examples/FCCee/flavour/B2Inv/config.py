@@ -9,6 +9,7 @@ samples = [
 sample_allocations = {
     "signal" : ["p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu"],
     "background": ["p8_ee_Zbb_ecm91", "p8_ee_Zcc_ecm91", "p8_ee_Zss_ecm91", "p8_ee_Zud_ecm91"],
+    "bb only": ["p8_ee_Zbb_ecm91"]
 }
 
 titles = {
@@ -53,3 +54,20 @@ efficiencies = {
 }
 
 variable_plot_titles = {}
+
+PIDs = {
+    "kaon": {
+        "K0L":         130,
+        "K0Lbar":     -130,
+        "K0S":         310,
+        "K0Sbar":     -310,
+        "K0":          311,
+        "K0bar":      -311,
+        "K+":          321,
+        "K-":         -321,
+        "K0star":      313,
+        "K0starbar":  -313,
+        "K+star":      323,
+        "K-star":     -323,
+    }
+}
