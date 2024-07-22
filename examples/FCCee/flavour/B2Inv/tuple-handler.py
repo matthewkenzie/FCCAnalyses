@@ -11,8 +11,10 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import awkward as ak
 
+
 # Requires config file in the working directory
 import config as cfg
+plt.style.use('fcc.mplstyle')
 
 ##################################################################
 #               PLANNED FEATURES
@@ -44,25 +46,10 @@ class TupleHandler():
                  init_status=True):
         
         # Check if inputpath is a valid directory, if None use default stage0 directory
-        if inputpath is None:
-            self.inputpath = '/r01/lhcb/mkenzie/fcc/B2Inv/stage0/'
-        else:
-            if not os.path.exists(inputpath):
-                raise RuntimeError(f"No such path: {inputpath}")
-            self.inputpath = inputpath
-        
+        self.set_inputpath(inputpath)
+
         # Save outputs in self.outputpath, if directory does not exist try to create it
-        if outputpath is None:
-            self.outputpath = '/r01/lhcb/rrm42/fcc/stage_post0/'
-        else:
-            if not os.path.exists(outputpath):
-                try:
-                    subprocess.run(["mkdir", outputpath], check=True)
-                except subprocess.CalledProcessError:
-                    print(f"Cannot create directory {outputpath}")
-
-            self.outputpath = outputpath
-
+        self.set_outputpath(outputpath)
 
         self.config_essential_attributes = ['samples',
                                             'sample_allocations',
@@ -78,6 +65,28 @@ class TupleHandler():
         if init_status:
             self.print_status()
         
+
+    def set_inputpath(self, inputpath):
+        ''' Define directory in which config.samples are located. If None use default'''
+        if inputpath is None:
+            self.inputpath = '/r01/lhcb/mkenzie/fcc/B2Inv/stage0/'
+        else:
+            if not os.path.exists(inputpath):
+                raise RuntimeError(f"No such path: {inputpath}")
+            self.inputpath = inputpath
+
+    def set_outputpath(self, outputpath):
+        ''' Define directory to save files to. If None use default.'''
+        if outputpath is None:
+            self.outputpath = '/r01/lhcb/rrm42/fcc/stage_post0/'
+        else:
+            if not os.path.exists(outputpath):
+                try:
+                    subprocess.run(["mkdir", outputpath], check=True)
+                except subprocess.CalledProcessError:
+                    print(f"Cannot create directory {outputpath}")
+
+            self.outputpath = outputpath
 
     def configure(self):
         """ 
@@ -149,10 +158,11 @@ class TupleHandler():
     def clear_hist_data(self):
         self.hist_data = { }
     
-    def branch_data(self,
+    def get_branch_data(self,
                     branches,
                     branchtype,
                     hemisphere,
+                    aliases=None,
                     cut_EVTlevel=None,
                     cut_MClevel=None,
                     cut_REClevel=None,
@@ -220,8 +230,10 @@ class TupleHandler():
         
         if (custom_out_name is not None) and (len(custom_out_name) != len(samples)):
             raise ValueError(f'{custom_out_name} cannot be broadcast to {samples}: incorrect length')
-
         #################################################
+        # END OF EXCEPTION HANDLING
+        #################################################
+
 
         #################################################
         #
@@ -235,7 +247,6 @@ class TupleHandler():
         # GENERATE STRING TO PASS TO `CUT`
         #
         #################################################
-
         # Basic expression without direction information
         cut_expr = None
         if (cut_EVTlevel is not None) and (cut_MClevel is not None):
@@ -267,16 +278,8 @@ class TupleHandler():
         else:
             raise ValueError("Incompatible options for `hemisphere` and `branchtype`")
         #################################################
-        
-        tree_name = custom_tree_name if custom_tree_name is not None else 'tree'
-
-        if show_status:
-            time.sleep(0.5)
-            print("----------------------------\n")
-            print("Preliminary checks passed...")
-            print(f"Using name {tree_name} for root TTree...")
-            print("\n----------------------------")
-            
+        # END OF CUT EXPRESSION GENERATION              
+        #################################################
 
         #################################################
         #
@@ -284,10 +287,19 @@ class TupleHandler():
         # Issues -------> Remove [] from dataset instead of empty entry in tree
         #################################################
         if output_type == 'rt':
+            tree_name = custom_tree_name if custom_tree_name is not None else 'tree'
+
+            if show_status:
+                time.sleep(0.5)
+                print("----------------------------\n")
+                print("Preliminary checks passed...")
+                print(f"Using name {tree_name} for root TTree...")
+                print("\n----------------------------")
+            
             for sample in samples:
                 with uproot.recreate(os.path.join(self.outputpath, sample+".root")) as outfile:
                     df = ak.Array([])
-                    for file in uproot.iterate(self.path_dict[sample]+':events', expressions=branches, cut=cut_expr):
+                    for file in uproot.iterate(self.path_dict[sample]+':events', expressions=branches, aliases=aliases, cut=cut_expr):
                         df = ak.concatenate([df, file])
 
                     outfile['tree'] = ak.zip({branch: df[branch] for branch in branches})
@@ -301,24 +313,34 @@ class TupleHandler():
         #
         #################################################
         if output_type == 'hist':
-            for sample in self.file_dict:
+
+            if show_status:
+                time.sleep(0.5)
+                print("----------------------------\n")
+                print("Preliminary checks passed...")
+                print(f"Saving {branches} for plotting...")
+                print("\n----------------------------")
+
+            for sample in samples:
                 self.hist_data[sample] = np.array([])
-                with uproot.iterate(self.file_dict[sample]+':events', expressions=branches, cut=cut_expr) as tree:
+                with uproot.iterate(self.file_dict[sample]+':events', expressions=branches, cut=cut_expr, aliases=aliases) as tree:
                     self.hist_data[sample] = np.append(self.hist_data[sample], 
                                                        ak.ravel(tree[branches]).to_numpy())
 
-    def plot_histogram(self, 
-                       stack=True, 
+    def plot_histogram(self,
+                       external_data=None,
+                       style='all-backgrounds',
+                       stacked=True, 
                        density=True, 
                        remove_outliers=True,
-                       interactive=True,
+                       interactive=False,
                        save=None,
-                       total=None,
-                       components=None,
+                       total=['background'],
+                       components=['signal', 'background'],
                        range=None,
                        clear_saved_data=False):
         """
-        Plot histogram using self.hist_data
+        Plot histogram using self.hist_data generated by self.get_branch_data
 
         Parameters
         ----------
