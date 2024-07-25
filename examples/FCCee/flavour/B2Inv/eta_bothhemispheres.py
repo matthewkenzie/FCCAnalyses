@@ -46,86 +46,132 @@ bbeta_totvalu_dEcut = np.array([])
 
 print('Init')
 for tree in uproot.iterate(sigfile+':events', 
-        expressions=['costheta', 'MC_eta', 'Emin', 'deltaE'],
+        expressions=['costheta', 'MC_eta', 'Emin', 'deltaE', 'MC_genstatus'],
         aliases={'costheta':thrust_expr, 'Emin':'EVT_Thrust_Emin_e', 'deltaE':'EVT_Thrust_Emax_e - EVT_Thrust_Emin_e'}):
     Emcut = tree[tree['Emin'] < 20]
     dEcut = tree[tree['deltaE'] > 35]
 
-    eta_minhemi_nocut = np.append(eta_minhemi_nocut, ak.ravel(tree['MC_eta'][tree['costheta'] > 0]).to_numpy())
-    eta_maxhemi_nocut = np.append(eta_maxhemi_nocut, ak.ravel(tree['MC_eta'][tree['costheta'] < 0]).to_numpy())
-    eta_minhemi_Emcut = np.append(eta_minhemi_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['costheta'] > 0]).to_numpy())
-    eta_maxhemi_Emcut = np.append(eta_maxhemi_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['costheta'] < 0]).to_numpy())
-    eta_minhemi_dEcut = np.append(eta_minhemi_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['costheta'] > 0]).to_numpy())
-    eta_maxhemi_dEcut = np.append(eta_maxhemi_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['costheta'] < 0]).to_numpy())
+    # Final state MCs
+    eta_minhemi_nocut = np.append(eta_minhemi_nocut, ak.ravel(tree['MC_eta'][(tree['MC_genstatus'] == 1) & (tree['costheta'] > 0)]).to_numpy())
+    eta_maxhemi_nocut = np.append(eta_maxhemi_nocut, ak.ravel(tree['MC_eta'][(tree['costheta'] < 0) & (tree['MC_genstatus'] == 1)]).to_numpy())
+    eta_minhemi_Emcut = np.append(eta_minhemi_Emcut, ak.ravel(Emcut['MC_eta'][(Emcut['costheta'] > 0) & (Emcut['MC_genstatus'] == 1)]).to_numpy())
+    eta_maxhemi_Emcut = np.append(eta_maxhemi_Emcut, ak.ravel(Emcut['MC_eta'][(Emcut['costheta'] < 0) & (Emcut['MC_genstatus'] == 1)]).to_numpy())
+    eta_minhemi_dEcut = np.append(eta_minhemi_dEcut, ak.ravel(dEcut['MC_eta'][(dEcut['costheta'] > 0) & (dEcut['MC_genstatus'] == 1)]).to_numpy())
+    eta_maxhemi_dEcut = np.append(eta_maxhemi_dEcut, ak.ravel(dEcut['MC_eta'][(dEcut['costheta'] < 0) & (dEcut['MC_genstatus'] == 1)]).to_numpy())
 
-    eta_totvalu_nocut = np.append(eta_totvalu_nocut, ak.ravel(tree['MC_eta']).to_numpy())
-    eta_totvalu_Emcut = np.append(eta_totvalu_Emcut, ak.ravel(Emcut['MC_eta']).to_numpy())
-    eta_totvalu_dEcut = np.append(eta_totvalu_dEcut, ak.ravel(dEcut['MC_eta']).to_numpy())
+    eta_totvalu_nocut = np.append(eta_totvalu_nocut, ak.ravel(tree['MC_eta'][tree['MC_genstatus'] == 1]).to_numpy())
+    eta_totvalu_Emcut = np.append(eta_totvalu_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['MC_genstatus'] == 1]).to_numpy())
+    eta_totvalu_dEcut = np.append(eta_totvalu_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['MC_genstatus'] == 1]).to_numpy())
+    
+    # All MCs
+    #eta_minhemi_nocut = np.append(eta_minhemi_nocut, ak.ravel(tree['MC_eta'][tree['costheta'] > 0]).to_numpy())
+    #eta_maxhemi_nocut = np.append(eta_maxhemi_nocut, ak.ravel(tree['MC_eta'][tree['costheta'] < 0]).to_numpy())
+    #eta_minhemi_Emcut = np.append(eta_minhemi_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['costheta'] > 0]).to_numpy())
+    #eta_maxhemi_Emcut = np.append(eta_maxhemi_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['costheta'] < 0]).to_numpy())
+    #eta_minhemi_dEcut = np.append(eta_minhemi_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['costheta'] > 0]).to_numpy())
+    #eta_maxhemi_dEcut = np.append(eta_maxhemi_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['costheta'] < 0]).to_numpy())
+
+    #eta_totvalu_nocut = np.append(eta_totvalu_nocut, ak.ravel(tree['MC_eta']).to_numpy())
+    #eta_totvalu_Emcut = np.append(eta_totvalu_Emcut, ak.ravel(Emcut['MC_eta']).to_numpy())
+    #eta_totvalu_dEcut = np.append(eta_totvalu_dEcut, ak.ravel(dEcut['MC_eta']).to_numpy())
     
     print(f'{tree} done')
 
-with uproot.recreate('/r01/lhcb/rrm42/fcc/signal_eta_data.root') as outfile:
-    outfile['tree'] = ak.zip({'eta_minhemi_nocut': eta_minhemi_nocut[np.newaxis],
-        'eta_maxhemi_nocut': eta_maxhemi_nocut[np.newaxis],
-        'eta_minhemi_Emcut': eta_minhemi_Emcut[np.newaxis],
-        'eta_maxhemi_Emcut': eta_maxhemi_Emcut[np.newaxis],
-        'eta_minhemi_dEcut': eta_minhemi_dEcut[np.newaxis],
-        'eta_maxhemi_dEcut': eta_maxhemi_dEcut[np.newaxis],
-        'eta_totvalu_nocut': eta_totvalu_nocut[np.newaxis],
-        'eta_totvalu_Emcut': eta_totvalu_Emcut[np.newaxis],
-        'eta_totvalu_dEcut': eta_totvalu_dEcut[np.newaxis],
-        'cos_minhemi_nocut': get_costheta(eta_minhemi_nocut)[np.newaxis],
-        'cos_maxhemi_nocut': get_costheta(eta_maxhemi_nocut)[np.newaxis],
-        'cos_minhemi_Emcut': get_costheta(eta_minhemi_Emcut)[np.newaxis],
-        'cos_maxhemi_Emcut': get_costheta(eta_maxhemi_Emcut)[np.newaxis],
-        'cos_minhemi_dEcut': get_costheta(eta_minhemi_dEcut)[np.newaxis],
-        'cos_maxhemi_dEcut': get_costheta(eta_maxhemi_dEcut)[np.newaxis],
-        'cos_totvalu_nocut': get_costheta(eta_totvalu_nocut)[np.newaxis],
-        'cos_totvalu_Emcut': get_costheta(eta_totvalu_Emcut)[np.newaxis],
-        'cos_totvalu_dEcut': get_costheta(eta_totvalu_dEcut)[np.newaxis]})
+#with uproot.recreate('/r01/lhcb/rrm42/fcc/signal_eta_data.root') as outfile:
+#    outfile['tree'] = ak.zip({'eta_minhemi_nocut': eta_minhemi_nocut[np.newaxis],
+#        'eta_maxhemi_nocut': eta_maxhemi_nocut[np.newaxis],
+#        'eta_minhemi_Emcut': eta_minhemi_Emcut[np.newaxis],
+#        'eta_maxhemi_Emcut': eta_maxhemi_Emcut[np.newaxis],
+#        'eta_minhemi_dEcut': eta_minhemi_dEcut[np.newaxis],
+#        'eta_maxhemi_dEcut': eta_maxhemi_dEcut[np.newaxis],
+#        'eta_totvalu_nocut': eta_totvalu_nocut[np.newaxis],
+#        'eta_totvalu_Emcut': eta_totvalu_Emcut[np.newaxis],
+#        'eta_totvalu_dEcut': eta_totvalu_dEcut[np.newaxis],
+#        'cos_minhemi_nocut': get_costheta(eta_minhemi_nocut)[np.newaxis],
+#        'cos_maxhemi_nocut': get_costheta(eta_maxhemi_nocut)[np.newaxis],
+#        'cos_minhemi_Emcut': get_costheta(eta_minhemi_Emcut)[np.newaxis],
+#        'cos_maxhemi_Emcut': get_costheta(eta_maxhemi_Emcut)[np.newaxis],
+#        'cos_minhemi_dEcut': get_costheta(eta_minhemi_dEcut)[np.newaxis],
+#        'cos_maxhemi_dEcut': get_costheta(eta_maxhemi_dEcut)[np.newaxis],
+#        'cos_totvalu_nocut': get_costheta(eta_totvalu_nocut)[np.newaxis],
+#        'cos_totvalu_Emcut': get_costheta(eta_totvalu_Emcut)[np.newaxis],
+#        'cos_totvalu_dEcut': get_costheta(eta_totvalu_dEcut)[np.newaxis]})
+#
+#    print(f"{outfile} saved")
 
-    print(f"{outfile} saved")
+cos_minhemi_nocut = get_costheta(eta_minhemi_nocut)
+cos_maxhemi_nocut = get_costheta(eta_maxhemi_nocut)
+cos_minhemi_Emcut = get_costheta(eta_minhemi_Emcut)
+cos_maxhemi_Emcut = get_costheta(eta_maxhemi_Emcut)
+cos_minhemi_dEcut = get_costheta(eta_minhemi_dEcut)
+cos_maxhemi_dEcut = get_costheta(eta_maxhemi_dEcut)
+cos_totvalu_nocut = get_costheta(eta_totvalu_nocut)
+cos_totvalu_Emcut = get_costheta(eta_totvalu_Emcut)
+cos_totvalu_dEcut = get_costheta(eta_totvalu_dEcut)
 
 for tree in uproot.iterate(bbfile+':events', 
-        expressions=['costheta', 'MC_eta', 'Emin', 'deltaE'],
+        expressions=['costheta', 'MC_eta', 'Emin', 'deltaE', 'MC_genstatus'],
         aliases={'costheta':thrust_expr, 'Emin':'EVT_Thrust_Emin_e', 'deltaE':'EVT_Thrust_Emax_e - EVT_Thrust_Emin_e'}):
     
     Emcut = tree[tree['Emin'] < 20]
     dEcut = tree[tree['deltaE'] > 35]
 
-    bbeta_minhemi_nocut = np.append(bbeta_minhemi_nocut, ak.ravel(tree['MC_eta'][tree['costheta'] > 0]).to_numpy())
-    bbeta_maxhemi_nocut = np.append(bbeta_maxhemi_nocut, ak.ravel(tree['MC_eta'][tree['costheta'] < 0]).to_numpy())
-    bbeta_minhemi_Emcut = np.append(bbeta_minhemi_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['costheta'] > 0]).to_numpy())
-    bbeta_maxhemi_Emcut = np.append(bbeta_maxhemi_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['costheta'] < 0]).to_numpy())
-    bbeta_minhemi_dEcut = np.append(bbeta_minhemi_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['costheta'] > 0]).to_numpy())
-    bbeta_maxhemi_dEcut = np.append(bbeta_maxhemi_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['costheta'] < 0]).to_numpy())
+    # Final state MCs
+    bbeta_minhemi_nocut = np.append(bbeta_minhemi_nocut, ak.ravel(tree['MC_eta'][(tree['costheta'] > 0) & (tree['MC_genstatus']==1)]).to_numpy())
+    bbeta_maxhemi_nocut = np.append(bbeta_maxhemi_nocut, ak.ravel(tree['MC_eta'][(tree['costheta'] < 0) & (tree['MC_genstatus']==1)]).to_numpy())
+    bbeta_minhemi_Emcut = np.append(bbeta_minhemi_Emcut, ak.ravel(Emcut['MC_eta'][(Emcut['costheta'] > 0) & (Emcut['MC_genstatus']==1)]).to_numpy())
+    bbeta_maxhemi_Emcut = np.append(bbeta_maxhemi_Emcut, ak.ravel(Emcut['MC_eta'][(Emcut['costheta'] < 0) & (Emcut['MC_genstatus']==1)]).to_numpy())
+    bbeta_minhemi_dEcut = np.append(bbeta_minhemi_dEcut, ak.ravel(dEcut['MC_eta'][(dEcut['costheta'] > 0) & (dEcut['MC_genstatus']==1)]).to_numpy())
+    bbeta_maxhemi_dEcut = np.append(bbeta_maxhemi_dEcut, ak.ravel(dEcut['MC_eta'][(dEcut['costheta'] < 0) & (dEcut['MC_genstatus']==1)]).to_numpy())
 
-    bbeta_totvalu_nocut = np.append(bbeta_totvalu_nocut, ak.ravel(tree['MC_eta']).to_numpy())
-    bbeta_totvalu_Emcut = np.append(bbeta_totvalu_Emcut, ak.ravel(Emcut['MC_eta']).to_numpy())
-    bbeta_totvalu_dEcut = np.append(bbeta_totvalu_dEcut, ak.ravel(dEcut['MC_eta']).to_numpy())
+    bbeta_totvalu_nocut = np.append(bbeta_totvalu_nocut, ak.ravel(tree['MC_eta'][tree['MC_genstatus']==1]).to_numpy())
+    bbeta_totvalu_Emcut = np.append(bbeta_totvalu_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['MC_genstatus']==1]).to_numpy())
+    bbeta_totvalu_dEcut = np.append(bbeta_totvalu_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['MC_genstatus']==1]).to_numpy())
+
+    # All MCs
+    #bbeta_minhemi_nocut = np.append(bbeta_minhemi_nocut, ak.ravel(tree['MC_eta'][tree['costheta'] > 0]).to_numpy())
+    #bbeta_maxhemi_nocut = np.append(bbeta_maxhemi_nocut, ak.ravel(tree['MC_eta'][tree['costheta'] < 0]).to_numpy())
+    #bbeta_minhemi_Emcut = np.append(bbeta_minhemi_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['costheta'] > 0]).to_numpy())
+    #bbeta_maxhemi_Emcut = np.append(bbeta_maxhemi_Emcut, ak.ravel(Emcut['MC_eta'][Emcut['costheta'] < 0]).to_numpy())
+    #bbeta_minhemi_dEcut = np.append(bbeta_minhemi_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['costheta'] > 0]).to_numpy())
+    #bbeta_maxhemi_dEcut = np.append(bbeta_maxhemi_dEcut, ak.ravel(dEcut['MC_eta'][dEcut['costheta'] < 0]).to_numpy())
+
+    #bbeta_totvalu_nocut = np.append(bbeta_totvalu_nocut, ak.ravel(tree['MC_eta']).to_numpy())
+    #bbeta_totvalu_Emcut = np.append(bbeta_totvalu_Emcut, ak.ravel(Emcut['MC_eta']).to_numpy())
+    #bbeta_totvalu_dEcut = np.append(bbeta_totvalu_dEcut, ak.ravel(dEcut['MC_eta']).to_numpy())
     print(f"{tree} done")
 
-with uproot.recreate('/r01/lhcb/rrm42/fcc/bb_eta_data.root') as outfile:
-    outfile['tree'] = ak.zip({'eta_minhemi_nocut': bbeta_minhemi_nocut,
-        'eta_maxhemi_nocut': bbeta_maxhemi_nocut,
-        'eta_minhemi_Emcut': bbeta_minhemi_Emcut,
-        'eta_maxhemi_Emcut': bbeta_maxhemi_Emcut,
-        'eta_minhemi_dEcut': bbeta_minhemi_dEcut,
-        'eta_maxhemi_dEcut': bbeta_maxhemi_dEcut,
-        'eta_totvalu_nocut': bbeta_totvalu_nocut,
-        'eta_totvalu_Emcut': bbeta_totvalu_Emcut,
-        'eta_totvalu_dEcut': bbeta_totvalu_dEcut,
-        'cos_minhemi_nocut': [get_costheta(i) for i in bbeta_minhemi_nocut],
-        'cos_maxhemi_nocut': [get_costheta(i) for i in bbeta_maxhemi_nocut],
-        'cos_minhemi_Emcut': [get_costheta(i) for i in bbeta_minhemi_Emcut],
-        'cos_maxhemi_Emcut': [get_costheta(i) for i in bbeta_maxhemi_Emcut],
-        'cos_minhemi_dEcut': [get_costheta(i) for i in bbeta_minhemi_dEcut],
-        'cos_maxhemi_dEcut': [get_costheta(i) for i in bbeta_maxhemi_dEcut],
-        'cos_totvalu_nocut': [get_costheta(i) for i in bbeta_totvalu_nocut],
-        'cos_totvalu_Emcut': [get_costheta(i) for i in bbeta_totvalu_Emcut],
-        'cos_totvalu_dEcut': [get_costheta(i) for i in bbeta_totvalu_dEcut]})
-    
-    print(f"{outfile} saved")
+#with uproot.recreate('/r01/lhcb/rrm42/fcc/bb_eta_data.root') as outfile:
+#    outfile['tree'] = ak.zip({'eta_minhemi_nocut': bbeta_minhemi_nocut,
+#        'eta_maxhemi_nocut': bbeta_maxhemi_nocut,
+#        'eta_minhemi_Emcut': bbeta_minhemi_Emcut,
+#        'eta_maxhemi_Emcut': bbeta_maxhemi_Emcut,
+#        'eta_minhemi_dEcut': bbeta_minhemi_dEcut,
+#        'eta_maxhemi_dEcut': bbeta_maxhemi_dEcut,
+#        'eta_totvalu_nocut': bbeta_totvalu_nocut,
+#        'eta_totvalu_Emcut': bbeta_totvalu_Emcut,
+#        'eta_totvalu_dEcut': bbeta_totvalu_dEcut,
+#        'cos_minhemi_nocut': [get_costheta(i) for i in bbeta_minhemi_nocut],
+#        'cos_maxhemi_nocut': [get_costheta(i) for i in bbeta_maxhemi_nocut],
+#        'cos_minhemi_Emcut': [get_costheta(i) for i in bbeta_minhemi_Emcut],
+#        'cos_maxhemi_Emcut': [get_costheta(i) for i in bbeta_maxhemi_Emcut],
+#        'cos_minhemi_dEcut': [get_costheta(i) for i in bbeta_minhemi_dEcut],
+#        'cos_maxhemi_dEcut': [get_costheta(i) for i in bbeta_maxhemi_dEcut],
+#        'cos_totvalu_nocut': [get_costheta(i) for i in bbeta_totvalu_nocut],
+#        'cos_totvalu_Emcut': [get_costheta(i) for i in bbeta_totvalu_Emcut],
+#        'cos_totvalu_dEcut': [get_costheta(i) for i in bbeta_totvalu_dEcut]})
+#    
+#    print(f"{outfile} saved")
+
+bbcos_minhemi_nocut = get_costheta(bbeta_minhemi_nocut)
+bbcos_maxhemi_nocut = get_costheta(bbeta_maxhemi_nocut)
+bbcos_minhemi_Emcut = get_costheta(bbeta_minhemi_Emcut)
+bbcos_maxhemi_Emcut = get_costheta(bbeta_maxhemi_Emcut)
+bbcos_minhemi_dEcut = get_costheta(bbeta_minhemi_dEcut)
+bbcos_maxhemi_dEcut = get_costheta(bbeta_maxhemi_dEcut)
+bbcos_totvalu_nocut = get_costheta(bbeta_totvalu_nocut)
+bbcos_totvalu_Emcut = get_costheta(bbeta_totvalu_Emcut)
+bbcos_totvalu_dEcut = get_costheta(bbeta_totvalu_dEcut)
 
 min_histopts = {
         'stacked': False,
@@ -182,7 +228,7 @@ ax[0, 0].legend()
 ax[0, 0].tick_params(labelsize=8)
 
 ax[0, 1].hist(
-        x = [get_costheta(i) for i in eta_minhemi_nocut],
+        x = cos_minhemi_nocut,
         density = True,
         bins=100,
         range=(-1,1),
@@ -190,7 +236,7 @@ ax[0, 1].hist(
         **min_histopts)
 
 ax[0, 1].hist(
-        x = [get_costheta(i) for i in eta_maxhemi_nocut],
+        x = cos_maxhemi_nocut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -198,7 +244,7 @@ ax[0, 1].hist(
         **max_histopts)
 
 ax[0, 1].hist(
-        x = [get_costheta(i) for i in eta_totvalu_nocut],
+        x = cos_totvalu_nocut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -242,7 +288,7 @@ ax[1, 0].tick_params(labelsize=8)
 ax[1, 0].legend()
 
 ax[1, 1].hist(
-        x = [get_costheta(i) for i in bbeta_minhemi_nocut],
+        x = bbcos_minhemi_nocut,
         density = True,
         bins=100,
         range=(-1,1),
@@ -250,7 +296,7 @@ ax[1, 1].hist(
         **min_histopts)
 
 ax[1, 1].hist(
-        x = [get_costheta(i) for i in bbeta_maxhemi_nocut],
+        x = bbcos_maxhemi_nocut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -258,7 +304,7 @@ ax[1, 1].hist(
         **max_histopts)
 
 ax[1, 1].hist(
-        x = [get_costheta(i) for i in bbeta_totvalu_nocut],
+        x = bbcos_totvalu_nocut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -274,7 +320,7 @@ ax[1, 1].legend()
 fig.suptitle(r'Without cut', fontsize=12)
 fig.tight_layout()
 plt.savefig('/r01/lhcb/rrm42/fcc/eta-theta-nocut.png', dpi=300)
-plt.clear()
+
 
 ############### Plot with Emincut
 fig, ax = plt.subplots(2, 2, figsize=(12,12))
@@ -310,7 +356,7 @@ ax[0, 0].legend()
 ax[0, 0].tick_params(labelsize=8)
 
 ax[0, 1].hist(
-        x = [get_costheta(i) for i in eta_minhemi_Emcut],
+        x = cos_minhemi_Emcut,
         density = True,
         bins=100,
         range=(-1,1),
@@ -318,7 +364,7 @@ ax[0, 1].hist(
         **min_histopts)
 
 ax[0, 1].hist(
-        x = [get_costheta(i) for i in eta_maxhemi_Emcut],
+        x = cos_maxhemi_Emcut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -326,7 +372,7 @@ ax[0, 1].hist(
         **max_histopts)
 
 ax[0, 1].hist(
-        x = [get_costheta(i) for i in eta_totvalu_Emcut],
+        x = cos_totvalu_Emcut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -370,7 +416,7 @@ ax[1, 0].tick_params(labelsize=8)
 ax[1, 0].legend()
 
 ax[1, 1].hist(
-        x = [get_costheta(i) for i in bbeta_minhemi_Emcut],
+        x = bbcos_minhemi_Emcut,
         density = True,
         bins=100,
         range=(-1,1),
@@ -378,7 +424,7 @@ ax[1, 1].hist(
         **min_histopts)
 
 ax[1, 1].hist(
-        x = [get_costheta(i) for i in bbeta_maxhemi_Emcut],
+        x = bbcos_maxhemi_Emcut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -386,7 +432,7 @@ ax[1, 1].hist(
         **max_histopts)
 
 ax[1, 1].hist(
-        x = [get_costheta(i) for i in bbeta_totvalu_Emcut],
+        x = bbcos_totvalu_Emcut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -402,7 +448,6 @@ ax[1, 1].legend()
 fig.suptitle(r'With Emin cut', fontsize=12)
 fig.tight_layout()
 plt.savefig('/r01/lhcb/rrm42/fcc/eta-theta-Emcut.png', dpi=300)
-plt.clear()
 
 ############### Plot with deltaE cut
 fig, ax = plt.subplots(2, 2, figsize=(12,12))
@@ -438,7 +483,7 @@ ax[0, 0].legend()
 ax[0, 0].tick_params(labelsize=8)
 
 ax[0, 1].hist(
-        x = [get_costheta(i) for i in eta_minhemi_dEcut],
+        x = cos_minhemi_dEcut,
         density = True,
         bins=100,
         range=(-1,1),
@@ -446,7 +491,7 @@ ax[0, 1].hist(
         **min_histopts)
 
 ax[0, 1].hist(
-        x = [get_costheta(i) for i in eta_maxhemi_dEcut],
+        x = cos_maxhemi_dEcut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -454,7 +499,7 @@ ax[0, 1].hist(
         **max_histopts)
 
 ax[0, 1].hist(
-        x = [get_costheta(i) for i in eta_totvalu_dEcut],
+        x = cos_totvalu_dEcut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -498,7 +543,7 @@ ax[1, 0].tick_params(labelsize=8)
 ax[1, 0].legend()
 
 ax[1, 1].hist(
-        x = [get_costheta(i) for i in bbeta_minhemi_dEcut],
+        x = bbcos_minhemi_dEcut,
         density = True,
         bins=100,
         range=(-1,1),
@@ -506,7 +551,7 @@ ax[1, 1].hist(
         **min_histopts)
 
 ax[1, 1].hist(
-        x = [get_costheta(i) for i in bbeta_maxhemi_dEcut],
+        x = bbcos_maxhemi_dEcut,
         density=True,
         bins=100,
         range=(-1,1),
@@ -514,7 +559,7 @@ ax[1, 1].hist(
         **max_histopts)
 
 ax[1, 1].hist(
-        x = [get_costheta(i) for i in bbeta_totvalu_dEcut],
+        x = bbcos_totvalu_dEcut,
         density=True,
         bins=100,
         range=(-1,1),
