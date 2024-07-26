@@ -14,6 +14,8 @@ import awkward as ak
 
 # Requires config file in the working directory
 import config as cfg
+
+# Set global options
 plt.style.use('fcc.mplstyle')
 
 ##################################################################
@@ -69,6 +71,9 @@ class TupleHandler():
     def set_inputpath(self, inputpath):
         ''' Define directory in which config.samples are located. If None use default'''
         if inputpath is None:
+            defaultpath = '/r01/lhcb/mkenzie/fcc/B2Inv/stage0/'
+            if not os.path.exists(defaultpath):
+                raise RuntimeError(f"Default input path {defaultpath} does not exist. Please ensure that the default directory is set correctly or use the optional argument to set it.")
             self.inputpath = '/r01/lhcb/mkenzie/fcc/B2Inv/stage0/'
         else:
             if not os.path.exists(inputpath):
@@ -78,7 +83,15 @@ class TupleHandler():
     def set_outputpath(self, outputpath):
         ''' Define directory to save files to. If None use default.'''
         if outputpath is None:
-            self.outputpath = '/r01/lhcb/rrm42/fcc/stage_post0/'
+            defaultpath = '/r01/lhcb/rrm42/fcc/post_stage0/'
+            if not os.path.exists(defaultpath):
+                try:
+                    subprocess.run(["mkdir", defaultpath], check=True)
+                except subprocess.CalledProcessError:
+                    print(f"Default path {defaultpath} does not exist or could not be created. Please ensure that the default directory is set correctly or use the optional argument to set it.")
+
+            self.outputpath = defaultpath
+
         else:
             if not os.path.exists(outputpath):
                 try:
@@ -140,7 +153,7 @@ class TupleHandler():
 
     def print_status(self):
         ''' Print values of class attributes required for start-up'''
-        time.sleep(2)
+        time.sleep(1)
         print("-------------------------------------------------")
         print("               TUPLE HANDLER CLASS               ")
         print("-------------------------------------------------")
@@ -168,9 +181,10 @@ class TupleHandler():
                     cut_REClevel=None,
                     sample_select=None,
                     output_type='rt',
-                    show_status=False,
+                    show_status=True,
                     custom_tree_name=None,
-                    custom_out_name=None):
+                    custom_out_name=None,
+                    overwrite=False):
         """
         Store data from .root files to analyse or plot
         
@@ -287,8 +301,8 @@ class TupleHandler():
         # Issues -------> Remove [] from dataset instead of empty entry in tree
         #################################################
         if output_type == 'rt':
-            tree_name = custom_tree_name if custom_tree_name is not None else 'tree'
-
+            tree_name = custom_tree_name if custom_tree_name is not None else 'events'
+            custom_out_name = custom_out_name if custom_out_name is not None else {sample: sample for sample in samples}
             if show_status:
                 time.sleep(0.5)
                 print("----------------------------\n")
@@ -297,14 +311,20 @@ class TupleHandler():
                 print("\n----------------------------")
             
             for sample in samples:
+
+                if os.path.exists(os.path.join(self.outputpath, sample+'.root')) and overwrite is False:
+                        if show_status:
+                            print(f"{os.path.exists(os.path.join(self.outputpath, sample+'.root'))} already exists, skipping...")
+                        continue
+
                 with uproot.recreate(os.path.join(self.outputpath, sample+".root")) as outfile:
                     df = ak.Array([])
                     for file in uproot.iterate(self.path_dict[sample]+':events', expressions=branches, aliases=aliases, cut=cut_expr):
                         df = ak.concatenate([df, file])
 
-                    outfile['tree'] = ak.zip({branch: df[branch] for branch in branches})
+                    outfile[tree_name] = ak.zip({branch: df[branch] for branch in branches}, depth_limit = 1)
                     if show_status:
-                        print(f"Branches from {sample} stored in {outfile}")
+                        print(f"Branches from {sample} stored in {os.path.join(self.outputpath, sample+'.root')}")
 
 
         #################################################
@@ -374,3 +394,303 @@ class TupleHandler():
 
         if clear_saved_data:
             self.clear_hist_data()
+    
+    ################## MC MATCHING
+    #
+    # Issues ---> eager writing of data (everything stored in an awkward Array before writing)
+    #        ---> have to zip different variables together before passing to uproot
+    #             ---> as a result uproot makes two counters nMC and nRec which are clones
+    def get_branches_from_recp(self,
+                               use_defaults,
+                               EVTbranches=None,
+                               MCbranches=None,
+                               RECbranches=None,
+                               EVTaliases=None,
+                               MCaliases=None,
+                               RECaliases=None,
+                               save_customid=True,
+                               sample_select=None,
+                               show_status=True,
+                               tree_name=None,
+                               outpath=None,
+                               out_name=None,
+                               overwrite=False):
+        """
+        Method to save corresponding MC data of Reconstructed particles using `Rec_MC_index`
+
+        PARAMETERS
+        ----------
+        use_defaults : bool
+            Save the default variables.
+        EVTbranches : list, optional
+            List of names of event level branches and/or expressions. Only used if use_defaults is False. Default = None
+        MCbranches : list, optional
+            List of names of particle level branches and/or expressions. These branches specifically are the ones which
+            Rec_MC_index acts on. Only used if use_defaults is False. Default = None
+        RECbranches : list, optional
+            List of names of particle level branches and/or expressions. These should contain reconstructed data. 
+            Only used if use_defaults is False. Default = None
+        EVTaliases : dict, optional
+        MCaliases : dict, optional
+        RECaliases : dict, optional
+        save_particletype : bool, optional
+            Add an additional branch with the type of the reconstructed particle. Default = True.
+            The IDs correspond to:
+            Photon                 = 10
+            Charged leptons ~ 20
+                - e+e-             = 21
+                - mu+mu-           = 22
+                - tau+tau-         = 23
+            Neutral hadrons ~ 30
+                - Neutral mesons   = 34
+                - Neutral baryons  = 35
+            Charged hadrons ~ 40
+                - Charged mesons   = 44
+                - Charged baryons  = 45
+            ***** This is added because Rec_type loses information about the sign of the PID
+        sample_select : list, optional
+            List of indices of cfg.samples to use. Default = None (every element of cfg.samples)
+        show_status : bool, optional
+            Print progress of the process. Default = True
+        tree_name : str, optional
+            Name of the .root tree. If None uses 'events'. Default = None
+        outpath : str, optional
+            Sets directory to save the output files and updates self.outputpath. If None uses self.outputpath without updating. Default = None
+        out_name : dict, optional
+            Dictionary of the form {sample : name} where sample is the element of cfg.samples used and name is the name of the output .root file. Default = None
+        overwrite : bool, optional
+            If True, overwrites any existing .root files at the target destination. Default = False
+        """
+        #################################################
+        #
+        # Initialisation and error handling
+        #
+        #################################################
+        # Update directory where files are saved
+        self.set_outputpath(outpath)
+
+        # Initialise custom sample files
+        if sample_select is not None:
+            samples = [ cfg.samples[i] for i in cfg.samples ]
+        else:
+            samples = cfg.samples
+
+        self.update_file_dict(cfg.samples)
+        
+        # Update names of root files
+        if out_name is None:
+            out_name = {cfg.samples[0]: 'Bs2NuNu_datafromrecp',
+                        cfg.samples[1]: 'bb_datafromrecp',
+                        cfg.samples[2]: 'cc_datafromrecp',
+                        cfg.samples[3]: 'ss_datafromrecp',
+                        cfg.samples[4]: 'ud_datafromrecp'}
+        
+        # Update tree name used by root files
+        tree_name = tree_name if tree_name is not None else 'events'
+    
+        # Print summary
+        if show_status:
+            time.sleep(0.5)
+            print("-------------------------------------------------\n")
+            print("Saving MC data from Reconstructed indices")
+            print("Preliminary checks passed...")
+            time.sleep(0.5)
+            print(f"Using {samples}")
+            time.sleep(0.5)
+            if use_defaults:
+                print("Saving default variables")
+            else:
+                print(f"Saving {EVTbranches}...")
+                print(f"Saving {MCbranches}...")
+                print(f"Saving {RECbranches}...")
+            print(f"Saving custom particle id: {save_customid}")
+            time.sleep(0.5)
+            print(f"Saving to {self.outputpath}")
+            print(f"Using tree name <{tree_name}> for root TTree")
+            if overwrite:
+                print("WARNING: overwrite parameter is set to True, existing files at the target directory with the same name will be overwritten")
+            print("\n-------------------------------------------------")
+        
+        #################################################
+        #
+        # Save default variables
+        #
+        #################################################
+        if use_defaults:
+            EVTbranches = ['Thrust_Emax',
+                           'Thrust_Emin',
+                           'Thrust_delE',
+                           
+                           'Thrust_x',
+                           'Thrust_y',
+                           'Thrust_z',
+                           'Thrust_len',
+                           'Thrust_xerr',
+                           'Thrust_yerr',
+                           'Thrust_zerr',
+                           'Thrust_cosrel2beam',
+
+                           'MC_n',
+                           'Rec_n']
+
+            MCbranches = ['MC_genstatus',
+                          'MC_PDG',
+                          'MC_p',
+                          'MC_pt',
+                          'MC_px',
+                          'MC_py',
+                          'MC_pz',
+                          'MC_e',
+                          'MC_m',
+
+                          'MC_etarel2beam',
+                          'MC_phirel2beam',
+                          'MC_cosrel2beam',
+                          'MC_cosrel2thrust']
+
+            RECbranches = ['Rec_type',
+                           'Rec_p',
+                           'Rec_pt',
+                           'Rec_px',
+                           'Rec_py',
+                           'Rec_pz',
+                           'Rec_e',
+                           'Rec_m',
+
+                           'Rec_cosrel2beam',
+                           'Rec_etarel2beam',
+                           'Rec_phirel2beam',
+                           'Rec_cosrel2thrust']
+
+            EVTaliases= {'Thrust_Emax' : 'EVT_Thrust_Emax_e',
+                         'Thrust_Emin' : 'EVT_Thrust_Emin_e',
+                         'Thrust_delE' : 'EVT_Thrust_Emax_e - EVT_Thrust_Emin_e',
+                         
+                         'Thrust_x'    : 'EVT_Thrust_x',
+                         'Thrust_y'    : 'EVT_Thrust_y',
+                         'Thrust_z'    : 'EVT_Thrust_z',
+                         'Thrust_len'  : '(EVT_Thrust_x**2 + EVT_Thrust_y**2 + EVT_Thrust_z**2)**0.5',
+
+                         'Thrust_xerr' : 'EVT_Thrust_xerr',
+                         'Thrust_yerr' : 'EVT_Thrust_yerr',
+                         'Thrust_zerr' : 'EVT_Thrust_zerr',
+                         
+                         'Thrust_cosrel2beam' : '(EVT_Thrust_z)/((EVT_Thrust_x**2 + EVT_Thrust_y**2 + EVT_Thrust_z**2)**0.5)'}
+
+            MCaliases = {'MC_etarel2beam' : 'MC_eta',
+                         'MC_phirel2beam' : 'MC_phi',
+                         'MC_cosrel2beam' : '(MC_pz)/(MC_p)',
+                         'MC_cosrel2thrust' : '(MC_px*EVT_Thrust_x + MC_py*EVT_Thrust_y + MC_pz*EVT_Thrust_z)/(MC_p*(EVT_Thrust_x**2 + EVT_Thrust_y**2 + EVT_Thrust_z**2)**0.5)'}
+            # Future -> error in cosrel2thrust
+
+            RECaliases = {'Rec_etarel2beam' : 'Rec_eta',
+                          'Rec_phirel2beam' : 'Rec_phi',
+                          'Rec_cosrel2beam' : '(Rec_pz)/(Rec_p)',
+                          
+                          'Rec_cosrel2thrust' : '(Rec_px*EVT_Thrust_x + Rec_py*EVT_Thrust_y + Rec_pz*EVT_Thrust_z)/(Rec_p*(EVT_Thrust_x**2 + EVT_Thrust_y**2 + EVT_Thrust_z**2)**0.5)'}
+            # Future -> error in cosrel2thrust
+        elif (EVTbranches is None) and (MCbranches is None) and (RECbranches is None):
+            raise ValueError('Need at least one branch if use_defaults is False')
+
+        # To allow customid saving MC_PDG must be included
+        if save_customid and ('MC_PDG' not in MCbranches):
+            raise ValueError("save_customid needs an MCbranch `MC_PDG`")
+
+        # Combine lists of expressions
+        all_expressions = []
+        if EVTbranches is not None:
+            all_expressions += EVTbranches
+        if MCbranches is not None:
+            all_expressions += MCbranches
+        if RECbranches is not None:
+            all_expressions += RECbranches
+        
+        all_expressions += ['Rec_MC_index']
+        
+        all_aliases = {}
+        if EVTaliases is not None:
+            all_aliases.update({i: EVTaliases[i] for i in EVTaliases.keys()})
+        if MCaliases is not None:
+            all_aliases.update({i: MCaliases[i] for i in MCaliases.keys()})
+        if RECaliases is not None:
+            all_aliases.update({i: RECaliases[i] for i in RECaliases.keys()})
+
+        #################################################
+        #
+        # Save data to files
+        #
+        #################################################
+        for sample in samples:
+            if (overwrite is False) and os.path.exists(os.path.join(self.outputpath, out_name[sample]+'.root')):
+                if show_status:
+                   print(f"{os.path.join(self.outputpath, out_name[sample]+'.root')} already exists, skipping...")
+                continue
+            with uproot.recreate(os.path.join(self.outputpath, out_name[sample]+'.root')) as outfile:
+                df = []
+                # Pass all expressions to uproot
+                for events in uproot.iterate(self.path_dict[sample], expressions=all_expressions, aliases=all_aliases):
+                    for MCbranch in MCbranches:
+                        events[MCbranch] = events[MCbranch][events['Rec_MC_index']]
+
+                    if save_customid:
+                        events['Rec_customid'] = self.get_customid(events['MC_PDG'])
+                    
+                    df = ak.concatenate([df, events])
+                
+                print(f"{sample} data finished processing, now saving...")
+                
+                # Zip all MCbranches together and remove the leading MC_ so uproot can add it back later 
+                per_mc = ak.zip({ branch[3:] : df[branch] for branch in MCbranches })
+                # Zip all RECbranches together and remove the leading Rec_ so uproot can add it back later
+                per_rec = ak.zip({ branch[4:] : df[branch] for branch in RECbranches+['Rec_customid'] })
+                # Zip all EVTbranches together and DO NOT remove any leading characters as uproot will not make a counter for these branches
+                per_event = ak.zip({ branch : df[branch] for branch in EVTbranches })
+
+                outfile[tree_name] = { "": per_event, "MC": per_mc, "Rec": per_rec }
+                if show_status:
+                    print(f"Data from {sample} saved to {os.path.join(self.outputpath, out_name[sample]+'.root')}")
+                    print("-------------------------------------------------")
+
+    def get_customid(self, PIDarray):
+        """
+        Return custom id from PDG
+
+        Scheme:
+            Neutrals (photons)     = 10
+            Charged leptons ~ 20
+                - e+e-     = 21
+                - mu+mu-   = 22
+                - tau+tau- = 23
+            Neutral hadrons ~ 30
+                - Neutral mesons   = 34
+                - Neutral baryons  = 35
+            Charged hadrons ~ 40
+                - Charged mesons   = 44
+                - Charged baryons  = 45
+        """
+        lengths = ak.num(PIDarray, axis=-1)
+        temp = ak.flatten(abs(PIDarray), axis=-1)
+        condition_list = [
+                # Leptons
+                temp == 11,
+                temp == 13,
+                temp == 15,
+
+                # Mesons
+                (temp // 1000 == 0) & (temp // 100 != 0) & ( ((temp//100 % 10)+(temp // 10 % 10)) % 2 == 0 ),
+                (temp // 1000 == 0) & (temp // 100 != 0) & ( ((temp//100 % 10)+(temp // 10 % 10)) % 2 != 0 ),
+
+                # Baryons
+                (temp // 1000 != 0) & ( ((temp // 1000 % 10)+(temp // 100 % 10)+(temp // 10 % 10)) % 2 == 0 ),
+                (temp // 1000 != 0) & ( ((temp // 1000 % 10)+(temp // 100 % 10)+(temp // 10 % 10)) % 2 != 0 )
+            ]
+
+        choice_list = [21, 22, 23, 34, 44, 35, 45]
+
+        return ak.unflatten(np.select(condition_list, choice_list, 10), lengths, axis=-1)
+
+
+if __name__=="__main__":
+
+    handler = TupleHandler()
+    handler.get_branches_from_recp(use_defaults=True, overwrite=True)
