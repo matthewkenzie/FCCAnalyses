@@ -23,3 +23,5 @@ Some notes from Ritwik
  - The `TupleHandler` class is meant to provide a modular way to access `stage0` files (and in the future all
    processed ntuples) to selectively store, display, or plot relevant variables.
  - Expected to work as `variable_plotter.py` but with much greater functionality
+   - `get_branch_data` for cuts
+   - `get_branches_from_recp` to get corresponding MC data of reconstructed particles
