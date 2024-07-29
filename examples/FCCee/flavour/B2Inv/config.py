@@ -6,6 +6,9 @@ samples = [
     "p8_ee_Zud_ecm91",
 ]
 
+stage0dir_in = '/r01/lhcb/mkenzie/fcc/B2Inv/stage0/'
+stage0dir_out = '/r01/lhcb/rrm42/fcc/post_stage0/'
+
 sample_allocations = {
     "signal" : ["p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu"],
     "background": ["p8_ee_Zbb_ecm91", "p8_ee_Zcc_ecm91", "p8_ee_Zss_ecm91", "p8_ee_Zud_ecm91"],
@@ -71,3 +74,12 @@ PIDs = {
         "K-star":     -323,
     }
 }
+
+# Samples of post_stage0 analysis
+samples_poststage0 = [
+    "Bs2NuNu_fromrecp",
+    "bb_fromrecp",
+    "cc_fromrecp",
+    "ss_fromrecp",
+    "ud_fromrecp",
+]

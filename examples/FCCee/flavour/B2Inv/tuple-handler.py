@@ -54,12 +54,14 @@ class TupleHandler():
         self.set_outputpath(outputpath)
 
         self.config_essential_attributes = ['samples',
+                                            'stage0dir_in',
+                                            'stage0dir_out',
                                             'sample_allocations',
                                             'titles',
                                             'prod_frac',
                                             'branching_fractions',
                                             'efficiencies',
-                                            'PIDs']
+                                            'samples_poststage0']
 
         # Instantiating methods
         self.configure()
@@ -71,10 +73,9 @@ class TupleHandler():
     def set_inputpath(self, inputpath):
         ''' Define directory in which config.samples are located. If None use default'''
         if inputpath is None:
-            defaultpath = '/r01/lhcb/mkenzie/fcc/B2Inv/stage0/'
-            if not os.path.exists(defaultpath):
+            if not os.path.exists(cfg.stage0dir_in):
                 raise RuntimeError(f"Default input path {defaultpath} does not exist. Please ensure that the default directory is set correctly or use the optional argument to set it.")
-            self.inputpath = '/r01/lhcb/mkenzie/fcc/B2Inv/stage0/'
+            self.inputpath = cfg.stage0dir_in
         else:
             if not os.path.exists(inputpath):
                 raise RuntimeError(f"No such path: {inputpath}")
@@ -83,14 +84,13 @@ class TupleHandler():
     def set_outputpath(self, outputpath):
         ''' Define directory to save files to. If None use default.'''
         if outputpath is None:
-            defaultpath = '/r01/lhcb/rrm42/fcc/post_stage0/'
-            if not os.path.exists(defaultpath):
+            if not os.path.exists(cfg.stage0dir_out):
                 try:
-                    subprocess.run(["mkdir", defaultpath], check=True)
+                    subprocess.run(["mkdir", cfg.stage0dir_out], check=True)
                 except subprocess.CalledProcessError:
                     print(f"Default path {defaultpath} does not exist or could not be created. Please ensure that the default directory is set correctly or use the optional argument to set it.")
 
-            self.outputpath = defaultpath
+            self.outputpath = cfg.stage0dir_out
 
         else:
             if not os.path.exists(outputpath):
@@ -471,7 +471,7 @@ class TupleHandler():
 
         # Initialise custom sample files
         if sample_select is not None:
-            samples = [ cfg.samples[i] for i in cfg.samples ]
+            samples = [ cfg.samples[i] for i in sample_select ]
         else:
             samples = cfg.samples
 
@@ -629,6 +629,8 @@ class TupleHandler():
                 df = []
                 # Pass all expressions to uproot
                 for events in uproot.iterate(self.path_dict[sample], expressions=all_expressions, aliases=all_aliases):
+                    is show_status:
+                        print(f"Opened {events}, processing...")
                     for MCbranch in MCbranches:
                         events[MCbranch] = events[MCbranch][events['Rec_MC_index']]
 
@@ -693,4 +695,4 @@ class TupleHandler():
 if __name__=="__main__":
 
     handler = TupleHandler()
-    handler.get_branches_from_recp(use_defaults=True, overwrite=True)
+    #handler.get_branches_from_recp(use_defaults=True, overwrite=True)
