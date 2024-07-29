@@ -161,12 +161,15 @@ class TupleHandler():
         print(f"\n\nUsing {os.path.abspath(cfg.__file__)} as config...\n")
         print(f"Samples from {self.inputpath}...\n")
         print(f"Saving to {self.outputpath}...\n\n")
-        print("-------------------------------------------------")
         time.sleep(1)
+        
         if self.file_dict is not None: 
             print(f"File paths saved")
         if self.hist_data is not None:
             print(f"Current histogram data: {self.hist_data}")
+            
+        print("-------------------------------------------------")
+
 
     def clear_hist_data(self):
         self.hist_data = { }
@@ -347,6 +350,11 @@ class TupleHandler():
                     self.hist_data[sample] = np.append(self.hist_data[sample], 
                                                        ak.ravel(tree[branches]).to_numpy())
 
+    #################################################
+    #
+    # WIP ----> PLOT DATA FROM SELF.HIST_DATA
+    #
+    #################################################
     def plot_histogram(self,
                        external_data=None,
                        style='all-backgrounds',
@@ -399,7 +407,7 @@ class TupleHandler():
     #
     # Issues ---> eager writing of data (everything stored in an awkward Array before writing)
     #        ---> have to zip different variables together before passing to uproot
-    #             ---> as a result uproot makes two counters nMC and nRec which are clones
+    #                 as a result uproot makes two counters nMC and nRec which are clones
     def get_branches_from_recp(self,
                                use_defaults,
                                EVTbranches=None,
