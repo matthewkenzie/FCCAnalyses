@@ -479,11 +479,11 @@ class TupleHandler():
         
         # Update names of root files
         if out_name is None:
-            out_name = {cfg.samples[0]: 'Bs2NuNu_datafromrecp',
-                        cfg.samples[1]: 'bb_datafromrecp',
-                        cfg.samples[2]: 'cc_datafromrecp',
-                        cfg.samples[3]: 'ss_datafromrecp',
-                        cfg.samples[4]: 'ud_datafromrecp'}
+            out_name = {cfg.samples[0]: 'Bs2NuNu_fromrecp',
+                        cfg.samples[1]: 'bb_fromrecp',
+                        cfg.samples[2]: 'cc_fromrecp',
+                        cfg.samples[3]: 'ss_fromrecp',
+                        cfg.samples[4]: 'ud_fromrecp'}
         
         # Update tree name used by root files
         tree_name = tree_name if tree_name is not None else 'events'
@@ -629,7 +629,7 @@ class TupleHandler():
                 df = []
                 # Pass all expressions to uproot
                 for events in uproot.iterate(self.path_dict[sample], expressions=all_expressions, aliases=all_aliases):
-                    is show_status:
+                    if show_status:
                         print(f"Opened {events}, processing...")
                     for MCbranch in MCbranches:
                         events[MCbranch] = events[MCbranch][events['Rec_MC_index']]
