@@ -1,3 +1,6 @@
+########################################################
+# TEMPORARY PLOTTER -- ONLY FOR QUICK AND DIRTY PLOTS
+########################################################
 import os
 import numpy as np
 import uproot
