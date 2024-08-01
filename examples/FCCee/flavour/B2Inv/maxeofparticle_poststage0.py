@@ -14,20 +14,20 @@ bbfile = os.path.join(filepath, cfg.samples_poststage0[1]+'.root')
 
 with uproot.open(sigfile+':events') as tree:
     
-    data_min = uproot.concatenate(tree, expressions=['Rec_e', 'Rec_p'], cut = '(Thrust_delE > 30) & (Rec_cosrel2thrust > 0) & (Rec_customid // 10 == 2)')
+    data_min = uproot.concatenate(tree, expressions=['Rec_e', 'Rec_p'], cut = '(Thrust_delE > 35) & (Rec_cosrel2thrust > 0) & (abs(MC_PDG) == 211)')
     min_p = ak.max(data_min['Rec_p'], axis=-1)
     min_e = ak.max(data_min['Rec_e'], axis=-1)
-    data_max = uproot.concatenate(tree, expressions=['Rec_e', 'Rec_p'], cut = '(Thrust_delE > 30) & (Rec_cosrel2thrust < 0) & (Rec_customid // 10 == 2)')
+    data_max = uproot.concatenate(tree, expressions=['Rec_e', 'Rec_p'], cut = '(Thrust_delE > 35) & (Rec_cosrel2thrust < 0) & (abs(MC_PDG) == 211)')
     max_p = ak.max(data_max['Rec_p'], axis=-1)
     max_e = ak.max(data_max['Rec_e'], axis=-1)
 
 print("Signal files done")
 
 with uproot.open(bbfile+':events') as tree:
-    data_min = uproot.concatenate(tree, expressions=['Rec_e', 'Rec_p'], cut = '(Thrust_delE > 30) & (Rec_cosrel2thrust > 0) & (Rec_customid // 10 == 2)')
+    data_min = uproot.concatenate(tree, expressions=['Rec_e', 'Rec_p'], cut = '(Thrust_delE > 35) & (Rec_cosrel2thrust > 0) & (abs(MC_PDG) == 211)')
     back_min_p = ak.max(data_min['Rec_p'], axis=-1)
     back_min_e = ak.max(data_min['Rec_e'], axis=-1)
-    data_max = uproot.concatenate(tree, expressions=['Rec_e', 'Rec_p'], cut = '(Thrust_delE > 30) & (Rec_cosrel2thrust < 0) & (Rec_customid // 10 == 2)')
+    data_max = uproot.concatenate(tree, expressions=['Rec_e', 'Rec_p'], cut = '(Thrust_delE > 35) & (Rec_cosrel2thrust < 0) & (abs(MC_PDG) == 211)')
     back_max_p = ak.max(data_max['Rec_p'], axis=-1)
     back_max_e = ak.max(data_max['Rec_e'], axis=-1)
 
@@ -87,10 +87,10 @@ ax.hist(
         label = r'$B_s^0 \to \nu \bar{\nu}$ : Emax',
         **max_histopts)
 
-ax.set_xlim((0, 15))
+ax.set_xlim((0, 45))
 ax.set_xlabel('Rec_p')
 ax.set_ylabel('Density')
-ax.set_title(r'$|\vec{p}|$ of most energetic lepton, with $\Delta E$ cut')
+ax.set_title(r'$|\vec{p}|$ of most energetic pion, with $\Delta E$ cut')
 ax.legend()
 
 plt.savefig('/usera/rrm42/private/fcc-figures/part-count/k_p.png')
@@ -125,10 +125,10 @@ ax.hist(
         label = r'$B_s^0 \to \nu \bar{\nu}$ : Emax',
         **max_histopts)
 
-ax.set_xlim((0, 15))
+ax.set_xlim((0, 45))
 ax.set_xlabel('Rec_e')
 ax.set_ylabel('Density')
-ax.set_title(r'$E$ of most energetic lepton, with $\Delta E$ cut')
+ax.set_title(r'$E$ of most energetic pion, with $\Delta E$ cut')
 ax.legend()
 
 plt.savefig('/usera/rrm42/private/fcc-figures/part-count/k_e.png')

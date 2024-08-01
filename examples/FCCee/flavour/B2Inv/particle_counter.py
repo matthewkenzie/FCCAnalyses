@@ -112,13 +112,13 @@ filepath = '/r01/lhcb/rrm42/fcc/post_stage0/'
 cosexpr = 'MC_cosrel2thrust'
 Ecut = 'Thrust_Emin < 20'
 
-sigfile = os.path.join(filepath, 'Bs2NuNu_datafromrecp.root')
+sigfile = os.path.join(filepath, 'Bs2NuNu_fromrecp.root')
 sigdict_nocut = particle_counter(sigfile, Ecut, cosexpr, False)
 print("Signal files without cut done")
 sigdict_Emcut = particle_counter(sigfile, Ecut, cosexpr, True)
 print("Signal files with cut done")
 
-bbfile = os.path.join(filepath, 'bb_datafromrecp.root')
+bbfile = os.path.join(filepath, 'bb_fromrecp.root')
 bbdict_nocut = particle_counter(bbfile, Ecut, cosexpr, False)
 print("Background files without cut done")
 bbdict_Emcut = particle_counter(bbfile, Ecut, cosexpr, True)
@@ -164,20 +164,6 @@ for i in titledict:
 
     fig, ax = plt.subplots(1, 2, figsize=(12, 6))
     
-    ax[0].hist(
-            x = sigdict_nocut['min_'+i],
-            bins=np.arange(min(sigdict_nocut['min_'+i]), max(sigdict_nocut['min_'+i]) + 1, 1),
-            density = False,
-            label = r"$B_s^0 \to \nu\bar{\nu}$: Emin",
-            **min_histopts)
-    
-    ax[0].hist(
-            x = sigdict_nocut['max_'+i],
-            bins=np.arange(min(sigdict_nocut['max_'+i]), max(sigdict_nocut['max_'+i]) + 1, 1),
-            density = False,
-            label = r"$B_s^0 \to \nu\bar{\nu}$: Emax",
-            **max_histopts)
-    
     ax001 = ax[0].twinx()
     ax001.hist(
             x = bbdict_nocut['min_'+i],
@@ -192,6 +178,20 @@ for i in titledict:
             density = False,
             label = r"$Z \to b\bar{b}$: Emax",
             **bbmax_histopts)
+    
+    ax[0].hist(
+            x = sigdict_nocut['min_'+i],
+            bins=np.arange(min(sigdict_nocut['min_'+i]), max(sigdict_nocut['min_'+i]) + 1, 1),
+            density = False,
+            label = r"$B_s^0 \to \nu\bar{\nu}$: Emin",
+            **min_histopts)
+    
+    ax[0].hist(
+            x = sigdict_nocut['max_'+i],
+            bins=np.arange(min(sigdict_nocut['max_'+i]), max(sigdict_nocut['max_'+i]) + 1, 1),
+            density = False,
+            label = r"$B_s^0 \to \nu\bar{\nu}$: Emax",
+            **max_histopts)
 
     ax[0].set_ylabel('Signal occurrences')
     ax[0].set_xlabel('Count')
@@ -201,20 +201,6 @@ for i in titledict:
     ax001.set_ylabel(r'$b\bar{b}$ occurences', color='tab:blue')
     ax001.tick_params(labelsize=8, labelcolor='tab:blue')
     ax001.legend(loc='center right')
-
-    ax[1].hist(
-            x = sigdict_Emcut['min_'+i],
-            bins=np.arange(min(sigdict_Emcut['min_'+i]), max(sigdict_Emcut['min_'+i]) + 1, 1),
-            density = False,
-            label = r"$B_s^0 \to \nu\bar{\nu}$: Emin",
-            **min_histopts)
-    
-    ax[1].hist(
-            x = sigdict_Emcut['max_'+i],
-            bins=np.arange(min(sigdict_Emcut['max_'+i]), max(sigdict_Emcut['max_'+i]) + 1, 1),
-            density = False,
-            label = r"$B_s^0 \to \nu\bar{\nu}$: Emax",
-            **max_histopts)
     
     ax002 = ax[1].twinx()
     ax002.hist(
@@ -230,6 +216,20 @@ for i in titledict:
             density = False,
             label = r"$Z \to b\bar{b}$: Emax",
             **bbmax_histopts)
+
+    ax[1].hist(
+            x = sigdict_Emcut['min_'+i],
+            bins=np.arange(min(sigdict_Emcut['min_'+i]), max(sigdict_Emcut['min_'+i]) + 1, 1),
+            density = False,
+            label = r"$B_s^0 \to \nu\bar{\nu}$: Emin",
+            **min_histopts)
+    
+    ax[1].hist(
+            x = sigdict_Emcut['max_'+i],
+            bins=np.arange(min(sigdict_Emcut['max_'+i]), max(sigdict_Emcut['max_'+i]) + 1, 1),
+            density = False,
+            label = r"$B_s^0 \to \nu\bar{\nu}$: Emax",
+            **max_histopts)
 
     ax[1].set_ylabel('Signal occurrences')
     ax[1].set_xlabel('Count')
