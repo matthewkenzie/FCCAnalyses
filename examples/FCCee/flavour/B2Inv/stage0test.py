@@ -199,6 +199,10 @@ class RDFanalysis():
             .Define("Rec_VertexObject", "FCCAnalyses::myUtils::get_VertexObject(MC_VertexObject,ReconstructedParticles,EFlowTrack_1,MCRecoAssociationsRec,MCRecoAssociationsGen)")
             .Define("Rec_vtx_n",          "int(Rec_VertexObject.size())")
             .Define("Rec_vtx_mcind",      "myUtils::get_Vertex_indMC(Rec_VertexObject)")
+            
+            # Additionally get list of RecoParticle indices for each vertex
+            .Define("Rec_vtx_recoind",    "myUtils::get_Vertex_ind(Rec_VertexObject)")
+
             .Define("Rec_vtx_x",          "myUtils::get_Vertex_x(Rec_VertexObject)")
             .Define("Rec_vtx_y",          "myUtils::get_Vertex_y(Rec_VertexObject)")
             .Define("Rec_vtx_z",          "myUtils::get_Vertex_z(Rec_VertexObject)")
@@ -491,6 +495,9 @@ class RDFanalysis():
             "EVT_Thrust_Emin_n_charged",
             "EVT_Thrust_Emin_n_neutral",
             "EVT_Thrust_Emin_ndv",
+
+            # Test for nan issue
+            "Rec_vtx_recoind",
         ]
         return branchList
 
