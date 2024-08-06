@@ -109,7 +109,7 @@ def particle_counter(file, Ecut, cosexpr, cut):
 #cosexpr = '(MC_px*EVT_Thrust_x + MC_py*EVT_Thrust_y + MC_pz*EVT_Thrust_z)/(MC_p*(EVT_Thrust_x**2 + EVT_Thrust_y**2 + EVT_Thrust_z**2)**0.5)'
 
 filepath = '/r01/lhcb/rrm42/fcc/post_stage0/'
-cosexpr = 'MC_cosrel2thrust'
+cosexpr = 'Rec_cosrel2thrust'
 Ecut = 'Thrust_Emin < 20'
 
 sigfile = os.path.join(filepath, 'Bs2NuNu_fromrecp.root')
@@ -127,12 +127,12 @@ print("Background files with cut done")
 
 ###################### Plotting #############################
 
-titledict = {'k': r"Number of Kaons ($K^0_L$ or $K^\pm$)",
-             'p': r"Number of Pions ($\pi^\pm$, no rec $\pi^0$)",
-             'e': r"Number of $e^\pm$",
-             'm': r"Number of $\mu^\pm$",
-             't': r"Number of $\tau^\pm$",
-             'lep': r"Total number of charged leptons"}
+titledict = {'k': r"Number of Rec Kaons ($K^0_L$ or $K^\pm$)",
+             'p': r"Number of Rec Pions ($\pi^\pm$, no rec $\pi^0$)",
+             'e': r"Number of Rec $e^\pm$",
+             'm': r"Number of Rec $\mu^\pm$",
+             't': r"Number of Rec $\tau^\pm$",
+             'lep': r"Total Rec number of charged leptons"}
 
 min_histopts = {
         'histtype': 'step',
