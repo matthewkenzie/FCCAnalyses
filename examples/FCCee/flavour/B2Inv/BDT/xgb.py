@@ -289,6 +289,10 @@ data_dmatrix = xgb.DMatrix(data=x_train,label=y_train)
 xgb_cv = xgb.cv(dtrain=data_dmatrix, params=config_dict, nfold=4, num_boost_round=50, early_stopping_rounds=10, metrics="auc", as_pandas=True, seed=123)
 print(xgb_cv.head())
 
+# Save model to output file
+bdt.save_model("/r01/lhcb/rrm42/fcc/bdt1.json")
+print("Model saved to /r01/lhcb/rrm42/fcc/bdt1.json")
+
 feature_importances = pd.DataFrame(bdt.feature_importances_,
                                    index = training_columns,
                                    columns=['importance']).sort_values('importance',ascending=False)
