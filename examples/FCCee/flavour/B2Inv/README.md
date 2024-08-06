@@ -25,3 +25,6 @@ Some notes from Ritwik
  - Expected to work as `variable_plotter.py` but with much greater functionality
    - `get_branch_data` for cuts
    - `get_branches_from_recp` to get corresponding MC data of reconstructed particles
+
+### NOTES
+ - `myUtils` contains changes. Added 3 functions `get_Vertex_Px()`, `get_Vertex_Py()`, `get_Vertex_Pz()`. May need to delete before final commits.
