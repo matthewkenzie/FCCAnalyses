@@ -89,8 +89,95 @@ int hasPV(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
   return result;
 }
 
+/********************************** 
+  B2INV ADDITIONAL STAGE0 FUNCTIONS
+***********************************/
+
+getRPinHemis::getRPinHemis(bool arg_pos){
+  _pos = arg_pos;
+}
+ROOT::VecOps::RVec<int> getRPinHemis::operator() (ROOT::VecOps::RVec<float> thrustcostheta) {
+  ROOT::VecOps::RVec<int> result;
+  for (auto &angle:thrustcostheta){
+    // Initialise with `indeterminate` value
+    int value = -1;
+
+    // Emin hemisphere
+    if (_pos){
+      if (angle > 0.) value = 1;
+      else if (angle < 0.) value = 0;
+    }
+
+    // Emax hemisphere
+    else {
+      if (angle < 0.) value = 1;
+      else if (angle > 0.) value = 0;
+    }
+
+    result.push_back(value);
+  }
+
+  return result;
+}
+
+std::vector<int> get_RecoP_HemisNumInfo(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop, 
+    ROOT::VecOps::RVec<int> should_eval) {
+  std::vector<int> result {0, 0, 0};
+
+  for (size_t i = 0; i < recop.size(); ++i){
+    if (should_eval.at(i) != (int)1) continue;
+    #if edm4hep_VERSION > EDM4HEP_VERSION(0, 10, 5)
+      else if ((recop.at(i).PDG == 11) || (recop.at(i).PDG == 13)) result[0]++;
+      else if (recop.at(i).PDG == 321) result[1]++;
+      else if (recop.at(i).PDG == 211) result[2]++;
+    #else
+      else if ((recop.at(i).type == 11) || (recop.at(i).type == 13)) result[0]++;
+      else if (recop.at(i).type == 321) result[1]++;
+      else if (recop.at(i).type == 211) result[2]++;
+    #endif
+  }
+
+  return result;
+}
+
+std::vector<float> get_RecoP_HemisEInfo(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop, 
+    ROOT::VecOps::RVec<int> should_eval) {
+  std::vector<float> result {0., 0., 0.};
+  
+  for (size_t i = 0; i < recop.size(); ++i){
+    if (should_eval.at(i) != (int)1) continue;
+    #if edm4hep_VERSION > EDM4HEP_VERSION(0, 10, 5)
+      else if ((recop.at(i).PDG == 11) || (recop.at(i).PDG == 13)) {
+        if (recop.at(i).energy > result[0]) result[0] = recop.at(i).energy;
+      }
+      else if (recop.at(i).PDG == 321) {
+        if (recop.at(i).energy > result[1]) result[1] = recop.at(i).energy;
+      }
+      else if (recop.at(i).PDG == 211) {
+        if (recop.at(i).energy > result[2]) result[2] = recop.at(i).energy;
+      }
+    #else
+      else if ((recop.at(i).type == 11) || (recop.at(i).type == 13)) {
+        if (recop.at(i).energy > result[0]) result[0] = recop.at(i).energy;
+      }
+      else if (recop.at(i).type == 321) {
+        if (recop.at(i).energy > result[1]) result[1] = recop.at(i).energy;
+      }
+      else if (recop.at(i).type == 211) {
+        if (recop.at(i).energy > result[2]) result[2] = recop.at(i).energy; 
+      }
+    #endif
+  }
+
+  return result;
+}
+
+/**********************************
+  END OF B2INV FUNCTIONS
+***********************************/
+
 ROOT::VecOps::RVec<float> get_Vertex_mass(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
-						   ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco){
+						   ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco) {
 
   ROOT::VecOps::RVec<float> result;
   for (auto &p:vertex){

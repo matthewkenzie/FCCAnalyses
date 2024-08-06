@@ -77,6 +77,42 @@ namespace myUtils{
     ROOT::VecOps::RVec<int> operator() (ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop);
   };
 
+  /********************************** 
+    B2INV ADDITIONAL STAGE0 FUNCTIONS
+  ***********************************/
+  
+  // Use Rec_AxisCosTheta to get information about which hemisphere the particle is travelling in
+  // 1 if true, 0 if false, -1 if indeterminate (costheta exactly 0 somehow)
+  struct getRPinHemis {
+  public:
+    getRPinHemis(bool arg_pos=0);
+    ROOT::VecOps::RVec<int> operator() (const ROOT::VecOps::RVec<float> angle);
+
+  private:
+    bool _pos; /// Which hemisphere to select, false/0=cosTheta<0 true/1=cosTheta>0, Default=0
+  };
+  
+  
+  // Count of particle categories in given hemisphere
+  // `should_eval` is meant to be the output of getRPinHemis
+  /*   output[0] -> number of leptons (e, mu) in the hemisphere
+   *   output[1] -> number of kaons (k+/k-) in the hemisphere
+   *   output[2] -> number of pions (pi+/pi-) in the hemisphere
+  */
+  std::vector<int> get_RecoP_HemisNumInfo(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop, 
+                ROOT::VecOps::RVec<int> should_eval);
+  
+  // Maximum energy of different particle categories in given hemisphere
+  // `should_eval` is meant to be the output of get_RP_in_hemis()()
+  /*   output[0] -> max energy of leptons (e, mu) in the hemisphere
+   *   output[1] -> max energy of kaons (k+/k-) in the hemisphere
+   *   output[2] -> max energy of pions (pi+/pi-) in the hemisphere
+  */
+  std::vector<float> get_RecoP_HemisEInfo(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop, 
+                ROOT::VecOps::RVec<int> should_eval);
+  /********************************** 
+    END OF B2INV FUNCTIONS
+  ***********************************/
 
   ROOT::VecOps::RVec<edm4hep::TrackState> get_pseudotrack(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
 							  ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop);
