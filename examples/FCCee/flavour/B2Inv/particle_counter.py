@@ -120,127 +120,255 @@ print("Signal files with cut done")
 
 bbfile = os.path.join(filepath, 'bb_fromrecp.root')
 bbdict_nocut = particle_counter(bbfile, Ecut, cosexpr, False)
-print("Background files without cut done")
+print("bb files without cut done")
 bbdict_Emcut = particle_counter(bbfile, Ecut, cosexpr, True)
-print("Background files with cut done")
+print("bb files with cut done")
 
+ccfile = os.path.join(filepath, 'cc_fromrecp.root')
+ccdict_nocut = particle_counter(ccfile, Ecut, cosexpr, False)
+print("cc files without cut done")
+ccdict_Emcut = particle_counter(ccfile, Ecut, cosexpr, True)
+print("cc files with cut done")
+
+ssfile = os.path.join(filepath, 'ss_fromrecp.root')
+ssdict_nocut = particle_counter(ssfile, Ecut, cosexpr, False)
+print("ss files without cut done")
+ssdict_Emcut = particle_counter(ssfile, Ecut, cosexpr, True)
+print("ss files with cut done")
+
+udfile = os.path.join(filepath, 'ud_fromrecp.root')
+uddict_nocut = particle_counter(udfile, Ecut, cosexpr, False)
+print("ud files without cut done")
+uddict_Emcut = particle_counter(udfile, Ecut, cosexpr, True)
+print("ud files with cut done")
 
 ###################### Plotting #############################
 
 titledict = {'k': r"Number of Rec Kaons ($K^0_L$ or $K^\pm$)",
-             'p': r"Number of Rec Pions ($\pi^\pm$, no rec $\pi^0$)",
+             'p': r"Number of Rec Pions ($\pi^\pm$)",
              'e': r"Number of Rec $e^\pm$",
              'm': r"Number of Rec $\mu^\pm$",
-             't': r"Number of Rec $\tau^\pm$",
-             'lep': r"Total Rec number of charged leptons"}
+             #'t': r"Number of Rec $\tau^\pm$",
+             'lep': r"Number of Rec leptons ($e/\mu$)"}
+
+#min_histopts = {
+#        'histtype': 'step',
+#        'lw': 2,
+#        'color': 'blue'}
+#
+#max_histopts = {
+#        'histtype': 'step',
+#        'lw': 1.5,
+#        'color': 'red'}
+#
+
+bkmin_histopts = {
+        'histtype': 'step',
+        'lw': 2,
+        'color': 'orange'}
+
+bkmax_histopts = {
+        'histtype': 'step',
+        'lw': 2,
+        'ls': '--',
+        'color': 'green'}
 
 min_histopts = {
         'histtype': 'step',
         'lw': 2,
-        'color': 'blue',
-        'hatch': '////'}
+        'color': 'red'}
 
 max_histopts = {
         'histtype': 'step',
         'lw': 2,
-        'color': 'red',
-        'hatch': '\\'}
-
-bbmin_histopts = {
-        'histtype': 'stepfilled',
-        'lw': 1,
-        'fill': True,
-        'color': 'orange',
-        'alpha': 0.4}
-
-bbmax_histopts = {
-        'histtype': 'stepfilled',
-        'lw': 1,
-        'fill': True,
-        'color': 'green',
-        'alpha': 0.4}
+        'ls': '--',
+        'color': 'cornflowerblue'}
 
 for i in titledict:
 
-    fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
     
-    ax001 = ax[0].twinx()
-    ax001.hist(
-            x = bbdict_nocut['min_'+i],
-            bins=np.arange(min(bbdict_nocut['min_'+i]), max(bbdict_nocut['min_'+i]) + 1, 1),
-            density = False,
-            label = r"$Z \to b\bar{b}$: Emin",
-            **bbmin_histopts)
-
-    ax001.hist(
-            x = bbdict_nocut['max_'+i],
-            bins=np.arange(min(bbdict_nocut['max_'+i]), max(bbdict_nocut['max_'+i]) + 1, 1),
-            density = False,
-            label = r"$Z \to b\bar{b}$: Emax",
-            **bbmax_histopts)
-    
-    ax[0].hist(
+    _, bins, _ = ax1.hist(
             x = sigdict_nocut['min_'+i],
             bins=np.arange(min(sigdict_nocut['min_'+i]), max(sigdict_nocut['min_'+i]) + 1, 1),
-            density = False,
+            density = True,
             label = r"$B_s^0 \to \nu\bar{\nu}$: Emin",
             **min_histopts)
-    
-    ax[0].hist(
+
+    ax1.hist(
             x = sigdict_nocut['max_'+i],
-            bins=np.arange(min(sigdict_nocut['max_'+i]), max(sigdict_nocut['max_'+i]) + 1, 1),
-            density = False,
+            bins=bins,
+            density = True,
             label = r"$B_s^0 \to \nu\bar{\nu}$: Emax",
             **max_histopts)
 
-    ax[0].set_ylabel('Signal occurrences')
-    ax[0].set_xlabel('Count')
-    ax[0].set_title('Without cut')
-    ax[0].tick_params(labelsize=8)
-    ax[0].legend(loc='upper right')
-    ax001.set_ylabel(r'$b\bar{b}$ occurences', color='tab:blue')
-    ax001.tick_params(labelsize=8, labelcolor='tab:blue')
-    ax001.legend(loc='center right')
+    ax1.set_ylabel('Density')
+    ax1.set_xlabel('Count')
+    ax1.set_title('Without cut')
+    ax1.tick_params(labelsize=10)
+    ax1.legend(loc='best')
     
-    ax002 = ax[1].twinx()
-    ax002.hist(
-            x = bbdict_Emcut['min_'+i],
-            bins=np.arange(min(bbdict_Emcut['min_'+i]), max(bbdict_Emcut['min_'+i]) + 1, 1),
-            density = False,
-            label = r"$Z \to b\bar{b}$: Emin",
-            **bbmin_histopts)
-
-    ax002.hist(
-            x = bbdict_Emcut['max_'+i],
-            bins=np.arange(min(bbdict_Emcut['max_'+i]), max(bbdict_Emcut['max_'+i]) + 1, 1),
-            density = False,
-            label = r"$Z \to b\bar{b}$: Emax",
-            **bbmax_histopts)
-
-    ax[1].hist(
+    ax2.hist(
             x = sigdict_Emcut['min_'+i],
-            bins=np.arange(min(sigdict_Emcut['min_'+i]), max(sigdict_Emcut['min_'+i]) + 1, 1),
-            density = False,
+            bins=bins,
+            density = True,
             label = r"$B_s^0 \to \nu\bar{\nu}$: Emin",
             **min_histopts)
-    
-    ax[1].hist(
-            x = sigdict_Emcut['max_'+i],
-            bins=np.arange(min(sigdict_Emcut['max_'+i]), max(sigdict_Emcut['max_'+i]) + 1, 1),
-            density = False,
+
+    ax2.hist(
+            x = sigdict_nocut['max_'+i],
+            bins=bins,
+            density = True,
             label = r"$B_s^0 \to \nu\bar{\nu}$: Emax",
             **max_histopts)
 
-    ax[1].set_ylabel('Signal occurrences')
-    ax[1].set_xlabel('Count')
-    ax[1].set_title('With Emin cut')
-    ax[1].tick_params(labelsize=8)
-    ax[1].legend(loc='upper right')
-    ax002.set_ylabel(r'$b\bar{b}$ occurrences', color='tab:blue')
-    ax002.tick_params(labelsize=8, labelcolor='tab:blue')
-    ax002.legend(loc='center right')
+    ax2.set_ylabel('Density')
+    ax2.set_xlabel('Count')
+    ax2.set_title('With Emin cut')
+    ax2.tick_params(labelsize=10)
+    ax2.legend(loc='best')
 
     fig.suptitle(titledict[i])
     fig.tight_layout()
-    plt.savefig('/r01/lhcb/rrm42/fcc/'+i+'.png', dpi=300)
-    print(f"/r01/lhcb/rrm42/fcc/{i}.png plot saved")
+    plt.savefig('/r01/lhcb/rrm42/fcc/'+i+'signal.pdf', dpi=300)
+    print(f"/r01/lhcb/rrm42/fcc/{i}signal.pdf plot saved")
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+    
+    _, bins, _ = ax1.hist(
+            x = bbdict_nocut['min_'+i],
+            bins=np.arange(min(bbdict_nocut['min_'+i]), max(bbdict_nocut['min_'+i]) + 1, 1),
+            density = True,
+            label = r"$Z \to b\bar{b}$: Emin",
+            **bkmin_histopts)
+
+    ax1.hist(
+            x = bbdict_nocut['max_'+i],
+            bins=bins,
+            density = True,
+            label = r"$Z \to b\bar{b}$: Emax",
+            **bkmax_histopts)
+
+    ax1.set_ylabel('Density')
+    ax1.set_xlabel('Count')
+    ax1.set_title('Without cut')
+    ax1.tick_params(labelsize=10)
+    ax1.legend(loc='best')
+    
+    ax2.hist(
+            x = bbdict_Emcut['min_'+i],
+            bins=bins,
+            density = True,
+            label = r"$Z \to b\bar{b}$: Emin",
+            **bkmin_histopts)
+
+    ax2.hist(
+            x = bbdict_nocut['max_'+i],
+            bins=bins,
+            density = True,
+            label = r"$Z \to b\bar{b}$: Emax",
+            **bkmax_histopts)
+
+    ax2.set_ylabel('Density')
+    ax2.set_xlabel('Count')
+    ax2.set_title('With Emin cut')
+    ax2.tick_params(labelsize=10)
+    ax2.legend(loc='best')
+
+    fig.suptitle(titledict[i])
+    fig.tight_layout()
+    plt.savefig('/r01/lhcb/rrm42/fcc/'+i+'bb.pdf', dpi=300)
+    print(f"/r01/lhcb/rrm42/fcc/{i}bb.pdf plot saved")
+
+    bbweight = 0.1512
+    ccweight = 0.1203
+    ssweight = 0.1560
+    udweight = 0.1560 + 0.1160
+    
+    totmin_nocut = np.concatenate([bbdict_nocut['min_'+i], 
+                                  ccdict_nocut['min_'+i],
+                                  ssdict_nocut['min_'+i],
+                                  uddict_nocut['min_'+i]])
+    totmin_nocutweight = np.concatenate([bbweight*np.ones_like(bbdict_nocut['min_'+i]),
+                                        ccweight*np.ones_like(ccdict_nocut['min_'+i]),
+                                        ssweight*np.ones_like(ssdict_nocut['min_'+i]),
+                                        udweight*np.ones_like(uddict_nocut['min_'+i])])
+    
+    totmax_nocut = np.concatenate([bbdict_nocut['max_'+i], 
+                                  ccdict_nocut['max_'+i],
+                                  ssdict_nocut['max_'+i],
+                                  uddict_nocut['max_'+i]])
+    totmax_nocutweight = np.concatenate([bbweight*np.ones_like(bbdict_nocut['max_'+i]),
+                                        ccweight*np.ones_like(ccdict_nocut['max_'+i]),
+                                        ssweight*np.ones_like(ssdict_nocut['max_'+i]),
+                                        udweight*np.ones_like(uddict_nocut['max_'+i])])
+    
+    totmin_Emcut = np.concatenate([bbdict_Emcut['min_'+i], 
+                                  ccdict_Emcut['min_'+i],
+                                  ssdict_Emcut['min_'+i],
+                                  uddict_Emcut['min_'+i]])
+    totmin_Emcutweight = np.concatenate([bbweight*np.ones_like(bbdict_Emcut['min_'+i]),
+                                        ccweight*np.ones_like(ccdict_Emcut['min_'+i]),
+                                        ssweight*np.ones_like(ssdict_Emcut['min_'+i]),
+                                        udweight*np.ones_like(uddict_Emcut['min_'+i])])
+    
+    totmax_Emcut = np.concatenate([bbdict_Emcut['max_'+i], 
+                                  ccdict_Emcut['max_'+i],
+                                  ssdict_Emcut['max_'+i],
+                                  uddict_Emcut['max_'+i]])
+    totmax_Emcutweight = np.concatenate([bbweight*np.ones_like(bbdict_Emcut['max_'+i]),
+                                        ccweight*np.ones_like(ccdict_Emcut['max_'+i]),
+                                        ssweight*np.ones_like(ssdict_Emcut['max_'+i]),
+                                        udweight*np.ones_like(uddict_Emcut['max_'+i])])
+    
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
+    
+    _, bins, _ = ax1.hist(
+            x = totmin_nocut,
+            bins=np.arange(min(totmin_nocut), max(totmin_nocut), 1),
+            density = True,
+            weights = totmin_nocutweight,
+            label = r"Total background: Emin",
+            **bkmin_histopts)
+
+    ax1.hist(
+            x = totmax_nocut,
+            bins=bins,
+            density = True,
+            weights = totmax_nocutweight,
+            label = r"Total background: Emax",
+            **bkmax_histopts)
+
+    ax1.set_ylabel('Density')
+    ax1.set_xlabel('Count')
+    ax1.set_title('Without cut')
+    ax1.tick_params(labelsize=10)
+    ax1.legend(loc='best')
+    
+    ax2.hist(
+            x = totmin_Emcut,
+            bins=bins,
+            density = True,
+            weights = totmin_Emcutweight,
+            label = r"Total background: Emin",
+            **bkmin_histopts)
+
+    ax2.hist(
+            x = totmax_Emcut,
+            bins=bins,
+            density = True,
+            weights = totmax_Emcutweight,
+            label = r"Total background: Emax",
+            **bkmax_histopts)
+
+    ax2.set_ylabel('Density')
+    ax2.set_xlabel('Count')
+    ax2.set_title('With Emin cut')
+    ax2.tick_params(labelsize=10)
+    ax2.legend(loc='best')
+
+    fig.suptitle(titledict[i])
+    fig.tight_layout()
+    plt.savefig('/r01/lhcb/rrm42/fcc/'+i+'totbkg.pdf', dpi=300)
+    print(f"/r01/lhcb/rrm42/fcc/{i}totbkg.pdf plot saved")
+    
