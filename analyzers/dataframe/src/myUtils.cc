@@ -102,16 +102,16 @@ ROOT::VecOps::RVec<int> getRPinHemis::operator() (ROOT::VecOps::RVec<float> thru
     // Initialise with `indeterminate` value
     int value = -1;
 
-    // Emin hemisphere
+    // Emax hemisphere
     if (_pos){
-      if (angle > 0.) value = 1;
-      else if (angle < 0.) value = 0;
+      if (angle > 0.) value = 0;
+      else if (angle < 0.) value = 1;
     }
 
-    // Emax hemisphere
+    // Emin hemisphere
     else {
-      if (angle < 0.) value = 1;
-      else if (angle > 0.) value = 0;
+      if (angle < 0.) value = 0;
+      else if (angle > 0.) value = 1;
     }
 
     result.push_back(value);
