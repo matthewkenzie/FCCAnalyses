@@ -102,7 +102,7 @@ namespace myUtils{
     ROOT::VecOps::RVec<int> operator() (const ROOT::VecOps::RVec<float> angle);
 
   private:
-    bool _pos; /// Which hemisphere to select, false/0=cosTheta<0 true/1=cosTheta>0, Default=0
+    bool _pos; /// Which hemisphere to select, false selects cosTheta<0 true selects cosTheta>0, Default=0
   };
   
   /* output[0] -> info about leptons

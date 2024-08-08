@@ -47,129 +47,212 @@ class RDFanalysis():
             .Alias("ParticleParents", "Particle#0.index") # gen particle parents
             .Alias("ParticleChildren", "Particle#1.index") # gen particle children
 
+            ############################################################
+            ##            Non-EVT intermediate definitions            ##
+            ## I.e. which define Objects from which we get attributes ##
+            ############################################################
+            # --------------------------------------- #
+            #             MC intermediates            #
+            # --------------------------------------- #
+            # Pythia8 generatorStatus
+            # 21 - incoming particles of hardest process (e+ e- beams)
+            # 22 - intermediate particles of hardest process (Z)
+            # 23 - outgoing particles of hardest process (quark pair produced from Z)
+            #  1 - final-state particles
+            .Define("MC_ee",             "MCParticle::sel_genStatus(21)(Particle)")
+            .Define("MC_Z",              "MCParticle::sel_genStatus(22)(Particle)")
+            .Define("MC_qq",             "MCParticle::sel_genStatus(23)(Particle)")
+            .Define("MC_FS",             "MCParticle::sel_genStatus(1)(Particle)")
+
+            # --------------------------------------- #
+            #           MC_vtx intermediates          #
+            # --------------------------------------- #
+            .Define("MC_PrimaryVertex",  "MCParticle::get_EventPrimaryVertex(21)(Particle)")
+            .Define("MC_VertexObject",   "myUtils::get_MCVertexObject(Particle, ParticleParents")
+
+            # --------------------------------------- #
+            #           Rec_vtx intermediates         #
+            # --------------------------------------- #
+            # Get collection of tracks consistent with a PV (i.e. not downstream Ks, Lb etc. tracks)
+            # using the get_PrimaryTracks() method with a beam spot constraint under the following parameters
+            # bsc_sigma(x,y,z) = (4.5, 20e-3, 300)
+            # bsc_(x,y,z) = (0,0,0) 
+            .Define("Rec_PrimaryTracks", "VertexFitterSimple::get_PrimaryTracks( EFlow_Track_1, true, 4.5, 20e-3, 300, 0., 0., 0. )")
+            # Run the vertex fit using only the primary tracks with the same beamspot constraint
+            .Define("Rec_PrimaryVertexObject", "VertexFitterSimple::VertexFitter_Tk( 1, Rec_PrimaryTracks, true, 4.5, 20e-3, 300 )")
+            # function to get all reco vertices (uses MC vertex to seed the vertexing)
+            .Define("Rec_VertexObject",       "myUtils::get_VertexObject(MC_VertexObject, ReconstructedParticles, EFlowTrack_1, MCRecoAssociationsRec, MCRecoAssociationsGen)")
+
+            # --------------------------------------- #
+            #            Rec intermediates            #
+            # --------------------------------------- #
+            # actually add the PID hypothesis info to the RecParticles (based on MC truth)
+            # ie we assume perfect PID here
+            .Define("RecoParticlesPID", "myUtils::PID(ReconstructedParticles, MCRecoAssociationsRec, MCRecoAssociationsGen, Particle)")
+            # now update reco momentum based on the rec vertex
+            .Define("RecoParticlesPIDAtVertex", "myUtils::get_RP_atVertex(RecoParticlesPID, Rec_VertexObject)")
+
+            # --------------------------------------- #
+            #        List of intermediates used       #
+            #
+            # MC_ee
+            # MC_Z
+            # MC_qq
+            # MC_FS
+            # MC_PrimaryVertex
+            # MC_VertexObject
+            # Rec_PrimaryTracks
+            # Rec_PrimaryVertexObject
+            # Rec_VertexObject
+            # -- RecoParticlesPID : NOT USED EXCEPT TO DEFINE RECOPARTICLESPIDATVERTEX
+            # RecoParticlesPIDAtVertex
+            # --------------------------------------- #
+
+            #############################################
+            ##             MC IDs and Status           ##
+            #############################################
+            .Define("MC_n",           "MCParticle::get_n(Particle)")
+            .Define("MC_genStatus",   "MCParticle::get_genStatus(Particle)")
+            .Define("MC_PDG",         "MCParticle::get_pdg(Particle)")
+            .Define("MC_M1",          "myUtils::getMC_parent(0,Particle,ParticleParents)")
+            .Define("MC_M2",          "myUtils::getMC_parent(1,Particle,ParticleParents)")
+            .Define("MC_D1",          "myUtils::getMC_daughter(0,Particle,ParticleChildren)")
+            .Define("MC_D2",          "myUtils::getMC_daughter(1,Particle,ParticleChildren)")
+            .Define("MC_D3",          "myUtils::getMC_daughter(2,Particle,ParticleChildren)")
+            .Define("MC_D4",          "myUtils::getMC_daughter(3,Particle,ParticleChildren)")
+
             #############################################
             ##               MC Particles              ##
             #############################################
-            .Define("MC_n",        "MCParticle::get_n(Particle)")
-            .Define("MC_genstatus","MCParticle::get_genStatus(Particle)")
-            .Define("MC_PDG",      "MCParticle::get_pdg(Particle)")
-            .Define("MC_M1",       "myUtils::getMC_parent(0,Particle,ParticleParents)")
-            .Define("MC_M2",       "myUtils::getMC_parent(1,Particle,ParticleParents)")
-            .Define("MC_D1",       "myUtils::getMC_daughter(0,Particle,ParticleChildren)")
-            .Define("MC_D2",       "myUtils::getMC_daughter(1,Particle,ParticleChildren)")
-            .Define("MC_D3",       "myUtils::getMC_daughter(2,Particle,ParticleChildren)")
-            .Define("MC_D4",       "myUtils::getMC_daughter(3,Particle,ParticleChildren)")
-            .Define("MC_p",        "MCParticle::get_p(Particle)")
-            .Define("MC_pt",       "MCParticle::get_pt(Particle)")
-            .Define("MC_px",       "MCParticle::get_px(Particle)")
-            .Define("MC_py",       "MCParticle::get_py(Particle)")
-            .Define("MC_pz",       "MCParticle::get_pz(Particle)")
-            .Define("MC_e",        "MCParticle::get_e(Particle)")
-            .Define("MC_m",        "MCParticle::get_mass(Particle)")
-            .Define("MC_q",        "MCParticle::get_charge(Particle)")
-            .Define("MC_eta",      "MCParticle::get_eta(Particle)")
-            .Define("MC_phi",      "MCParticle::get_phi(Particle)")
-            .Define("MC_orivtx_x", "MCParticle::get_vertex_x(Particle)")
-            .Define("MC_orivtx_y", "MCParticle::get_vertex_y(Particle)")
-            .Define("MC_orivtx_z", "MCParticle::get_vertex_z(Particle)")
+            .Define("MC_e",           "MCParticle::get_e(Particle)")
+            .Define("MC_m",           "MCParticle::get_mass(Particle)")
+            .Define("MC_q",           "MCParticle::get_charge(Particle)")
+            .Define("MC_p",           "MCParticle::get_p(Particle)")
+            .Define("MC_pt",          "MCParticle::get_pt(Particle)")
+            .Define("MC_px",          "MCParticle::get_px(Particle)")
+            .Define("MC_py",          "MCParticle::get_py(Particle)")
+            .Define("MC_pz",          "MCParticle::get_pz(Particle)")
+            .Define("MC_eta",         "MCParticle::get_eta(Particle)")
+            .Define("MC_phi",         "MCParticle::get_phi(Particle)")
+            .Define("MC_orivtx_x",    "MCParticle::get_vertex_x(Particle)")
+            .Define("MC_orivtx_y",    "MCParticle::get_vertex_y(Particle)")
+            .Define("MC_orivtx_z",    "MCParticle::get_vertex_z(Particle)")
             
-            #############################################
-            ##                MC Vertex                ##
-            #############################################
-            .Define("MC_PrimaryVertex", "MCParticle::get_EventPrimaryVertex(21)(Particle)")
-            .Define("MC_pv_x", "MC_PrimaryVertex.X()") 
-            .Define("MC_pv_y", "MC_PrimaryVertex.Y()") 
-            .Define("MC_pv_z", "MC_PrimaryVertex.Z()")
+            ### MC_orivtx_ind
 
             #############################################
-            ##             MC ee -> Z -> qq            ##
+            ##          Special MC Particles           ##
             #############################################
-            ## Use Pythia8 generatorStatus
-            ## 21 - incoming particles of hardest process (e+ e- beams)
-            ## 22 - intermediate particle(s) of hardest process (Z)
-            ## 23 - outgoing particles of hardest process (e.g bbbar or ccbar etc.)
-            .Define("MC_ee",          "MCParticle::sel_genStatus(21)(Particle)")
-            .Define("MC_Z",           "MCParticle::sel_genStatus(22)(Particle)")
-            .Define("MC_qq",          "MCParticle::sel_genStatus(23)(Particle)")
-            .Define("MC_em_p",        "(MCParticle::get_p(MC_ee)).at(0)")
-            .Define("MC_em_pt",       "(MCParticle::get_pt(MC_ee)).at(0)")
-            .Define("MC_em_px",       "(MCParticle::get_px(MC_ee)).at(0)")
-            .Define("MC_em_py",       "(MCParticle::get_py(MC_ee)).at(0)")
-            .Define("MC_em_pz",       "(MCParticle::get_pz(MC_ee)).at(0)")
-            .Define("MC_em_e",        "(MCParticle::get_e(MC_ee)).at(0)")
-            .Define("MC_em_m",        "(MCParticle::get_mass(MC_ee)).at(0)")
-            .Define("MC_em_q",        "(MCParticle::get_charge(MC_ee)).at(0)")
-            .Define("MC_em_eta",      "(MCParticle::get_eta(MC_ee)).at(0)")
-            .Define("MC_em_phi",      "(MCParticle::get_phi(MC_ee)).at(0)")
-            .Define("MC_em_orivtx_x", "(MCParticle::get_vertex_x(MC_ee)).at(0)")
-            .Define("MC_em_orivtx_y", "(MCParticle::get_vertex_y(MC_ee)).at(0)")
-            .Define("MC_em_orivtx_z", "(MCParticle::get_vertex_z(MC_ee)).at(0)")
-            .Define("MC_ep_p",        "(MCParticle::get_p(MC_ee)).at(1)")
-            .Define("MC_ep_pt",       "(MCParticle::get_pt(MC_ee)).at(1)")
-            .Define("MC_ep_px",       "(MCParticle::get_px(MC_ee)).at(1)")
-            .Define("MC_ep_py",       "(MCParticle::get_py(MC_ee)).at(1)")
-            .Define("MC_ep_pz",       "(MCParticle::get_pz(MC_ee)).at(1)")
-            .Define("MC_ep_e",        "(MCParticle::get_e(MC_ee)).at(1)")
-            .Define("MC_ep_m",        "(MCParticle::get_mass(MC_ee)).at(1)")
-            .Define("MC_ep_q",        "(MCParticle::get_charge(MC_ee)).at(1)")
-            .Define("MC_ep_eta",      "(MCParticle::get_eta(MC_ee)).at(1)")
-            .Define("MC_ep_phi",      "(MCParticle::get_phi(MC_ee)).at(1)")
-            .Define("MC_ep_orivtx_x", "(MCParticle::get_vertex_x(MC_ee)).at(1)")
-            .Define("MC_ep_orivtx_y", "(MCParticle::get_vertex_y(MC_ee)).at(1)")
-            .Define("MC_ep_orivtx_z", "(MCParticle::get_vertex_z(MC_ee)).at(1)")
-            .Define("MC_Z_p",         "(MCParticle::get_p(MC_Z)).at(0)")
-            .Define("MC_Z_pt",        "(MCParticle::get_pt(MC_Z)).at(0)")
-            .Define("MC_Z_px",        "(MCParticle::get_px(MC_Z)).at(0)")
-            .Define("MC_Z_py",        "(MCParticle::get_py(MC_Z)).at(0)")
-            .Define("MC_Z_pz",        "(MCParticle::get_pz(MC_Z)).at(0)")
-            .Define("MC_Z_e",         "(MCParticle::get_e(MC_Z)).at(0)")
-            .Define("MC_Z_m",         "(MCParticle::get_mass(MC_Z)).at(0)")
-            .Define("MC_Z_q",         "(MCParticle::get_charge(MC_Z)).at(0)")
-            .Define("MC_Z_eta",       "(MCParticle::get_eta(MC_Z)).at(0)")
-            .Define("MC_Z_phi",       "(MCParticle::get_phi(MC_Z)).at(0)")
-            .Define("MC_Z_orivtx_x",  "(MCParticle::get_vertex_x(MC_Z)).at(0)")
-            .Define("MC_Z_orivtx_y",  "(MCParticle::get_vertex_y(MC_Z)).at(0)")
-            .Define("MC_Z_orivtx_z",  "(MCParticle::get_vertex_z(MC_Z)).at(0)")
-            .Define("MC_q1_PDG",      "(MCParticle::get_pdg(MC_qq)).at(0)")
-            .Define("MC_q1_p",        "(MCParticle::get_p(MC_qq)).at(0)")
-            .Define("MC_q1_pt",       "(MCParticle::get_pt(MC_qq)).at(0)")
-            .Define("MC_q1_px",       "(MCParticle::get_px(MC_qq)).at(0)")
-            .Define("MC_q1_py",       "(MCParticle::get_py(MC_qq)).at(0)")
-            .Define("MC_q1_pz",       "(MCParticle::get_pz(MC_qq)).at(0)")
-            .Define("MC_q1_e",        "(MCParticle::get_e(MC_qq)).at(0)")
-            .Define("MC_q1_m",        "(MCParticle::get_mass(MC_qq)).at(0)")
-            .Define("MC_q1_q",        "(MCParticle::get_charge(MC_qq)).at(0)")
-            .Define("MC_q1_eta",      "(MCParticle::get_eta(MC_qq)).at(0)")
-            .Define("MC_q1_phi",      "(MCParticle::get_phi(MC_qq)).at(0)")
-            .Define("MC_q1_orivtx_x", "(MCParticle::get_vertex_x(MC_qq)).at(0)")
-            .Define("MC_q1_orivtx_y", "(MCParticle::get_vertex_y(MC_qq)).at(0)")
-            .Define("MC_q1_orivtx_z", "(MCParticle::get_vertex_z(MC_qq)).at(0)")
-            .Define("MC_q2_PDG",      "(MCParticle::get_pdg(MC_qq)).at(1)")
-            .Define("MC_q2_p",        "(MCParticle::get_p(MC_qq)).at(1)")
-            .Define("MC_q2_pt",       "(MCParticle::get_pt(MC_qq)).at(1)")
-            .Define("MC_q2_px",       "(MCParticle::get_px(MC_qq)).at(1)")
-            .Define("MC_q2_py",       "(MCParticle::get_py(MC_qq)).at(1)")
-            .Define("MC_q2_pz",       "(MCParticle::get_pz(MC_qq)).at(1)")
-            .Define("MC_q2_e",        "(MCParticle::get_e(MC_qq)).at(1)")
-            .Define("MC_q2_m",        "(MCParticle::get_mass(MC_qq)).at(1)")
-            .Define("MC_q2_q",        "(MCParticle::get_charge(MC_qq)).at(1)")
-            .Define("MC_q2_eta",      "(MCParticle::get_eta(MC_qq)).at(1)")
-            .Define("MC_q2_phi",      "(MCParticle::get_phi(MC_qq)).at(1)")
-            .Define("MC_q2_orivtx_x", "(MCParticle::get_vertex_x(MC_qq)).at(1)")
-            .Define("MC_q2_orivtx_y", "(MCParticle::get_vertex_y(MC_qq)).at(1)")
-            .Define("MC_q2_orivtx_z", "(MCParticle::get_vertex_z(MC_qq)).at(1)")
+            # --------------------------------------- #
+            #           MC e+ e- variables            #
+            # --------------------------------------- #
+            .Define("MCem_e",         "(MCParticle::get_e(MC_ee)).at(0)")
+            .Define("MCem_m",         "(MCParticle::get_mass(MC_ee)).at(0)")
+            .Define("MCem_q",         "(MCParticle::get_charge(MC_ee)).at(0)")
+            .Define("MCem_p",         "(MCParticle::get_p(MC_ee)).at(0)")
+            .Define("MCem_pt",        "(MCParticle::get_pt(MC_ee)).at(0)")
+            .Define("MCem_px",        "(MCParticle::get_px(MC_ee)).at(0)")
+            .Define("MCem_py",        "(MCParticle::get_py(MC_ee)).at(0)")
+            .Define("MCem_pz",        "(MCParticle::get_pz(MC_ee)).at(0)")
+            .Define("MCem_eta",       "(MCParticle::get_eta(MC_ee)).at(0)")
+            .Define("MCem_phi",       "(MCParticle::get_phi(MC_ee)).at(0)")
+            .Define("MCem_orivtx_x",  "(MCParticle::get_vertex_x(MC_ee)).at(0)")
+            .Define("MCem_orivtx_y",  "(MCParticle::get_vertex_y(MC_ee)).at(0)")
+            .Define("MCem_orivtx_z",  "(MCParticle::get_vertex_z(MC_ee)).at(0)")
+            .Define("MCep_e",         "(MCParticle::get_e(MC_ee)).at(1)")
+            .Define("MCep_m",         "(MCParticle::get_mass(MC_ee)).at(1)")
+            .Define("MCep_q",         "(MCParticle::get_charge(MC_ee)).at(1)")
+            .Define("MCep_p",         "(MCParticle::get_p(MC_ee)).at(1)")
+            .Define("MCep_pt",        "(MCParticle::get_pt(MC_ee)).at(1)")
+            .Define("MCep_px",        "(MCParticle::get_px(MC_ee)).at(1)")
+            .Define("MCep_py",        "(MCParticle::get_py(MC_ee)).at(1)")
+            .Define("MCep_pz",        "(MCParticle::get_pz(MC_ee)).at(1)")
+            .Define("MCep_eta",       "(MCParticle::get_eta(MC_ee)).at(1)")
+            .Define("MCep_phi",       "(MCParticle::get_phi(MC_ee)).at(1)")
+            .Define("MCep_orivtx_x",  "(MCParticle::get_vertex_x(MC_ee)).at(1)")
+            .Define("MCep_orivtx_y",  "(MCParticle::get_vertex_y(MC_ee)).at(1)")
+            .Define("MCep_orivtx_z",  "(MCParticle::get_vertex_z(MC_ee)).at(1)")
+
+            # --------------------------------------- #
+            #           MC Z boson variables          #
+            # --------------------------------------- #
+            .Define("MCZ_e",         "(MCParticle::get_e(MC_Z)).at(0)")
+            .Define("MCZ_m",         "(MCParticle::get_mass(MC_Z)).at(0)")
+            .Define("MCZ_q",         "(MCParticle::get_charge(MC_Z)).at(0)")
+            .Define("MCZ_p",         "(MCParticle::get_p(MC_Z)).at(0)")
+            .Define("MCZ_pt",        "(MCParticle::get_pt(MC_Z)).at(0)")
+            .Define("MCZ_px",        "(MCParticle::get_px(MC_Z)).at(0)")
+            .Define("MCZ_py",        "(MCParticle::get_py(MC_Z)).at(0)")
+            .Define("MCZ_pz",        "(MCParticle::get_pz(MC_Z)).at(0)")
+            .Define("MCZ_eta",       "(MCParticle::get_eta(MC_Z)).at(0)")
+            .Define("MCZ_phi",       "(MCParticle::get_phi(MC_Z)).at(0)")
+            .Define("MCZ_orivtx_x",  "(MCParticle::get_vertex_x(MC_Z)).at(0)")
+            .Define("MCZ_orivtx_y",  "(MCParticle::get_vertex_y(MC_Z)).at(0)")
+            .Define("MCZ_orivtx_z",  "(MCParticle::get_vertex_z(MC_Z)).at(0)")
+
+            # --------------------------------------- #
+            #            MC qqbar variables           #
+            # --------------------------------------- #
+            .Define("MCq1_e",         "(MCParticle::get_e(MC_qq)).at(0)")
+            .Define("MCq1_m",         "(MCParticle::get_mass(MC_qq)).at(0)")
+            .Define("MCq1_q",         "(MCParticle::get_charge(MC_qq)).at(0)")
+            .Define("MCq1_p",         "(MCParticle::get_p(MC_qq)).at(0)")
+            .Define("MCq1_pt",        "(MCParticle::get_pt(MC_qq)).at(0)")
+            .Define("MCq1_px",        "(MCParticle::get_px(MC_qq)).at(0)")
+            .Define("MCq1_py",        "(MCParticle::get_py(MC_qq)).at(0)")
+            .Define("MCq1_pz",        "(MCParticle::get_pz(MC_qq)).at(0)")
+            .Define("MCq1_eta",       "(MCParticle::get_eta(MC_qq)).at(0)")
+            .Define("MCq1_phi",       "(MCParticle::get_phi(MC_qq)).at(0)")
+            .Define("MCq1_orivtx_x",  "(MCParticle::get_vertex_x(MC_qq)).at(0)")
+            .Define("MCq1_orivtx_y",  "(MCParticle::get_vertex_y(MC_qq)).at(0)")
+            .Define("MCq1_orivtx_z",  "(MCParticle::get_vertex_z(MC_qq)).at(0)")
+            .Define("MCq2_e",         "(MCParticle::get_e(MC_qq)).at(1)")
+            .Define("MCq2_m",         "(MCParticle::get_mass(MC_qq)).at(1)")
+            .Define("MCq2_q",         "(MCParticle::get_charge(MC_qq)).at(1)")
+            .Define("MCq2_p",         "(MCParticle::get_p(MC_qq)).at(1)")
+            .Define("MCq2_pt",        "(MCParticle::get_pt(MC_qq)).at(1)")
+            .Define("MCq2_px",        "(MCParticle::get_px(MC_qq)).at(1)")
+            .Define("MCq2_py",        "(MCParticle::get_py(MC_qq)).at(1)")
+            .Define("MCq2_pz",        "(MCParticle::get_pz(MC_qq)).at(1)")
+            .Define("MCq2_eta",       "(MCParticle::get_eta(MC_qq)).at(1)")
+            .Define("MCq2_phi",       "(MCParticle::get_phi(MC_qq)).at(1)")
+            .Define("MCq2_orivtx_x",  "(MCParticle::get_vertex_x(MC_qq)).at(1)")
+            .Define("MCq2_orivtx_y",  "(MCParticle::get_vertex_y(MC_qq)).at(1)")
+            .Define("MCq2_orivtx_z",  "(MCParticle::get_vertex_z(MC_qq)).at(1)")
+
+            # --------------------------------------- #
+            #    MC final-state particle variables    #
+            # --------------------------------------- #
+            .Define("MCfinal_e",         "MCParticle::get_e(MC_FS)")
+            .Define("MCfinal_m",         "MCParticle::get_mass(MC_FS)")
+            .Define("MCfinal_q",         "MCParticle::get_charge(MC_FS)")
+            .Define("MCfinal_p",         "MCParticle::get_p(MC_FS)")
+            .Define("MCfinal_pt",        "MCParticle::get_pt(MC_FS)")
+            .Define("MCfinal_px",        "MCParticle::get_px(MC_FS)")
+            .Define("MCfinal_py",        "MCParticle::get_py(MC_FS)")
+            .Define("MCfinal_pz",        "MCParticle::get_pz(MC_FS)")
+            .Define("MCfinal_eta",       "MCParticle::get_eta(MC_FS)")
+            .Define("MCfinal_phi",       "MCParticle::get_phi(MC_FS)")
+            .Define("MCfinal_orivtx_x",  "MCParticle::get_vertex_x(MC_FS)")
+            .Define("MCfinal_orivtx_y",  "MCParticle::get_vertex_y(MC_FS)")
+            .Define("MCfinal_orivtx_z",  "MCParticle::get_vertex_z(MC_FS)")
+
+            #############################################
+            ##            MC PrimaryVertex             ##
+            #############################################
+            .Define("MC_PV_x",  "MC_PrimaryVertex.X()") 
+            .Define("MC_PV_y",  "MC_PrimaryVertex.Y()") 
+            .Define("MC_PV_z",  "MC_PrimaryVertex.Z()")
 
             #############################################
             ##           Find MC Vertices              ##
             #############################################
-            .Define("MC_VertexObject", "myUtils::get_MCVertexObject(Particle, ParticleParents)")
-            .Define("MC_vtx_x"       , "myUtils::get_MCVertex_x(MC_VertexObject)")
-            .Define("MC_vtx_y"       , "myUtils::get_MCVertex_y(MC_VertexObject)")
-            .Define("MC_vtx_z"       , "myUtils::get_MCVertex_z(MC_VertexObject)")
-            .Define("MC_vtx_n"       , "int(MC_vtx_x.size())")
-            .Define("MC_vtx_inds"    , "myUtils::get_MCindMCVertex(MC_VertexObject)")
-            .Define("MC_vtx_ntrks"   , "myUtils::get_NTracksMCVertex(MC_VertexObject)")
-
+            .Define("MC_vtx_n",        "int(MC_VertexObject.size())")
+            .Define("MC_vtx_x",        "myUtils::get_MCVertex_x(MC_VertexObject)")
+            .Define("MC_vtx_y",        "myUtils::get_MCVertex_y(MC_VertexObject)")
+            .Define("MC_vtx_z",        "myUtils::get_MCVertex_z(MC_VertexObject)")
+            .Define("MC_vtx_inds",     "myUtils::get_MCindMCVertex(MC_VertexObject)")
+            .Define("MC_vtx_ntracks",  "myUtils::get_NTracksMCVertex(MC_VertexObject)")
 
             #############################################
             ##            Fit the Reco PV              ##
