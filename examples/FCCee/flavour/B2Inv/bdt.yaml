@@ -1,0 +1,288 @@
+---
+stage0-vars:
+  # MC IDs and status information
+  - MC_n
+  - MC_genStatus
+  - MC_PDG
+  - MC_M1
+  - MC_M2
+  - MC_D1
+  - MC_D2
+  - MC_D3
+  - MC_D4
+
+  # MCParticle variables
+  - MC_e
+  - MC_m
+  - MC_p
+  - MC_pt
+  - MC_px
+  - MC_py
+  - MC_pz
+  - MC_q
+  - MC_eta
+  - MC_phi
+  - MC_orivtx_x
+  - MC_orivtx_y
+  - MC_orivtx_z
+  - MC_orivtx_ind
+  
+  # MC Z boson variables
+  - MCZ_e
+  - MCZ_m
+  - MCZ_p
+  - MCZ_pt
+  - MCZ_px
+  - MCZ_py
+  - MCZ_pz
+  - MCZ_q
+  - MCZ_eta
+  - MCZ_phi
+  - MCZ_orivtx_x
+  - MCZ_orivtx_y
+  - MCZ_orivtx_z
+  
+  # MC beam electron variables
+  - MCem_e
+  - MCem_m
+  - MCem_p
+  - MCem_pt
+  - MCem_px
+  - MCem_py
+  - MCem_pz
+  - MCem_q
+  - MCem_eta
+  - MCem_phi
+  - MCem_orivtx_x
+  - MCem_orivtx_y
+  - MCem_ortvtx_z
+  
+  # MC beam positron variables
+  - MCep_e
+  - MCep_m
+  - MCep_p
+  - MCep_pt
+  - MCep_px
+  - MCep_py
+  - MCep_pz
+  - MCep_q
+  - MCep_eta
+  - MCep_phi
+  - MCep_orivtx_x
+  - MCep_orivtx_y
+  - MCep_ortvtx_z
+  
+  # MC Quark variables
+  - MCq1_PDG
+  - MCq1_e
+  - MCq1_m
+  - MCq1_p
+  - MCq1_pt
+  - MCq1_px
+  - MCq1_py
+  - MCq1_pz
+  - MCq1_q 
+  - MCq1_eta     
+  - MCq1_phi     
+  - MCq1_orivtx_x
+  - MCq1_orivtx_y
+  - MCq1_orivtx_z
+  - MCq2_PDG
+  - MCq2_e
+  - MCq2_m
+  - MCq2_p
+  - MCq2_pt
+  - MCq2_px
+  - MCq2_py
+  - MCq2_pz
+  - MCq2_q 
+  - MCq2_eta     
+  - MCq2_phi     
+  - MCq2_orivtx_x
+  - MCq2_orivtx_y
+  - MCq2_orivtx_z
+
+  # Final state MCParticle variables
+  - MCfinalState_PDG
+  - MCfinalState_e
+  - MCfinalState_m
+  - MCfinalState_p
+  - MCfinalState_pt
+  - MCfinalState_px
+  - MCfinalState_py
+  - MCfinalState_pz
+  - MCfinalState_q 
+  - MCfinalState_eta     
+  - MCfinalState_phi     
+  - MCfinalState_orivtx_x
+  - MCfinalState_orivtx_y
+  - MCfinalState_orivtx_z
+  - MCfinalState_PDG
+  - MCfinalState_e
+  - MCfinalState_m
+  - MCfinalState_p
+  - MCfinalState_pt
+  - MCfinalState_px
+  - MCfinalState_py
+  - MCfinalState_pz
+  - MCfinalState_q 
+  - MCfinalState_eta     
+  - MCfinalState_phi     
+  - MCfinalState_orivtx_x
+  - MCfinalState_orivtx_y
+  - MCfinalState_orivtx_z
+
+  # MC Vertex variables
+  - MC_vtx_n
+  - MC_vtx_x
+  - MC_vtx_y
+  - MC_vtx_z
+  - MC_vtx_ntracks
+  - MC_vtx_indMC 
+  - MC_PV_x
+  - MC_PV_y
+  - MC_PV_z
+
+  # ReconstructedParticle variables
+  - Rec_n
+  - Rec_type
+  - Rec_e
+  - Rec_m
+  - Rec_p
+  - Rec_pt
+  - Rec_px
+  - Rec_py
+  - Rec_pz
+  - Rec_q
+  - Rec_eta
+  - Rec_phi
+  - Rec_indMC
+  - Rec_indvtx
+  - Rec_thrustCosTheta
+  - Rec_in_hemisEmin
+  - Rec_in_hemisEmax
+  - Rec_customid
+
+  # Reconstructed vertex variables
+  - Rec_vtx_n
+  - Rec_vtx_indMCvtx
+  - Rec_vtx_indRP
+  - Rec_vtx_chi2
+  - Rec_vtx_isPV
+  - Rec_vtx_ntracks
+  - Rec_vtx_mass
+  - Rec_vtx_x
+  - Rec_vtx_y
+  - Rec_vtx_z
+  - Rec_vtx_xerr
+  - Rec_vtx_yerr
+  - Rec_vtx_zerr
+
+  - Rec_vtx_d2PV
+  - Rec_vtx_d2PV_min
+  - Rec_vtx_d2PV_max
+  - Rec_vtx_d2PV_ave
+  - Rec_vtx_d2PV_x
+  - Rec_vtx_d2PV_y
+  - Rec_vtx_d2PV_z
+  - Rec_vtx_d2PV_err
+  - Rec_vtx_d2PV_xerr
+  - Rec_vtx_d2PV_yerr
+  - Rec_vtx_d2PV_zerr
+
+  - Rec_vtx_normd2PV
+  - Rec_vtx_normd2PV_min
+  - Rec_vtx_normd2PV_max
+  - Rec_vtx_normd2PV_ave
+  - Rec_vtx_normd2PV_x
+  - Rec_vtx_normd2PV_y
+  - Rec_vtx_normd2PV_z
+  - Rec_vtx_normd2PV_err
+  - Rec_vtx_normd2PV_xerr
+  - Rec_vtx_normd2PV_yerr
+  - Rec_vtx_normd2PV_zerr
+  
+  # Reconstructed PrimaryVertex variables
+  - Rec_PV_ntracks
+  - Rec_PV_x
+  - Rec_PV_y
+  - Rec_PV_z
+  
+  # Reconstructed vertex <--> thrust variables
+  - Rec_vtx_thrustCosTheta
+  - Rec_vtx_in_hemisEmin
+  - Rec_vtx_in_hemisEmax
+
+  # Event level -- thrust variables
+  - EVT_thrust_mag
+  - EVT_thrust_x
+  - EVT_thrust_y
+  - EVT_thrust_z
+  - EVT_thrust_xerr
+  - EVT_thrust_yerr
+  - EVT_thrust_zerr
+  - EVT_thrust_deltaE
+
+  # Event level -- hemisphere variables
+  - EVT_hemisEmin_e
+  - EVT_hemisEmin_eCharged
+  - EVT_hemisEmin_eNeutral
+  - EVT_hemisEmin_n
+  - EVT_hemisEmin_nCharged
+  - EVT_hemisEmin_nNeutral
+  - EVT_hemisEmin_nDV
+  - EVT_hemisEmin_nLep
+  - EVT_hemisEmin_nKaon
+  - EVT_hemisEmin_nPion
+
+  - EVT_hemisEmax_e
+  - EVT_hemisEmax_eCharged
+  - EVT_hemisEmax_eNeutral
+  - EVT_hemisEmax_n
+  - EVT_hemisEmax_nCharged
+  - EVT_hemisEmax_nNeutral
+  - EVT_hemisEmax_nDV
+  - EVT_hemisEmax_nLep
+  - EVT_hemisEmax_nKaon
+  - EVT_hemisEmax_nPion
+
+  - EVT_hemisEmin_maxeLep
+  - EVT_hemisEmin_maxeKaon
+  - EVT_hemisEmin_maxePion
+  - EVT_hemisEmin_maxeLep_inPV
+  - EVT_hemisEmin_maxeKaon_inPV
+  - EVT_hemisEmin_maxePion_inPV
+  - EVT_hemisEmax_maxeLep
+  - EVT_hemisEmax_maxeKaon
+  - EVT_hemisEmax_maxePion
+  - EVT_hemisEmax_maxeLep_inPV
+  - EVT_hemisEmax_maxeKaon_inPV
+  - EVT_hemisEmax_maxePion_inPV
+
+bdt-training-vars:
+  - EVT_hemisEmin_e
+  - EVT_hemisEmin_eCharged
+  - EVT_hemisEmin_eNeutral
+  - EVT_hemisEmin_n
+  - EVT_hemisEmin_nCharged
+  - EVT_hemisEmin_nNeutral
+  - EVT_hemisEmin_nDV
+
+  - EVT_hemisEmax_e
+  - EVT_hemisEmax_eCharged
+  - EVT_hemisEmax_eNeutral
+  - EVT_hemisEmax_n
+  - EVT_hemisEmax_nCharged
+  - EVT_hemisEmax_nNeutral
+  - EVT_hemisEmax_nDV
+  
+  - EVT_thrust_mag
+  - EVT_thrust_x
+  - EVT_thrust_y
+  - EVT_thrust_z
+
+  - Rec_pv_ntracks
+  - Rec_vtx_n
+  - Rec_vtx_d2PV_min
+  - Rec_vtx_d2PV_max
+  - Rec_vtx_d2PV_ave
