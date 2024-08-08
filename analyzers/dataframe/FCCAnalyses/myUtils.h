@@ -82,7 +82,7 @@ namespace myUtils{
     int num = 0;
     float maxE = 0.;
     int fromPV = -999; // Default value to check for errors
-  }
+  };
 
   /********************************** 
     B2INV ADDITIONAL STAGE0 FUNCTIONS
