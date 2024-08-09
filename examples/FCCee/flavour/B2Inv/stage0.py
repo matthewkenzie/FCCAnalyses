@@ -438,8 +438,9 @@ class RDFanalysis():
             #############################################
             .Define("EVT_thrust_deltaE",            "(EVT_hemisEmax_e) - (EVT_hemisEmin_e)")
         )
-
-        df3 = df2.Filter("EVT_hemisEmin_e < 20")
+        
+        # Pre-selecton cuts
+        df3 = df2.Filter("EVT_hemisEmin_e < 20").Filter("EVT_hemisEmin_nLep == 0")
         return df3
 
     #__________________________________________________________
