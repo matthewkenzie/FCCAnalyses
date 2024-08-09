@@ -11,7 +11,7 @@ processList = {
 prodTag     = "FCCee/winter2023/IDEA/"
 
 #Optional: output directory, default is local running directory
-outputDir   = "/r01/lhcb/mkenzie/fcc/B2Inv/stage0_v2"
+outputDir   = "/r01/lhcb/rrm42/fcc/B2Inv/stage0_v2"
 
 #Optional: analysisName, default is ""
 analysisName = "B2Inv"

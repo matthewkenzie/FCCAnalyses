@@ -93,13 +93,33 @@ int hasPV(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
   B2INV ADDITIONAL STAGE0 FUNCTIONS
 ***********************************/
 
+ROOT::VecOps::RVec<int> get_MCVertex_fromMC(ROOT::VecOps::RVec<edm4hep::MCParticleData> mc, ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertexMC> mcvertex) {
+  ROOT::VecOps::RVec<int> result;
+  for (size_t i = 0; i < mc.size(); ++i) {
+    for (size_t j = 0; j < mcvertex.size(); ++j) {
+      ROOT::VecOps::RVec<int> mc_ind = mcvertex.at(j).mc_ind;
+      if (std::find(mc_ind.begin(), mc_ind.end(), i) != mc_ind.end()) {
+        result.push_back(j);
+        break;
+      }
+    }
+    // If result is updated its length must be at least i+1
+    if (result.size() <= i) result.push_back(-999);
+  }
+
+  return result;
+}
+
 ROOT::VecOps::RVec<int> get_Vertex_fromRP(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop,
     ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex) {
   ROOT::VecOps::RVec<int> result;
   for (size_t i = 0; i < recop.size(); ++i) {
     for (size_t j = 0; j < vertex.size(); ++j) {
       ROOT::VecOps::RVec<int> reco_ind = vertex.at(j).reco_ind;
-      if (std::find(reco_ind.begin(), reco_ind.end(), i) != reco_ind.end()) result.push_back(j);
+      if (std::find(reco_ind.begin(), reco_ind.end(), i) != reco_ind.end()) {
+        result.push_back(j);
+        break;
+      }
     }
     // If result is updated its length must be at least i+1
     if (result.size() <= i) result.push_back(-999);
@@ -113,7 +133,10 @@ int get_Vertex_fromRPindex(int index,
   int result=-999;
   for (size_t i = 0; i < vertex.size(); ++i) {
     ROOT::VecOps::RVec<int> reco_ind = vertex.at(i).reco_ind;
-    if (std::find(reco_ind.begin(), reco_ind.end(), index) != reco_ind.end()) result = i;
+    if (std::find(reco_ind.begin(), reco_ind.end(), index) != reco_ind.end()) {
+      result = i;
+      break;
+    }
   }
 
   return result;
@@ -152,13 +175,10 @@ ROOT::VecOps::RVec<HemisParticleInfo> get_RP_HemisInfo(ROOT::VecOps::RVec<edm4he
   HemisParticleInfo lept;
   HemisParticleInfo kaon;
   HemisParticleInfo pion;
-  int l_ind;
-  int k_ind;
-  int p_ind;
 
   for (size_t i = 0; i < recop.size(); ++i) {
     // Check for 0 (dont evaluate) or -1 (error)
-    if (should_eval.at(i) != (int)1) continue;
+    if (should_eval.at(i) != 1) continue;
     #if edm4hep_VERSION > EDM4HEP_VERSION(0, 10, 5)
       int pid = recop.at(i).PDG;
     #else
@@ -170,7 +190,7 @@ ROOT::VecOps::RVec<HemisParticleInfo> get_RP_HemisInfo(ROOT::VecOps::RVec<edm4he
       lept.num++;
       if (recop.at(i).energy > lept.maxE) {
         lept.maxE = recop.at(i).energy;
-        l_ind = i;
+        lept.index = i;
       }
     }
     // Kaon
@@ -178,7 +198,7 @@ ROOT::VecOps::RVec<HemisParticleInfo> get_RP_HemisInfo(ROOT::VecOps::RVec<edm4he
       kaon.num++;
       if (recop.at(i).energy > kaon.maxE) {
         kaon.maxE = recop.at(i).energy;
-        k_ind = i;
+        kaon.index = i;
       }
     }
     // Pion
@@ -186,14 +206,14 @@ ROOT::VecOps::RVec<HemisParticleInfo> get_RP_HemisInfo(ROOT::VecOps::RVec<edm4he
       pion.num++;
       if (recop.at(i).energy > pion.maxE) {
         pion.maxE = recop.at(i).energy;
-        p_ind = i;
+        pion.index = i;
       }
     }
   }
 
-  int l_vtxind = get_Vertex_fromRPindex(l_ind, vertex);
-  int k_vtxind = get_Vertex_fromRPindex(k_ind, vertex);
-  int p_vtxind = get_Vertex_fromRPindex(p_ind, vertex);
+  int l_vtxind = get_Vertex_fromRPindex(lept.index, vertex);
+  int k_vtxind = get_Vertex_fromRPindex(kaon.index, vertex);
+  int p_vtxind = get_Vertex_fromRPindex(pion.index, vertex);
 
   // -999 indicates that the corresponding vertex is not found
   if (l_vtxind != -999) lept.fromPV = vertex.at(l_vtxind).vertex.primary;

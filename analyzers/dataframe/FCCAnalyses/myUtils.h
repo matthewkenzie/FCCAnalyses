@@ -81,12 +81,16 @@ namespace myUtils{
   struct HemisParticleInfo {
     int num = 0;
     float maxE = 0.;
+    int index = -999;
     int fromPV = -999; // Default value to check for errors
   };
 
   /********************************** 
     B2INV ADDITIONAL STAGE0 FUNCTIONS
   ***********************************/
+  // Get the index of the MC vertex corresponding to the MCParticle
+  ROOT::VecOps::RVec<int> get_MCVertex_fromMC(ROOT::VecOps::RVec<edm4hep::MCParticleData> mc, ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertexMC> mcvertex);
+
   // Get the index of the reconstructed vertex to which the RecoP belongs
   ROOT::VecOps::RVec<int> get_Vertex_fromRP(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop,
       ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex);

@@ -40,8 +40,7 @@ stage0-vars:
   - MCem_phi
   - MCem_orivtx_x
   - MCem_orivtx_y
-  - MCem_ortvtx_z
-  
+  - MCem_ortvtx_z 
   # MC beam positron variables
   - MCep_e
   - MCep_m
@@ -56,6 +55,7 @@ stage0-vars:
   - MCep_orivtx_x
   - MCep_orivtx_y
   - MCep_ortvtx_z
+
   # MC Z boson variables
   - MCZ_e
   - MCZ_m
@@ -116,60 +116,52 @@ stage0-vars:
   - MCfinal_orivtx_x
   - MCfinal_orivtx_y
   - MCfinal_orivtx_z
-  - MCfinal_PDG
-  - MCfinal_e
-  - MCfinal_m
-  - MCfinal_p
-  - MCfinal_pt
-  - MCfinal_px
-  - MCfinal_py
-  - MCfinal_pz
-  - MCfinal_q 
-  - MCfinal_eta     
-  - MCfinal_phi     
-  - MCfinal_orivtx_x
-  - MCfinal_orivtx_y
-  - MCfinal_orivtx_z
 
   # MC Vertex variables
   - MC_PV_x
   - MC_PV_y
   - MC_PV_z
   - MC_vtx_n
+  - MC_vtx_ntracks
+  - MC_vtx_indMC 
   - MC_vtx_x
   - MC_vtx_y
   - MC_vtx_z
-  - MC_vtx_ntracks
-  - MC_vtx_indMC 
 
   # ReconstructedParticle variables
   - Rec_n
   - Rec_type
+  - Rec_indMC
+  - Rec_indvtx
+  - Rec_customid
   - Rec_e
   - Rec_m
+  - Rec_q
   - Rec_p
   - Rec_pt
   - Rec_px
   - Rec_py
   - Rec_pz
-  - Rec_q
   - Rec_eta
   - Rec_phi
-  - Rec_indMC
-  - Rec_indvtx
   - Rec_thrustCosTheta
   - Rec_in_hemisEmin
-  - Rec_in_hemisEmax
-  - Rec_customid
 
+  # Reconstructed PrimaryVertex variables
+  - Rec_ntracks
+  - Rec_PV_ntracks
+  - Rec_PV_x
+  - Rec_PV_y
+  - Rec_PV_z
+  
   # Reconstructed vertex variables
   - Rec_vtx_n
+  - Rec_vtx_ntracks
   - Rec_vtx_indMCvtx
   - Rec_vtx_indRP
   - Rec_vtx_chi2
   - Rec_vtx_isPV
-  - Rec_vtx_ntracks
-  - Rec_vtx_mass
+  - Rec_vtx_m
   - Rec_vtx_x
   - Rec_vtx_y
   - Rec_vtx_z
@@ -196,16 +188,6 @@ stage0-vars:
   - Rec_vtx_normd2PV_x
   - Rec_vtx_normd2PV_y
   - Rec_vtx_normd2PV_z
-  - Rec_vtx_normd2PV_err
-  - Rec_vtx_normd2PV_xerr
-  - Rec_vtx_normd2PV_yerr
-  - Rec_vtx_normd2PV_zerr
-  
-  # Reconstructed PrimaryVertex variables
-  - Rec_PV_ntracks
-  - Rec_PV_x
-  - Rec_PV_y
-  - Rec_PV_z
   
   # Reconstructed vertex <--> thrust variables
   - Rec_vtx_thrustCosTheta
@@ -230,9 +212,6 @@ stage0-vars:
   - EVT_hemisEmin_nCharged
   - EVT_hemisEmin_nNeutral
   - EVT_hemisEmin_nDV
-  - EVT_hemisEmin_nLep
-  - EVT_hemisEmin_nKaon
-  - EVT_hemisEmin_nPion
 
   - EVT_hemisEmax_e
   - EVT_hemisEmax_eCharged
@@ -241,22 +220,31 @@ stage0-vars:
   - EVT_hemisEmax_nCharged
   - EVT_hemisEmax_nNeutral
   - EVT_hemisEmax_nDV
-  - EVT_hemisEmax_nLep
-  - EVT_hemisEmax_nKaon
-  - EVT_hemisEmax_nPion
 
-  - EVT_hemisEmin_maxeLep
+  - EVT_hemisEmin_nLept
+  - EVT_hemisEmin_nKaon
+  - EVT_hemisEmin_nPion
+  - EVT_hemisEmin_maxeLept
   - EVT_hemisEmin_maxeKaon
   - EVT_hemisEmin_maxePion
-  - EVT_hemisEmin_maxeLep_inPV
+  - EVT_hemisEmin_maxeLept_inPV
   - EVT_hemisEmin_maxeKaon_inPV
   - EVT_hemisEmin_maxePion_inPV
-  - EVT_hemisEmax_maxeLep
+  - EVT_hemisEmin_maxeLept_ind
+  - EVT_hemisEmin_maxeKaon_ind
+  - EVT_hemisEmin_maxePion_ind
+  - EVT_hemisEmax_nLept
+  - EVT_hemisEmax_nKaon
+  - EVT_hemisEmax_nPion
+  - EVT_hemisEmax_maxeLept
   - EVT_hemisEmax_maxeKaon
   - EVT_hemisEmax_maxePion
-  - EVT_hemisEmax_maxeLep_inPV
+  - EVT_hemisEmax_maxeLept_inPV
   - EVT_hemisEmax_maxeKaon_inPV
   - EVT_hemisEmax_maxePion_inPV
+  - EVT_hemisEmax_maxeLept_ind
+  - EVT_hemisEmax_maxeKaon_ind
+  - EVT_hemisEmax_maxePion_ind
 
 bdt-training-vars:
   - EVT_hemisEmin_e
@@ -280,7 +268,7 @@ bdt-training-vars:
   - EVT_thrust_y
   - EVT_thrust_z
 
-  - Rec_pv_ntracks
+  - Rec_PV_ntracks
   - Rec_vtx_n
   - Rec_vtx_d2PV_min
   - Rec_vtx_d2PV_max
