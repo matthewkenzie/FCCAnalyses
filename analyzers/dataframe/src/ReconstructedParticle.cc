@@ -305,12 +305,12 @@ ROOT::VecOps::RVec<int> get_customid(ROOT::VecOps::RVec<edm4hep::ReconstructedPa
     else if (pid == 15) result.push_back(23);
 
     // Charged meson
-    else if ( !(pid / 1000) && (pid / 100) && ((pid / 100) + (pid % 100 / 10)) ) result.push_back(44);
+    else if ( !(pid / 1000) && (pid / 100) && (((pid / 100) + (pid % 100 / 10)) % 2) ) result.push_back(44);
     // Neutral meson
     else if ( !(pid / 1000) && (pid / 100) ) result.push_back(34);
 
     // Charged baryon
-    else if ( !(pid / 10000) && (pid / 1000) && ((pid / 1000) + (pid % 1000 / 100) + (pid % 100 / 10)) ) result.push_back(45);
+    else if ( !(pid / 10000) && (pid / 1000) && (((pid / 1000) + (pid % 1000 / 100) + (pid % 100 / 10)) % 2) ) result.push_back(45);
     // Neutral baryon
     else if ( !(pid / 10000) && (pid / 1000) ) result.push_back(35);
     
