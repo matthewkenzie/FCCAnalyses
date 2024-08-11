@@ -361,13 +361,13 @@ class RDFanalysis():
             #############################################
             ##               Reco Thrust               ##
             #############################################
-            .Define("EVT_thrust_mag",          "EVT_ThrustInfo.at(0)")
-            .Define("EVT_thrust_x",            "EVT_ThrustInfo.at(1)")
-            .Define("EVT_thrust_xerr",         "EVT_ThrustInfo.at(2)")
-            .Define("EVT_thrust_y",            "EVT_ThrustInfo.at(3)")
-            .Define("EVT_thrust_yerr",         "EVT_ThrustInfo.at(4)")
-            .Define("EVT_thrust_z",            "EVT_ThrustInfo.at(5)")
-            .Define("EVT_thrust_zerr",         "EVT_ThrustInfo.at(6)")
+            .Define("EVT_Thrust_mag",          "EVT_ThrustInfo.at(0)")
+            .Define("EVT_Thrust_x",            "EVT_ThrustInfo.at(1)")
+            .Define("EVT_Thrust_xerr",         "EVT_ThrustInfo.at(2)")
+            .Define("EVT_Thrust_y",            "EVT_ThrustInfo.at(3)")
+            .Define("EVT_Thrust_yerr",         "EVT_ThrustInfo.at(4)")
+            .Define("EVT_Thrust_z",            "EVT_ThrustInfo.at(5)")
+            .Define("EVT_Thrust_zerr",         "EVT_ThrustInfo.at(6)")
             
             #############################################
             ##         Emin and Emax Hemispheres       ##
@@ -436,7 +436,7 @@ class RDFanalysis():
             #############################################
             ##  Thrust hemispheres energy difference   ##
             #############################################
-            .Define("EVT_thrust_deltaE",            "(EVT_hemisEmax_e) - (EVT_hemisEmin_e)")
+            .Define("EVT_Thrust_deltaE",            "(EVT_hemisEmax_e) - (EVT_hemisEmin_e)")
         )
         
         # Pre-selecton cuts
@@ -630,15 +630,15 @@ class RDFanalysis():
             "Rec_vtx_in_hemisEmin",
             "Rec_vtx_in_hemisEmax",
 
-            "EVT_thrust_mag",
-            "EVT_thrust_x",
-            "EVT_thrust_y",
-            "EVT_thrust_z",
-            "EVT_thrust_xerr",
-            "EVT_thrust_yerr",
-            "EVT_thrust_zerr",
+            "EVT_Thrust_mag",
+            "EVT_Thrust_x",
+            "EVT_Thrust_y",
+            "EVT_Thrust_z",
+            "EVT_Thrust_xerr",
+            "EVT_Thrust_yerr",
+            "EVT_Thrust_zerr",
             
-            "EVT_thrust_deltaE",
+            "EVT_Thrust_deltaE",
             
             "EVT_hemisEmin_e",
             "EVT_hemisEmin_eCharged",
