@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 - New functions added to `myUtils` and  `ReconstructedParticle`
 - New stage0 script with additional variables defined and saved
 - Some old names changed for consistent naming
+- Added `bdt.yaml` to eventually serve as a config file
 
 ### Detailed: Added analyzers
 
