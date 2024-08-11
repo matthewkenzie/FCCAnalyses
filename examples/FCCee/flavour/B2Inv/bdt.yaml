@@ -195,14 +195,14 @@ stage0-vars:
   - Rec_vtx_in_hemisEmax
 
   # Event level -- thrust variables
-  - EVT_thrust_mag
-  - EVT_thrust_x
-  - EVT_thrust_y
-  - EVT_thrust_z
-  - EVT_thrust_xerr
-  - EVT_thrust_yerr
-  - EVT_thrust_zerr
-  - EVT_thrust_deltaE
+  - EVT_Thrust_mag
+  - EVT_Thrust_x
+  - EVT_Thrust_y
+  - EVT_Thrust_z
+  - EVT_Thrust_xerr
+  - EVT_Thrust_yerr
+  - EVT_Thrust_zerr
+  - EVT_Thrust_deltaE
 
   # Event level -- hemisphere variables
   - EVT_hemisEmin_e
@@ -263,10 +263,10 @@ bdt-training-vars:
   - EVT_hemisEmax_nNeutral
   - EVT_hemisEmax_nDV
   
-  - EVT_thrust_mag
-  - EVT_thrust_x
-  - EVT_thrust_y
-  - EVT_thrust_z
+  - EVT_Thrust_mag
+  - EVT_Thrust_x
+  - EVT_Thrust_y
+  - EVT_Thrust_z
 
   - Rec_PV_ntracks
   - Rec_vtx_n
