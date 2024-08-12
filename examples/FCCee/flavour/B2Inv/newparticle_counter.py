@@ -12,17 +12,27 @@ import config as cfg
 plt.style.use('fcc.mplstyle')
 
 ###################### Preliminaries #############################
-filepath = '/r01/lhcb/rrm42/fcc/post_stage0/'
-files = {'bb' : os.path.join(filepath, 'bb_fromrecp.root'),
-         'cc' : os.path.join(filepath, 'cc_fromrecp.root'),
-         'ss' : os.path.join(filepath, 'ss_fromrecp.root'),
-         'ud' : os.path.join(filepath, 'ud_fromrecp.root')}
+#filepath = '/r01/lhcb/rrm42/fcc/post_stage0/'
+#files = {'bb' : os.path.join(filepath, 'bb_fromrecp.root'),
+#         'cc' : os.path.join(filepath, 'cc_fromrecp.root'),
+#         'ss' : os.path.join(filepath, 'ss_fromrecp.root'),
+#         'ud' : os.path.join(filepath, 'ud_fromrecp.root')}
+
+#expressions = ['pid', 'emin', 'cosTheta']
+#aliases = {'pid'  : 'abs(MC_PDG)',
+#           'cosTheta' : 'MC_cosrel2thrust',
+#           'emin' : 'Thrust_Emin'}
+
+filepath = '/r01/lhcb/mkenzie/fcc/B2Inv/stage0/'
+files = {'bb' : os.path.join(filepath, 'p8_ee_Zbb_ecm91/chunk_0.root'),
+         'cc' : os.path.join(filepath, 'p8_ee_Zcc_ecm91/chunk_0.root'),
+         'ss' : os.path.join(filepath, 'p8_ee_Zss_ecm91/chunk_0.root'),
+         'ud' : os.path.join(filepath, 'p8_ee_Zud_ecm91/chunk_0.root')}
 
 expressions = ['pid', 'emin', 'cosTheta']
-aliases = {'pid'  : 'Rec_type',
-           'cosTheta' : 'Rec_cosrel2thrust',
-           'emin' : 'Thrust_Emin'}
-
+aliases = {'pid'  : 'abs(MC_PDG)',
+           'emin' : 'EVT_Thrust_Emin_e',
+           'cosTheta' : '(MC_px*EVT_Thrust_x + MC_py*EVT_Thrust_y + MC_pz*EVT_Thrust_z)/(MC_p*(EVT_Thrust_x**2 + EVT_Thrust_y**2 + EVT_Thrust_z**2)**0.5)'}
 bb_frac = 0.1512
 cc_frac = 0.1203
 ss_frac = 0.1560
@@ -51,11 +61,12 @@ def particle_counter(arrays, cut, prefix):
     p = np.array([])
     e = np.array([])
     m = np.array([])
+    t = np.array([])
     lep = np.array([])
     
     if cut: 
         # Remove empty events
-        temp = arrays[arrays['emin'] < 20]
+        temp = arrays[arrays['emin'] < 40]
         if prefix == 'min_':
             nonempty = temp['pid'][(ak.num(temp['pid']) > 0) & (temp['cosTheta'] > 0)]
         elif prefix == 'max_':
@@ -67,8 +78,9 @@ def particle_counter(arrays, cut, prefix):
 
         e = np.append( e , ak.count(nonempty[nonempty  == 11], axis=-1).to_numpy() )
         m = np.append( m , ak.count(nonempty[nonempty  == 13], axis=-1).to_numpy() )
+        t = np.append( t , ak.count(nonempty[nonempty  == 15], axis=-1).to_numpy() )
         
-        lep = np.append( lep , e + m )
+        lep = np.append( lep , e + m + t )
 
     else:
         if prefix == 'min_':
@@ -82,8 +94,9 @@ def particle_counter(arrays, cut, prefix):
 
         e = np.append( e , ak.count(nonempty[nonempty  == 11], axis=-1).to_numpy() )
         m = np.append( m , ak.count(nonempty[nonempty  == 13], axis=-1).to_numpy() )
+        t = np.append( t , ak.count(nonempty[nonempty  == 15], axis=-1).to_numpy() )
         
-        lep = np.append( lep , e + m )
+        lep = np.append( lep , e + m + t )
 
     return {prefix+'k' : k, 
             prefix+'p' : p,

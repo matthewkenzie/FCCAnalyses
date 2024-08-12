@@ -20,7 +20,7 @@ analysisName = "B2Inv"
 nCPUS       = 8
 
 #Optional running on HTCondor, default is False
-#runBatch    = True
+runBatch    = True
 
 #Optional batch queue name when running on HTCondor, default is workday
 #batchQueue = "longlunch"
@@ -110,7 +110,7 @@ class RDFanalysis():
 
 
             #############################################
-            ##          Special MC Particles           ##
+            ##Special MC Particles ---> moved to stage1##
             #############################################
             # --------------------------------------- #
             #             MC intermediates            #
@@ -120,107 +120,107 @@ class RDFanalysis():
             # 22 - intermediate particles of hardest process (Z)
             # 23 - outgoing particles of hardest process (quark pair produced from Z)
             #  1 - final-state particles
-            .Define("MC_ee",          "MCParticle::sel_genStatus(21)(Particle)")
-            .Define("MC_Z",           "MCParticle::sel_genStatus(22)(Particle)")
-            .Define("MC_qq",          "MCParticle::sel_genStatus(23)(Particle)")
-            .Define("MC_FS",          "MCParticle::sel_genStatus(1)(Particle)")
+            #.Define("MC_ee",          "MCParticle::sel_genStatus(21)(Particle)")
+            #.Define("MC_Z",           "MCParticle::sel_genStatus(22)(Particle)")
+            #.Define("MC_qq",          "MCParticle::sel_genStatus(23)(Particle)")
+            #.Define("MC_FS",          "MCParticle::sel_genStatus(1)(Particle)")
 
             # --------------------------------------- #
             #           MC e+ e- variables            #
             # --------------------------------------- #
-            .Define("MCem_e",         "(MCParticle::get_e(MC_ee)).at(0)")
-            .Define("MCem_m",         "(MCParticle::get_mass(MC_ee)).at(0)")
-            .Define("MCem_q",         "(MCParticle::get_charge(MC_ee)).at(0)")
-            .Define("MCem_p",         "(MCParticle::get_p(MC_ee)).at(0)")
-            .Define("MCem_pt",        "(MCParticle::get_pt(MC_ee)).at(0)")
-            .Define("MCem_px",        "(MCParticle::get_px(MC_ee)).at(0)")
-            .Define("MCem_py",        "(MCParticle::get_py(MC_ee)).at(0)")
-            .Define("MCem_pz",        "(MCParticle::get_pz(MC_ee)).at(0)")
-            .Define("MCem_eta",       "(MCParticle::get_eta(MC_ee)).at(0)")
-            .Define("MCem_phi",       "(MCParticle::get_phi(MC_ee)).at(0)")
-            .Define("MCem_orivtx_x",  "(MCParticle::get_vertex_x(MC_ee)).at(0)")
-            .Define("MCem_orivtx_y",  "(MCParticle::get_vertex_y(MC_ee)).at(0)")
-            .Define("MCem_orivtx_z",  "(MCParticle::get_vertex_z(MC_ee)).at(0)")
-            .Define("MCep_e",         "(MCParticle::get_e(MC_ee)).at(1)")
-            .Define("MCep_m",         "(MCParticle::get_mass(MC_ee)).at(1)")
-            .Define("MCep_q",         "(MCParticle::get_charge(MC_ee)).at(1)")
-            .Define("MCep_p",         "(MCParticle::get_p(MC_ee)).at(1)")
-            .Define("MCep_pt",        "(MCParticle::get_pt(MC_ee)).at(1)")
-            .Define("MCep_px",        "(MCParticle::get_px(MC_ee)).at(1)")
-            .Define("MCep_py",        "(MCParticle::get_py(MC_ee)).at(1)")
-            .Define("MCep_pz",        "(MCParticle::get_pz(MC_ee)).at(1)")
-            .Define("MCep_eta",       "(MCParticle::get_eta(MC_ee)).at(1)")
-            .Define("MCep_phi",       "(MCParticle::get_phi(MC_ee)).at(1)")
-            .Define("MCep_orivtx_x",  "(MCParticle::get_vertex_x(MC_ee)).at(1)")
-            .Define("MCep_orivtx_y",  "(MCParticle::get_vertex_y(MC_ee)).at(1)")
-            .Define("MCep_orivtx_z",  "(MCParticle::get_vertex_z(MC_ee)).at(1)")
+            #.Define("MCem_e",         "(MCParticle::get_e(MC_ee)).at(0)")
+            #.Define("MCem_m",         "(MCParticle::get_mass(MC_ee)).at(0)")
+            #.Define("MCem_q",         "(MCParticle::get_charge(MC_ee)).at(0)")
+            #.Define("MCem_p",         "(MCParticle::get_p(MC_ee)).at(0)")
+            #.Define("MCem_pt",        "(MCParticle::get_pt(MC_ee)).at(0)")
+            #.Define("MCem_px",        "(MCParticle::get_px(MC_ee)).at(0)")
+            #.Define("MCem_py",        "(MCParticle::get_py(MC_ee)).at(0)")
+            #.Define("MCem_pz",        "(MCParticle::get_pz(MC_ee)).at(0)")
+            #.Define("MCem_eta",       "(MCParticle::get_eta(MC_ee)).at(0)")
+            #.Define("MCem_phi",       "(MCParticle::get_phi(MC_ee)).at(0)")
+            #.Define("MCem_orivtx_x",  "(MCParticle::get_vertex_x(MC_ee)).at(0)")
+            #.Define("MCem_orivtx_y",  "(MCParticle::get_vertex_y(MC_ee)).at(0)")
+            #.Define("MCem_orivtx_z",  "(MCParticle::get_vertex_z(MC_ee)).at(0)")
+            #.Define("MCep_e",         "(MCParticle::get_e(MC_ee)).at(1)")
+            #.Define("MCep_m",         "(MCParticle::get_mass(MC_ee)).at(1)")
+            #.Define("MCep_q",         "(MCParticle::get_charge(MC_ee)).at(1)")
+            #.Define("MCep_p",         "(MCParticle::get_p(MC_ee)).at(1)")
+            #.Define("MCep_pt",        "(MCParticle::get_pt(MC_ee)).at(1)")
+            #.Define("MCep_px",        "(MCParticle::get_px(MC_ee)).at(1)")
+            #.Define("MCep_py",        "(MCParticle::get_py(MC_ee)).at(1)")
+            #.Define("MCep_pz",        "(MCParticle::get_pz(MC_ee)).at(1)")
+            #.Define("MCep_eta",       "(MCParticle::get_eta(MC_ee)).at(1)")
+            #.Define("MCep_phi",       "(MCParticle::get_phi(MC_ee)).at(1)")
+            #.Define("MCep_orivtx_x",  "(MCParticle::get_vertex_x(MC_ee)).at(1)")
+            #.Define("MCep_orivtx_y",  "(MCParticle::get_vertex_y(MC_ee)).at(1)")
+            #.Define("MCep_orivtx_z",  "(MCParticle::get_vertex_z(MC_ee)).at(1)")
 
             # --------------------------------------- #
             #           MC Z boson variables          #
             # --------------------------------------- #
-            .Define("MCZ_e",          "(MCParticle::get_e(MC_Z)).at(0)")
-            .Define("MCZ_m",          "(MCParticle::get_mass(MC_Z)).at(0)")
-            .Define("MCZ_q",          "(MCParticle::get_charge(MC_Z)).at(0)")
-            .Define("MCZ_p",          "(MCParticle::get_p(MC_Z)).at(0)")
-            .Define("MCZ_pt",         "(MCParticle::get_pt(MC_Z)).at(0)")
-            .Define("MCZ_px",         "(MCParticle::get_px(MC_Z)).at(0)")
-            .Define("MCZ_py",         "(MCParticle::get_py(MC_Z)).at(0)")
-            .Define("MCZ_pz",         "(MCParticle::get_pz(MC_Z)).at(0)")
-            .Define("MCZ_eta",        "(MCParticle::get_eta(MC_Z)).at(0)")
-            .Define("MCZ_phi",        "(MCParticle::get_phi(MC_Z)).at(0)")
-            .Define("MCZ_orivtx_x",   "(MCParticle::get_vertex_x(MC_Z)).at(0)")
-            .Define("MCZ_orivtx_y",   "(MCParticle::get_vertex_y(MC_Z)).at(0)")
-            .Define("MCZ_orivtx_z",   "(MCParticle::get_vertex_z(MC_Z)).at(0)")
+            #.Define("MCZ_e",          "(MCParticle::get_e(MC_Z)).at(0)")
+            #.Define("MCZ_m",          "(MCParticle::get_mass(MC_Z)).at(0)")
+            #.Define("MCZ_q",          "(MCParticle::get_charge(MC_Z)).at(0)")
+            #.Define("MCZ_p",          "(MCParticle::get_p(MC_Z)).at(0)")
+            #.Define("MCZ_pt",         "(MCParticle::get_pt(MC_Z)).at(0)")
+            #.Define("MCZ_px",         "(MCParticle::get_px(MC_Z)).at(0)")
+            #.Define("MCZ_py",         "(MCParticle::get_py(MC_Z)).at(0)")
+            #.Define("MCZ_pz",         "(MCParticle::get_pz(MC_Z)).at(0)")
+            #.Define("MCZ_eta",        "(MCParticle::get_eta(MC_Z)).at(0)")
+            #.Define("MCZ_phi",        "(MCParticle::get_phi(MC_Z)).at(0)")
+            #.Define("MCZ_orivtx_x",   "(MCParticle::get_vertex_x(MC_Z)).at(0)")
+            #.Define("MCZ_orivtx_y",   "(MCParticle::get_vertex_y(MC_Z)).at(0)")
+            #.Define("MCZ_orivtx_z",   "(MCParticle::get_vertex_z(MC_Z)).at(0)")
 
             # --------------------------------------- #
             #            MC qqbar variables           #
             # --------------------------------------- #
-            .Define("MCq1_PDG",       "(MCParticle::get_pdg(MC_qq)).at(0)")
-            .Define("MCq1_e",         "(MCParticle::get_e(MC_qq)).at(0)")
-            .Define("MCq1_m",         "(MCParticle::get_mass(MC_qq)).at(0)")
-            .Define("MCq1_q",         "(MCParticle::get_charge(MC_qq)).at(0)")
-            .Define("MCq1_p",         "(MCParticle::get_p(MC_qq)).at(0)")
-            .Define("MCq1_pt",        "(MCParticle::get_pt(MC_qq)).at(0)")
-            .Define("MCq1_px",        "(MCParticle::get_px(MC_qq)).at(0)")
-            .Define("MCq1_py",        "(MCParticle::get_py(MC_qq)).at(0)")
-            .Define("MCq1_pz",        "(MCParticle::get_pz(MC_qq)).at(0)")
-            .Define("MCq1_eta",       "(MCParticle::get_eta(MC_qq)).at(0)")
-            .Define("MCq1_phi",       "(MCParticle::get_phi(MC_qq)).at(0)")
-            .Define("MCq1_orivtx_x",  "(MCParticle::get_vertex_x(MC_qq)).at(0)")
-            .Define("MCq1_orivtx_y",  "(MCParticle::get_vertex_y(MC_qq)).at(0)")
-            .Define("MCq1_orivtx_z",  "(MCParticle::get_vertex_z(MC_qq)).at(0)")
-            .Define("MCq2_PDG",       "(MCParticle::get_pdg(MC_qq)).at(1)")
-            .Define("MCq2_e",         "(MCParticle::get_e(MC_qq)).at(1)")
-            .Define("MCq2_m",         "(MCParticle::get_mass(MC_qq)).at(1)")
-            .Define("MCq2_q",         "(MCParticle::get_charge(MC_qq)).at(1)")
-            .Define("MCq2_p",         "(MCParticle::get_p(MC_qq)).at(1)")
-            .Define("MCq2_pt",        "(MCParticle::get_pt(MC_qq)).at(1)")
-            .Define("MCq2_px",        "(MCParticle::get_px(MC_qq)).at(1)")
-            .Define("MCq2_py",        "(MCParticle::get_py(MC_qq)).at(1)")
-            .Define("MCq2_pz",        "(MCParticle::get_pz(MC_qq)).at(1)")
-            .Define("MCq2_eta",       "(MCParticle::get_eta(MC_qq)).at(1)")
-            .Define("MCq2_phi",       "(MCParticle::get_phi(MC_qq)).at(1)")
-            .Define("MCq2_orivtx_x",  "(MCParticle::get_vertex_x(MC_qq)).at(1)")
-            .Define("MCq2_orivtx_y",  "(MCParticle::get_vertex_y(MC_qq)).at(1)")
-            .Define("MCq2_orivtx_z",  "(MCParticle::get_vertex_z(MC_qq)).at(1)")
+            #.Define("MCq1_PDG",       "(MCParticle::get_pdg(MC_qq)).at(0)")
+            #.Define("MCq1_e",         "(MCParticle::get_e(MC_qq)).at(0)")
+            #.Define("MCq1_m",         "(MCParticle::get_mass(MC_qq)).at(0)")
+            #.Define("MCq1_q",         "(MCParticle::get_charge(MC_qq)).at(0)")
+            #.Define("MCq1_p",         "(MCParticle::get_p(MC_qq)).at(0)")
+            #.Define("MCq1_pt",        "(MCParticle::get_pt(MC_qq)).at(0)")
+            #.Define("MCq1_px",        "(MCParticle::get_px(MC_qq)).at(0)")
+            #.Define("MCq1_py",        "(MCParticle::get_py(MC_qq)).at(0)")
+            #.Define("MCq1_pz",        "(MCParticle::get_pz(MC_qq)).at(0)")
+            #.Define("MCq1_eta",       "(MCParticle::get_eta(MC_qq)).at(0)")
+            #.Define("MCq1_phi",       "(MCParticle::get_phi(MC_qq)).at(0)")
+            #.Define("MCq1_orivtx_x",  "(MCParticle::get_vertex_x(MC_qq)).at(0)")
+            #.Define("MCq1_orivtx_y",  "(MCParticle::get_vertex_y(MC_qq)).at(0)")
+            #.Define("MCq1_orivtx_z",  "(MCParticle::get_vertex_z(MC_qq)).at(0)")
+            #.Define("MCq2_PDG",       "(MCParticle::get_pdg(MC_qq)).at(1)")
+            #.Define("MCq2_e",         "(MCParticle::get_e(MC_qq)).at(1)")
+            #.Define("MCq2_m",         "(MCParticle::get_mass(MC_qq)).at(1)")
+            #.Define("MCq2_q",         "(MCParticle::get_charge(MC_qq)).at(1)")
+            #.Define("MCq2_p",         "(MCParticle::get_p(MC_qq)).at(1)")
+            #.Define("MCq2_pt",        "(MCParticle::get_pt(MC_qq)).at(1)")
+            #.Define("MCq2_px",        "(MCParticle::get_px(MC_qq)).at(1)")
+            #.Define("MCq2_py",        "(MCParticle::get_py(MC_qq)).at(1)")
+            #.Define("MCq2_pz",        "(MCParticle::get_pz(MC_qq)).at(1)")
+            #.Define("MCq2_eta",       "(MCParticle::get_eta(MC_qq)).at(1)")
+            #.Define("MCq2_phi",       "(MCParticle::get_phi(MC_qq)).at(1)")
+            #.Define("MCq2_orivtx_x",  "(MCParticle::get_vertex_x(MC_qq)).at(1)")
+            #.Define("MCq2_orivtx_y",  "(MCParticle::get_vertex_y(MC_qq)).at(1)")
+            #.Define("MCq2_orivtx_z",  "(MCParticle::get_vertex_z(MC_qq)).at(1)")
 
             # --------------------------------------- #
             #    MC final-state particle variables    #
             # --------------------------------------- #
-            .Define("MCfinal_PDG",       "MCParticle::get_pdg(MC_FS)")
-            .Define("MCfinal_e",         "MCParticle::get_e(MC_FS)")
-            .Define("MCfinal_m",         "MCParticle::get_mass(MC_FS)")
-            .Define("MCfinal_q",         "MCParticle::get_charge(MC_FS)")
-            .Define("MCfinal_p",         "MCParticle::get_p(MC_FS)")
-            .Define("MCfinal_pt",        "MCParticle::get_pt(MC_FS)")
-            .Define("MCfinal_px",        "MCParticle::get_px(MC_FS)")
-            .Define("MCfinal_py",        "MCParticle::get_py(MC_FS)")
-            .Define("MCfinal_pz",        "MCParticle::get_pz(MC_FS)")
-            .Define("MCfinal_eta",       "MCParticle::get_eta(MC_FS)")
-            .Define("MCfinal_phi",       "MCParticle::get_phi(MC_FS)")
-            .Define("MCfinal_orivtx_x",  "MCParticle::get_vertex_x(MC_FS)")
-            .Define("MCfinal_orivtx_y",  "MCParticle::get_vertex_y(MC_FS)")
-            .Define("MCfinal_orivtx_z",  "MCParticle::get_vertex_z(MC_FS)")
+            #.Define("MCfinal_PDG",       "MCParticle::get_pdg(MC_FS)")
+            #.Define("MCfinal_e",         "MCParticle::get_e(MC_FS)")
+            #.Define("MCfinal_m",         "MCParticle::get_mass(MC_FS)")
+            #.Define("MCfinal_q",         "MCParticle::get_charge(MC_FS)")
+            #.Define("MCfinal_p",         "MCParticle::get_p(MC_FS)")
+            #.Define("MCfinal_pt",        "MCParticle::get_pt(MC_FS)")
+            #.Define("MCfinal_px",        "MCParticle::get_px(MC_FS)")
+            #.Define("MCfinal_py",        "MCParticle::get_py(MC_FS)")
+            #.Define("MCfinal_pz",        "MCParticle::get_pz(MC_FS)")
+            #.Define("MCfinal_eta",       "MCParticle::get_eta(MC_FS)")
+            #.Define("MCfinal_phi",       "MCParticle::get_phi(MC_FS)")
+            #.Define("MCfinal_orivtx_x",  "MCParticle::get_vertex_x(MC_FS)")
+            #.Define("MCfinal_orivtx_y",  "MCParticle::get_vertex_y(MC_FS)")
+            #.Define("MCfinal_orivtx_z",  "MCParticle::get_vertex_z(MC_FS)")
 
 
             #############################################
@@ -443,9 +443,9 @@ class RDFanalysis():
             .Define("EVT_Thrust_deltaE",            "(EVT_hemisEmax_e) - (EVT_hemisEmin_e)")
         )
         
-        # Pre-selecton cuts
-        df3 = df2.Filter("EVT_hemisEmin_e < 20").Filter("EVT_hemisEmin_nLept == 0")
-        return df3
+        # Pre-selecton cuts ---> moved to stage1
+        #df3 = df2.Filter("EVT_hemisEmin_e < 20").Filter("EVT_hemisEmin_nLept == 0")
+        return df2
 
     #__________________________________________________________
     #Mandatory: output function, please make sure you return the branchlist as a python list
@@ -476,96 +476,99 @@ class RDFanalysis():
             "MC_orivtx_z", 
             "MC_orivtx_ind",
 
-            "MCem_e",
-            "MCem_m",
-            "MCem_q",
-            "MCem_p", 
-            "MCem_pt", 
-            "MCem_px", 
-            "MCem_py", 
-            "MCem_pz",
-            "MCem_eta",
-            "MCem_phi",
-            "MCem_orivtx_x", 
-            "MCem_orivtx_y", 
-            "MCem_orivtx_z",         
-            #"MCem_orivtx_ind",
-            "MCep_e",
-            "MCep_m",
-            "MCep_q",
-            "MCep_p",
-            "MCep_pt",
-            "MCep_px",
-            "MCep_py",
-            "MCep_pz",
-            "MCep_eta",
-            "MCep_phi",
-            "MCep_orivtx_x",
-            "MCep_orivtx_y",
-            "MCep_orivtx_z",
-            #"MCep_orivtx_ind",
+            #################
+            # MOVED TO STAGE1
+            #################
+            #"MCem_e",
+            #"MCem_m",
+            #"MCem_q",
+            #"MCem_p", 
+            #"MCem_pt", 
+            #"MCem_px", 
+            #"MCem_py", 
+            #"MCem_pz",
+            #"MCem_eta",
+            #"MCem_phi",
+            #"MCem_orivtx_x", 
+            #"MCem_orivtx_y", 
+            #"MCem_orivtx_z",         
+            ##"MCem_orivtx_ind",
+            #"MCep_e",
+            #"MCep_m",
+            #"MCep_q",
+            #"MCep_p",
+            #"MCep_pt",
+            #"MCep_px",
+            #"MCep_py",
+            #"MCep_pz",
+            #"MCep_eta",
+            #"MCep_phi",
+            #"MCep_orivtx_x",
+            #"MCep_orivtx_y",
+            #"MCep_orivtx_z",
+            ##"MCep_orivtx_ind",
 
-            "MCZ_e",
-            "MCZ_m",
-            "MCZ_q",
-            "MCZ_p",
-            "MCZ_pt",
-            "MCZ_px",
-            "MCZ_py",
-            "MCZ_pz",
-            "MCZ_eta",
-            "MCZ_phi",
-            "MCZ_orivtx_x",
-            "MCZ_orivtx_y",
-            "MCZ_orivtx_z",
-            #"MCZ_orivtx_ind",
+            #"MCZ_e",
+            #"MCZ_m",
+            #"MCZ_q",
+            #"MCZ_p",
+            #"MCZ_pt",
+            #"MCZ_px",
+            #"MCZ_py",
+            #"MCZ_pz",
+            #"MCZ_eta",
+            #"MCZ_phi",
+            #"MCZ_orivtx_x",
+            #"MCZ_orivtx_y",
+            #"MCZ_orivtx_z",
+            ##"MCZ_orivtx_ind",
 
-            "MCq1_PDG",
-            "MCq1_e",
-            "MCq1_m",
-            "MCq1_q",
-            "MCq1_p",
-            "MCq1_pt",
-            "MCq1_px",
-            "MCq1_py",
-            "MCq1_pz",
-            "MCq1_eta",
-            "MCq1_phi",
-            "MCq1_orivtx_x",
-            "MCq1_orivtx_y",
-            "MCq1_orivtx_z",
-            #"MCq1_orivtx_ind",
-            "MCq2_PDG",
-            "MCq2_e",
-            "MCq2_m",
-            "MCq2_q",
-            "MCq2_p",
-            "MCq2_pt",
-            "MCq2_px",
-            "MCq2_py",
-            "MCq2_pz",
-            "MCq2_eta",
-            "MCq2_phi",
-            "MCq2_orivtx_x",
-            "MCq2_orivtx_y",
-            "MCq2_orivtx_z",
-            #"MCq2_orivtx_ind",
+            #"MCq1_PDG",
+            #"MCq1_e",
+            #"MCq1_m",
+            #"MCq1_q",
+            #"MCq1_p",
+            #"MCq1_pt",
+            #"MCq1_px",
+            #"MCq1_py",
+            #"MCq1_pz",
+            #"MCq1_eta",
+            #"MCq1_phi",
+            #"MCq1_orivtx_x",
+            #"MCq1_orivtx_y",
+            #"MCq1_orivtx_z",
+            ##"MCq1_orivtx_ind",
+            #"MCq2_PDG",
+            #"MCq2_e",
+            #"MCq2_m",
+            #"MCq2_q",
+            #"MCq2_p",
+            #"MCq2_pt",
+            #"MCq2_px",
+            #"MCq2_py",
+            #"MCq2_pz",
+            #"MCq2_eta",
+            #"MCq2_phi",
+            #"MCq2_orivtx_x",
+            #"MCq2_orivtx_y",
+            #"MCq2_orivtx_z",
+            ##"MCq2_orivtx_ind",
 
-            "MCfinal_PDG",
-            "MCfinal_e",
-            "MCfinal_m",
-            "MCfinal_q",
-            "MCfinal_p",
-            "MCfinal_pt",
-            "MCfinal_px",
-            "MCfinal_py",
-            "MCfinal_pz",
-            "MCfinal_eta",
-            "MCfinal_phi",
-            "MCfinal_orivtx_x",
-            "MCfinal_orivtx_y",
-            "MCfinal_orivtx_z",
-            #"MCfinal_orivtx_ind",
+            #"MCfinal_PDG",
+            #"MCfinal_e",
+            #"MCfinal_m",
+            #"MCfinal_q",
+            #"MCfinal_p",
+            #"MCfinal_pt",
+            #"MCfinal_px",
+            #"MCfinal_py",
+            #"MCfinal_pz",
+            #"MCfinal_eta",
+            #"MCfinal_phi",
+            #"MCfinal_orivtx_x",
+            #"MCfinal_orivtx_y",
+            #"MCfinal_orivtx_z",
+            ##"MCfinal_orivtx_ind",
 
             "MC_PV_x",
             "MC_PV_y",

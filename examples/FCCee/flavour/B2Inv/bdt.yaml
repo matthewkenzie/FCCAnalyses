@@ -1,4 +1,7 @@
 ---
+###############
+# STAGE1
+###############
 stage0-vars:
   # MC IDs and status information
   - MC_n
@@ -27,96 +30,6 @@ stage0-vars:
   - MC_orivtx_z
   - MC_orivtx_ind
   
-  # MC beam electron variables
-  - MCem_e
-  - MCem_m
-  - MCem_q
-  - MCem_p
-  - MCem_pt
-  - MCem_px
-  - MCem_py
-  - MCem_pz
-  - MCem_eta
-  - MCem_phi
-  - MCem_orivtx_x
-  - MCem_orivtx_y
-  - MCem_ortvtx_z 
-  # MC beam positron variables
-  - MCep_e
-  - MCep_m
-  - MCep_q
-  - MCep_p
-  - MCep_pt
-  - MCep_px
-  - MCep_py
-  - MCep_pz
-  - MCep_eta
-  - MCep_phi
-  - MCep_orivtx_x
-  - MCep_orivtx_y
-  - MCep_ortvtx_z
-
-  # MC Z boson variables
-  - MCZ_e
-  - MCZ_m
-  - MCZ_q
-  - MCZ_p
-  - MCZ_pt
-  - MCZ_px
-  - MCZ_py
-  - MCZ_pz
-  - MCZ_eta
-  - MCZ_phi
-  - MCZ_orivtx_x
-  - MCZ_orivtx_y
-  - MCZ_orivtx_z
-  
-  # MC Quark variables
-  - MCq1_PDG
-  - MCq1_e
-  - MCq1_m
-  - MCq1_q 
-  - MCq1_p
-  - MCq1_pt
-  - MCq1_px
-  - MCq1_py
-  - MCq1_pz
-  - MCq1_eta     
-  - MCq1_phi     
-  - MCq1_orivtx_x
-  - MCq1_orivtx_y
-  - MCq1_orivtx_z
-  - MCq2_PDG
-  - MCq2_e
-  - MCq2_m
-  - MCq2_q 
-  - MCq2_p
-  - MCq2_pt
-  - MCq2_px
-  - MCq2_py
-  - MCq2_pz
-  - MCq2_eta     
-  - MCq2_phi     
-  - MCq2_orivtx_x
-  - MCq2_orivtx_y
-  - MCq2_orivtx_z
-
-  # Final state MCParticle variables
-  - MCfinal_PDG
-  - MCfinal_e
-  - MCfinal_m
-  - MCfinal_q 
-  - MCfinal_p
-  - MCfinal_pt
-  - MCfinal_px
-  - MCfinal_py
-  - MCfinal_pz
-  - MCfinal_eta     
-  - MCfinal_phi     
-  - MCfinal_orivtx_x
-  - MCfinal_orivtx_y
-  - MCfinal_orivtx_z
-
   # MC Vertex variables
   - MC_PV_x
   - MC_PV_y
@@ -250,6 +163,104 @@ stage0-vars:
   - Rec_DV_d0 # Transverse impact parameter of tracks from displaced vertex
   - Rec_DV_z0 # Longitudinal impact parameter of trakcks from displaced vertex
 
+###############
+# STAGE1
+###############
+stage1-vars:
+
+  # MC beam electron variables
+  - MCem_e
+  - MCem_m
+  - MCem_q
+  - MCem_p
+  - MCem_pt
+  - MCem_px
+  - MCem_py
+  - MCem_pz
+  - MCem_eta
+  - MCem_phi
+  - MCem_orivtx_x
+  - MCem_orivtx_y
+  - MCem_ortvtx_z 
+  # MC beam positron variables
+  - MCep_e
+  - MCep_m
+  - MCep_q
+  - MCep_p
+  - MCep_pt
+  - MCep_px
+  - MCep_py
+  - MCep_pz
+  - MCep_eta
+  - MCep_phi
+  - MCep_orivtx_x
+  - MCep_orivtx_y
+  - MCep_ortvtx_z
+
+  # MC Z boson variables
+  - MCZ_e
+  - MCZ_m
+  - MCZ_q
+  - MCZ_p
+  - MCZ_pt
+  - MCZ_px
+  - MCZ_py
+  - MCZ_pz
+  - MCZ_eta
+  - MCZ_phi
+  - MCZ_orivtx_x
+  - MCZ_orivtx_y
+  - MCZ_orivtx_z
+  
+  # MC Quark variables
+  - MCq1_PDG
+  - MCq1_e
+  - MCq1_m
+  - MCq1_q 
+  - MCq1_p
+  - MCq1_pt
+  - MCq1_px
+  - MCq1_py
+  - MCq1_pz
+  - MCq1_eta     
+  - MCq1_phi     
+  - MCq1_orivtx_x
+  - MCq1_orivtx_y
+  - MCq1_orivtx_z
+  - MCq2_PDG
+  - MCq2_e
+  - MCq2_m
+  - MCq2_q 
+  - MCq2_p
+  - MCq2_pt
+  - MCq2_px
+  - MCq2_py
+  - MCq2_pz
+  - MCq2_eta     
+  - MCq2_phi     
+  - MCq2_orivtx_x
+  - MCq2_orivtx_y
+  - MCq2_orivtx_z
+
+  # Final state MCParticle variables
+  - MCfinal_PDG
+  - MCfinal_e
+  - MCfinal_m
+  - MCfinal_q 
+  - MCfinal_p
+  - MCfinal_pt
+  - MCfinal_px
+  - MCfinal_py
+  - MCfinal_pz
+  - MCfinal_eta     
+  - MCfinal_phi     
+  - MCfinal_orivtx_x
+  - MCfinal_orivtx_y
+  - MCfinal_orivtx_z
+
+###############
+# BDT1
+###############
 bdt-training-vars:
   - EVT_hemisEmin_e
   - EVT_hemisEmin_eCharged
