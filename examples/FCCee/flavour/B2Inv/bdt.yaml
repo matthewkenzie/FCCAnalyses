@@ -246,6 +246,10 @@ stage0-vars:
   - EVT_hemisEmax_maxeKaon_ind
   - EVT_hemisEmax_maxePion_ind
 
+  # WIP
+  - Rec_DV_d0 # Transverse impact parameter of tracks from displaced vertex
+  - Rec_DV_z0 # Longitudinal impact parameter of trakcks from displaced vertex
+
 bdt-training-vars:
   - EVT_hemisEmin_e
   - EVT_hemisEmin_eCharged
