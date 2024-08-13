@@ -1,10 +1,10 @@
 #Mandatory: List of processes
 processList = {
-        'p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu': {'fraction': 0.2, 'chunks': 100},
-        'p8_ee_Zbb_ecm91': {'fraction': 0.001, 'chunks': 50},
-        'p8_ee_Zcc_ecm91': {'fraction': 0.001, 'chunks': 50},
-        'p8_ee_Zss_ecm91': {'fraction': 0.001, 'chunks': 50},
-        'p8_ee_Zud_ecm91': {'fraction': 0.001, 'chunks': 50},
+        'p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu': {'fraction': 0.2, 'chunks': 10},
+        'p8_ee_Zbb_ecm91': {'fraction': 0.1, 'chunks': 50},
+        'p8_ee_Zcc_ecm91': {'fraction': 0.1, 'chunks': 50},
+        'p8_ee_Zss_ecm91': {'fraction': 0.1, 'chunks': 50},
+        'p8_ee_Zud_ecm91': {'fraction': 0.1, 'chunks': 50},
         }
 
 #Mandatory: Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics
