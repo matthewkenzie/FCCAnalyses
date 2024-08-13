@@ -217,6 +217,7 @@ class RDFanalysis():
             # --------------------------------------- #
             .Define("MC_fromRP",           "myUtils::get_MCObject_fromRP(MCRecoAssociationsRec, MCRecoAssociationsGen, RecoParticlesPIDAtVertex, Particle)")
             
+            .Define("Rec_true_PDG",        "MCParticle::get_pdg(MC_fromRP)")
             .Define("Rec_true_e",          "MCParticle::get_e(MC_fromRP)")
             .Define("Rec_true_m",          "MCParticle::get_mass(MC_fromRP)")
             .Define("Rec_true_q",          "MCParticle::get_charge(MC_fromRP)")
@@ -279,7 +280,7 @@ class RDFanalysis():
             .Define("Rec_vtx_isPV",            "myUtils::get_Vertex_isPV(Rec_VertexObject)")
 
             ################FILTER#######################
-            .Filter("sum(Rec_vtx_isPV) > 0")
+            .Filter("ROOT::VecOps::Any(Rec_vtx_isPV > 0)")
 
             .Define("Rec_vtx_ntracks",         "myUtils::get_Vertex_ntracks(Rec_VertexObject)")
             .Define("Rec_vtx_m",               "myUtils::get_Vertex_mass(Rec_VertexObject, RecoParticlesPIDAtVertex)")
@@ -374,28 +375,28 @@ class RDFanalysis():
 
             .Define("EVT_hemisEmin_nKaon",                "(EVT_EminPartInfo.at(1)).num")
             .Define("EVT_hemisEmin_nPion",                "(EVT_EminPartInfo.at(2)).num")
-            .Define("EVT_hemisEmin_eMaxLept",             "(EVT_EminPartInfo.at(0)).maxE")
-            .Define("EVT_hemisEmin_eMaxKaon",             "(EVT_EminPartInfo.at(1)).maxE")
-            .Define("EVT_hemisEmin_eMaxPion",             "(EVT_EminPartInfo.at(2)).maxE")
-            .Define("EVT_hemisEmin_eMaxLept_fromtruePV",  "(EVT_EminPartInfo.at(0)).fromPV")
-            .Define("EVT_hemisEmin_eMaxKaon_fromtruePV",  "(EVT_EminPartInfo.at(1)).fromPV")
-            .Define("EVT_hemisEmin_eMaxPion_fromtruePV",  "(EVT_EminPartInfo.at(2)).fromPV")
-            .Define("EVT_hemisEmin_eMaxLept_ind",         "(EVT_EminPartInfo.at(0)).index")
-            .Define("EVT_hemisEmin_eMaxKaon_ind",         "(EVT_EminPartInfo.at(1)).index")
-            .Define("EVT_hemisEmin_eMaxPion_ind",         "(EVT_EminPartInfo.at(2)).index")
+            .Define("EVT_hemisEmin_maxeLept",             "(EVT_EminPartInfo.at(0)).maxE")
+            .Define("EVT_hemisEmin_maxeKaon",             "(EVT_EminPartInfo.at(1)).maxE")
+            .Define("EVT_hemisEmin_maxePion",             "(EVT_EminPartInfo.at(2)).maxE")
+            .Define("EVT_hemisEmin_maxeLept_fromtruePV",  "(EVT_EminPartInfo.at(0)).fromPV")
+            .Define("EVT_hemisEmin_maxeKaon_fromtruePV",  "(EVT_EminPartInfo.at(1)).fromPV")
+            .Define("EVT_hemisEmin_maxePion_fromtruePV",  "(EVT_EminPartInfo.at(2)).fromPV")
+            .Define("EVT_hemisEmin_maxeLept_ind",         "(EVT_EminPartInfo.at(0)).index")
+            .Define("EVT_hemisEmin_maxeKaon_ind",         "(EVT_EminPartInfo.at(1)).index")
+            .Define("EVT_hemisEmin_maxePion_ind",         "(EVT_EminPartInfo.at(2)).index")
             
             .Define("EVT_hemisEmax_nLept",                "(EVT_EmaxPartInfo.at(0)).num")
             .Define("EVT_hemisEmax_nKaon",                "(EVT_EmaxPartInfo.at(1)).num")
             .Define("EVT_hemisEmax_nPion",                "(EVT_EmaxPartInfo.at(2)).num")
-            .Define("EVT_hemisEmax_eMaxLept",             "(EVT_EmaxPartInfo.at(0)).maxE")
-            .Define("EVT_hemisEmax_eMaxKaon",             "(EVT_EmaxPartInfo.at(1)).maxE")
-            .Define("EVT_hemisEmax_eMaxPion",             "(EVT_EmaxPartInfo.at(2)).maxE")
-            .Define("EVT_hemisEmax_eMaxLept_fromtruePV",  "(EVT_EmaxPartInfo.at(0)).fromPV")
-            .Define("EVT_hemisEmax_eMaxKaon_fromtruePV",  "(EVT_EmaxPartInfo.at(1)).fromPV")
-            .Define("EVT_hemisEmax_eMaxPion_fromtruePV",  "(EVT_EmaxPartInfo.at(2)).fromPV")
-            .Define("EVT_hemisEmax_eMaxLept_ind",         "(EVT_EmaxPartInfo.at(0)).index")
-            .Define("EVT_hemisEmax_eMaxKaon_ind",         "(EVT_EmaxPartInfo.at(1)).index")
-            .Define("EVT_hemisEmax_eMaxPion_ind",         "(EVT_EmaxPartInfo.at(2)).index")
+            .Define("EVT_hemisEmax_maxeLept",             "(EVT_EmaxPartInfo.at(0)).maxE")
+            .Define("EVT_hemisEmax_maxeKaon",             "(EVT_EmaxPartInfo.at(1)).maxE")
+            .Define("EVT_hemisEmax_maxePion",             "(EVT_EmaxPartInfo.at(2)).maxE")
+            .Define("EVT_hemisEmax_maxeLept_fromtruePV",  "(EVT_EmaxPartInfo.at(0)).fromPV")
+            .Define("EVT_hemisEmax_maxeKaon_fromtruePV",  "(EVT_EmaxPartInfo.at(1)).fromPV")
+            .Define("EVT_hemisEmax_maxePion_fromtruePV",  "(EVT_EmaxPartInfo.at(2)).fromPV")
+            .Define("EVT_hemisEmax_maxeLept_ind",         "(EVT_EmaxPartInfo.at(0)).index")
+            .Define("EVT_hemisEmax_maxeKaon_ind",         "(EVT_EmaxPartInfo.at(1)).index")
+            .Define("EVT_hemisEmax_maxePion_ind",         "(EVT_EmaxPartInfo.at(2)).index")
             
             #############################################
             ##  Thrust hemispheres energy difference   ##
@@ -529,10 +530,6 @@ class RDFanalysis():
             "Rec_PV_x",
             "Rec_PV_y",
             "Rec_PV_z",
-            "Rec_truePV_ntracks",
-            "Rec_truePV_x",
-            "Rec_truePV_y",
-            "Rec_truePV_z",
 
             "Rec_vtx_n",
             "Rec_vtx_ntracks",

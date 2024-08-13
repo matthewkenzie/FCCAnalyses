@@ -91,7 +91,8 @@ namespace myUtils{
   // Get the MC variables of truthmatched reconstructed particles
   ROOT::VecOps::RVec<edm4hep::MCParticleData> get_MCObject_fromRP (ROOT::VecOps::RVec<int> reco_ind,
       ROOT::VecOps::RVec<int> mc_ind,
-      ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco);
+      ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco,
+      ROOT::VecOps::RVec<edm4hep::MCParticleData> mc);
 
   // Get the parent and grandparent ids of truthmatched reconstructed particles
   ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_MCParentandGParent_fromRP (ROOT::VecOps::RVec<int> reco_ind,

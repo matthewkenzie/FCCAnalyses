@@ -110,7 +110,6 @@ ROOT::VecOps::RVec<edm4hep::MCParticleData> get_MCObject_fromRP (ROOT::VecOps::R
 ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_MCParentandGParent_fromRP (ROOT::VecOps::RVec<int> reco_ind, 
     ROOT::VecOps::RVec<int> mc_ind, ROOT::VecOps::RVec<int> parents,
     ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop, 
-
     ROOT::VecOps::RVec<edm4hep::MCParticleData> mc) {
   // result.at(0) == Parent0
   // result.at(1) == Parent1
@@ -130,16 +129,16 @@ ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_MCParentandGParent_fromRP (ROOT:
       result[0][reco_ind.at(i)] = mc.at(parent0).PDG;
       int gparent0 = myUtils::getMC_parent(0, mc.at(parent0), parents);
       int gparent1 = myUtils::getMC_parent(1, mc.at(parent0), parents);
-      if (gparent0 != -999) result[3][reco_ind.at(i)] = mc.at(gparent0).PDG;
-      if (gparent1 != -999) result[4][reco_ind.at(i)] = mc.at(gparent1).PDG;
+      if (gparent0 != -999) result[2][reco_ind.at(i)] = mc.at(gparent0).PDG;
+      if (gparent1 != -999) result[3][reco_ind.at(i)] = mc.at(gparent1).PDG;
     }
 
     if (parent1 != -999) {
       result[1][reco_ind.at(i)] = mc.at(parent1).PDG;
       int gparent0 = myUtils::getMC_parent(0, mc.at(parent1), parents);
       int gparent1 = myUtils::getMC_parent(1, mc.at(parent1), parents);
-      if (gparent0 != -999) result[5][reco_ind.at(i)] = mc.at(gparent0).PDG;
-      if (gparent1 != -999) result[6][reco_ind.at(i)] = mc.at(gparent1).PDG;
+      if (gparent0 != -999) result[4][reco_ind.at(i)] = mc.at(gparent0).PDG;
+      if (gparent1 != -999) result[5][reco_ind.at(i)] = mc.at(gparent1).PDG;
     }
   }
 
