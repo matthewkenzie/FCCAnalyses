@@ -1,6 +1,14 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## 13 August 2024
+- Moved filters to stage1
+- Added filter of at least one Primary Vertex in each event (sum of `Rec_vtx_isPV` > 0)
+- Added track impact parameters
+  - `Rec_track_d0` : Transverse
+  - `Rec_track_normd0` : "Normalised" transverse (i.e. d0/covd0)
+  - `Rec_track_z0` : Longitudinal
+  - `Rec_track_normz0` : "Normalised" longitudinal (i.ee z0/covz0)
 
 ## 10 August 2024
 
