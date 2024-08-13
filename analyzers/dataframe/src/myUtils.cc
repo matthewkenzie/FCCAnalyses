@@ -92,8 +92,62 @@ int hasPV(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
 /********************************** 
   B2INV ADDITIONAL STAGE0 FUNCTIONS
 ***********************************/
+ROOT::VecOps::RVec<edm4hep::MCParticleData> get_MCObject_fromRP (ROOT::VecOps::RVec<int> reco_ind,
+    ROOT::VecOps::RVec<int> mc_ind, 
+    ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco, 
+    ROOT::VecOps::RVec<edm4hep::MCParticleData> mc) {
+  edm4hep::MCParticleData placeholder;
+  ROOT::VecOps::RVec<edm4hep::MCParticleData> result;
+  result.resize(reco.size(), placeholder);
 
-ROOT::VecOps::RVec<int> get_MCVertex_fromMC(ROOT::VecOps::RVec<edm4hep::MCParticleData> mc, ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertexMC> mcvertex) {
+  for (unsigned int i = 0; i < reco_ind.size(); ++i) {
+    result[reco_ind.at(i)] = mc.at(mc_ind.at(i));
+  }
+
+  return result;
+}
+
+ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_MCParentandGParent_fromRP (ROOT::VecOps::RVec<int> reco_ind, 
+    ROOT::VecOps::RVec<int> mc_ind, ROOT::VecOps::RVec<int> parents,
+    ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop, 
+
+    ROOT::VecOps::RVec<edm4hep::MCParticleData> mc) {
+  // result.at(0) == Parent0
+  // result.at(1) == Parent1
+  // result.at(2) == Grandparent0 (Parent0 of Parent0)
+  // result.at(3) == Grandparent1 (Parent1 of Parent0)
+  // result.at(4) == Grandparent2 (Parent0 of Parent1)
+  // result.at(5) == Grandparent3 (Parent1 of Parent1)
+  ROOT::VecOps::RVec<int> placeholder;
+  placeholder.resize(recop.size(), 0);
+  ROOT::VecOps::RVec< ROOT::VecOps::RVec<int> > result;
+  result.resize(6, placeholder);
+
+  for (unsigned int i = 0; i < reco_ind.size(); ++i) {
+    int parent0 = myUtils::getMC_parent(0, mc.at(mc_ind.at(i)), parents);
+    int parent1 = myUtils::getMC_parent(1, mc.at(mc_ind.at(i)), parents);
+    if (parent0 != -999) {
+      result[0][reco_ind.at(i)] = mc.at(parent0).PDG;
+      int gparent0 = myUtils::getMC_parent(0, mc.at(parent0), parents);
+      int gparent1 = myUtils::getMC_parent(1, mc.at(parent0), parents);
+      if (gparent0 != -999) result[3][reco_ind.at(i)] = mc.at(gparent0).PDG;
+      if (gparent1 != -999) result[4][reco_ind.at(i)] = mc.at(gparent1).PDG;
+    }
+
+    if (parent1 != -999) {
+      result[1][reco_ind.at(i)] = mc.at(parent1).PDG;
+      int gparent0 = myUtils::getMC_parent(0, mc.at(parent1), parents);
+      int gparent1 = myUtils::getMC_parent(1, mc.at(parent1), parents);
+      if (gparent0 != -999) result[5][reco_ind.at(i)] = mc.at(gparent0).PDG;
+      if (gparent1 != -999) result[6][reco_ind.at(i)] = mc.at(gparent1).PDG;
+    }
+  }
+
+  return result;
+}
+
+ROOT::VecOps::RVec<int> get_MCVertex_fromMC(ROOT::VecOps::RVec<edm4hep::MCParticleData> mc, 
+    ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertexMC> mcvertex) {
   ROOT::VecOps::RVec<int> result;
   for (size_t i = 0; i < mc.size(); ++i) {
     for (size_t j = 0; j < mcvertex.size(); ++j) {

@@ -88,6 +88,18 @@ namespace myUtils{
   /********************************** 
     B2INV ADDITIONAL STAGE0 FUNCTIONS
   ***********************************/
+  // Get the MC variables of truthmatched reconstructed particles
+  ROOT::VecOps::RVec<edm4hep::MCParticleData> get_MCObject_fromRP (ROOT::VecOps::RVec<int> reco_ind,
+      ROOT::VecOps::RVec<int> mc_ind,
+      ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco);
+
+  // Get the parent and grandparent ids of truthmatched reconstructed particles
+  ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_MCParentandGParent_fromRP (ROOT::VecOps::RVec<int> reco_ind,
+      ROOT::VecOps::RVec<int> mc_ind,
+      ROOT::VecOps::RVec<int> parents,
+      ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop,
+      ROOT::VecOps::RVec<edm4hep::MCParticleData> mc);
+
   // Get the index of the MC vertex corresponding to the MCParticle
   ROOT::VecOps::RVec<int> get_MCVertex_fromMC(ROOT::VecOps::RVec<edm4hep::MCParticleData> mc, ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertexMC> mcvertex);
 
