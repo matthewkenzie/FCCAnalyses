@@ -258,9 +258,6 @@ class RDFanalysis():
             #############################################
             # Get collection of all tracks and use this to reconstruct the PV
             .Define("Rec_PV_ntracks",  "Rec_PrimaryTracks.size()")
-
-            ################FILTER#######################
-            .Filter("Rec_PV_ntracks > 0")
             
             .Define("Rec_PV_x",        "Rec_PrimaryVertex.position.x")
             .Define("Rec_PV_y",        "Rec_PrimaryVertex.position.y")
@@ -280,6 +277,10 @@ class RDFanalysis():
             .Define("Rec_vtx_indRP",           "myUtils::get_Vertex_ind(Rec_VertexObject)")
             .Define("Rec_vtx_chi2",            "myUtils::get_Vertex_chi2(Rec_VertexObject)")
             .Define("Rec_vtx_isPV",            "myUtils::get_Vertex_isPV(Rec_VertexObject)")
+
+            ################FILTER#######################
+            .Filter("sum(Rec_vtx_isPV) > 0")
+
             .Define("Rec_vtx_ntracks",         "myUtils::get_Vertex_ntracks(Rec_VertexObject)")
             .Define("Rec_vtx_m",               "myUtils::get_Vertex_mass(Rec_VertexObject, RecoParticlesPIDAtVertex)")
             .Define("Rec_vtx_x",               "myUtils::get_Vertex_x(Rec_VertexObject)")
