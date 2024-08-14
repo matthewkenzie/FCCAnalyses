@@ -1,10 +1,14 @@
 #Mandatory: List of processes
+#processList = {
+#        'p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu': {'fraction': 0.5, 'chunks': 10},
+#        'p8_ee_Zbb_ecm91': {'fraction': 0.1, 'chunks': 50},
+#        'p8_ee_Zcc_ecm91': {'fraction': 0.1, 'chunks': 50},
+#        'p8_ee_Zss_ecm91': {'fraction': 0.1, 'chunks': 50},
+#        'p8_ee_Zud_ecm91': {'fraction': 0.1, 'chunks': 50},
+#        }
 processList = {
-        'p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu': {'fraction': 0.2, 'chunks': 10},
-        'p8_ee_Zbb_ecm91': {'fraction': 0.1, 'chunks': 50},
-        'p8_ee_Zcc_ecm91': {'fraction': 0.1, 'chunks': 50},
-        'p8_ee_Zss_ecm91': {'fraction': 0.1, 'chunks': 50},
-        'p8_ee_Zud_ecm91': {'fraction': 0.1, 'chunks': 50},
+        'p8_ee_Zss_ecm91' : {'fraction': 0.01, 'chunks': 50},
+        'p8_ee_Zud_ecm91' : {'fraction': 0.01, 'chunks': 50}
         }
 
 #Mandatory: Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics
@@ -375,13 +379,14 @@ class RDFanalysis():
 
             .Define("EVT_hemisEmin_nKaon",                "(EVT_EminPartInfo.at(1)).num")
             .Define("EVT_hemisEmin_nPion",                "(EVT_EminPartInfo.at(2)).num")
-            .Define("EVT_hemisEmin_maxeLept",             "(EVT_EminPartInfo.at(0)).maxE")
+            # Dont need lepton variable in min hemisphere as number is 0
+            #.Define("EVT_hemisEmin_maxeLept",             "(EVT_EminPartInfo.at(0)).maxE")
             .Define("EVT_hemisEmin_maxeKaon",             "(EVT_EminPartInfo.at(1)).maxE")
             .Define("EVT_hemisEmin_maxePion",             "(EVT_EminPartInfo.at(2)).maxE")
-            .Define("EVT_hemisEmin_maxeLept_fromtruePV",  "(EVT_EminPartInfo.at(0)).fromPV")
+            #.Define("EVT_hemisEmin_maxeLept_fromtruePV",  "(EVT_EminPartInfo.at(0)).fromPV")
             .Define("EVT_hemisEmin_maxeKaon_fromtruePV",  "(EVT_EminPartInfo.at(1)).fromPV")
             .Define("EVT_hemisEmin_maxePion_fromtruePV",  "(EVT_EminPartInfo.at(2)).fromPV")
-            .Define("EVT_hemisEmin_maxeLept_ind",         "(EVT_EminPartInfo.at(0)).index")
+            #.Define("EVT_hemisEmin_maxeLept_ind",         "(EVT_EminPartInfo.at(0)).index")
             .Define("EVT_hemisEmin_maxeKaon_ind",         "(EVT_EminPartInfo.at(1)).index")
             .Define("EVT_hemisEmin_maxePion_ind",         "(EVT_EminPartInfo.at(2)).index")
             
@@ -588,16 +593,16 @@ class RDFanalysis():
             "EVT_hemisEmax_nNeutral",
             "EVT_hemisEmax_nDV",
 
-            "EVT_hemisEmin_nLept",
+            #"EVT_hemisEmin_nLept",
             "EVT_hemisEmin_nKaon",
             "EVT_hemisEmin_nPion",
-            "EVT_hemisEmin_maxeLept",
+            #"EVT_hemisEmin_maxeLept",
             "EVT_hemisEmin_maxeKaon",
             "EVT_hemisEmin_maxePion",
-            "EVT_hemisEmin_maxeLept_fromtruePV",
+            #"EVT_hemisEmin_maxeLept_fromtruePV",
             "EVT_hemisEmin_maxeKaon_fromtruePV",
             "EVT_hemisEmin_maxePion_fromtruePV",
-            "EVT_hemisEmin_maxeLept_ind",
+            #"EVT_hemisEmin_maxeLept_ind",
             "EVT_hemisEmin_maxeKaon_ind",
             "EVT_hemisEmin_maxePion_ind",
 
