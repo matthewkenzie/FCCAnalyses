@@ -53,6 +53,13 @@ efficiencies = {
         "p8_ee_Zcc_ecm91": 1,
         "p8_ee_Zss_ecm91": 1,
         "p8_ee_Zud_ecm91": 1,
+    },
+    "stage1": {
+        "Bs2NuNu" : 0.931654,
+        "bb" : 0.08436945703319386,
+        "cc" : 0.08457565235334542,
+        "ss" : 1,
+        "ud" : 1
     }
 }
 
