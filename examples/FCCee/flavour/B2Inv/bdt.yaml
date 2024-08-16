@@ -76,7 +76,7 @@ stage1-vars:
   - MCem_phi
   - MCem_orivtx_x
   - MCem_orivtx_y
-  - MCem_ortvtx_z 
+  - MCem_orivtx_z 
   # MC beam positron variables
   - MCep_e
   - MCep_m
@@ -90,7 +90,7 @@ stage1-vars:
   - MCep_phi
   - MCep_orivtx_x
   - MCep_orivtx_y
-  - MCep_ortvtx_z
+  - MCep_orivtx_z
 
   # MC Z boson variables
   - MCZ_e
@@ -189,16 +189,16 @@ stage1-vars:
   - Rec_PV_x
   - Rec_PV_y
   - Rec_PV_z
-  - Rec_truePV_ntracks
-  - Rec_truePV_x
-  - Rec_truePV_y
-  - Rec_truePV_z
+    #- Rec_truePV_ntracks
+    #- Rec_truePV_x
+    #- Rec_truePV_y
+    #- Rec_truePV_z
 
   - Rec_vtx_n
   - Rec_vtx_ntracks
   - Rec_vtx_indRP
-  - Rec_chi2
-  - Rec_isPV
+  - Rec_vtx_chi2
+  - Rec_vtx_isPV
   - Rec_vtx_m
   - Rec_vtx_x
   - Rec_vtx_y
@@ -220,6 +220,9 @@ stage1-vars:
   - Rec_vtx_d2PV_zerr
 
   - Rec_vtx_normd2PV
+    #- Rec_vtx_normd2PV_min   ### To add
+    #- Rec_vtx_normd2PV_max   ### To add
+    #- Rec_vtx_normd2PV_ave   ### To add
   - Rec_vtx_normd2PV_x
   - Rec_vtx_normd2PV_y
   - Rec_vtx_normd2PV_z
@@ -254,16 +257,17 @@ stage1-vars:
   - EVT_hemisEmax_nNeutral
   - EVT_hemisEmax_nDV
 
-  - EVT_hemisEmin_nLept
+    # Lepton variables not stored because selected 0 leptons in Emin
+    #- EVT_hemisEmin_nLept
   - EVT_hemisEmin_nKaon
   - EVT_hemisEmin_nPion
-  - EVT_hemisEmin_maxeLept
+    #- EVT_hemisEmin_maxeLept
   - EVT_hemisEmin_maxeKaon
   - EVT_hemisEmin_maxePion
-  - EVT_hemisEmin_maxeLept_fromtruePV
+    #- EVT_hemisEmin_maxeLept_fromtruePV
   - EVT_hemisEmin_maxeKaon_fromtruePV
   - EVT_hemisEmin_maxePion_fromtruePV
-  - EVT_hemisEmin_maxeLept_ind
+    #- EVT_hemisEmin_maxeLept_ind
   - EVT_hemisEmin_maxeKaon_ind
   - EVT_hemisEmin_maxePion_ind
   - EVT_hemisEmax_nLept

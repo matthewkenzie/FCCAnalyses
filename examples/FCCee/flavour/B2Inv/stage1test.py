@@ -181,10 +181,10 @@ class RDFanalysis():
             # using the get_PrimaryTracks() method with a beam spot constraint under the following parameters
             # bsc_sigma(x,y,z) = (4.5, 20e-3, 300)
             # bsc_(x,y,z) = (0,0,0) 
-            .Define("Rec_PrimaryTracks",        "VertexFitterSimple::get_PrimaryTracks( EFlowTrack_1, true, 4.5, 20e-3, 300, 0., 0., 0. )")
+            #.Define("Rec_PrimaryTracks",        "VertexFitterSimple::get_PrimaryTracks( EFlowTrack_1, true, 4.5, 20e-3, 300, 0., 0., 0. )")
             # Run the vertex fit using only the primary tracks with the same beamspot constraint
-            .Define("Rec_PrimaryVertexObject",  "VertexFitterSimple::VertexFitter_Tk( 1, Rec_PrimaryTracks, true, 4.5, 20e-3, 300 )")
-            .Define("Rec_PrimaryVertex",        "Rec_PrimaryVertexObject.vertex")
+            #.Define("Rec_PrimaryVertexObject",  "VertexFitterSimple::VertexFitter_Tk( 1, Rec_PrimaryTracks, true, 4.5, 20e-3, 300 )")
+            #.Define("Rec_PrimaryVertex",        "Rec_PrimaryVertexObject.vertex")
             # function to get all reco vertices (uses MC vertex to seed the vertexing)
             .Define("MC_VertexObject",   "myUtils::get_MCVertexObject(Particle, ParticleParents)")
             .Define("Rec_VertexObject",         "myUtils::get_VertexObject(MC_VertexObject, ReconstructedParticles, EFlowTrack_1, MCRecoAssociationsRec, MCRecoAssociationsGen)")
@@ -262,11 +262,11 @@ class RDFanalysis():
             ##       Reconstructed PrimaryVertex       ##
             #############################################
             # Get collection of all tracks and use this to reconstruct the PV
-            .Define("Rec_PV_ntracks",  "Rec_PrimaryTracks.size()")
+            #.Define("Rec_PV_ntracks",  "Rec_PrimaryTracks.size()")
             
-            .Define("Rec_PV_x",        "Rec_PrimaryVertex.position.x")
-            .Define("Rec_PV_y",        "Rec_PrimaryVertex.position.y")
-            .Define("Rec_PV_z",        "Rec_PrimaryVertex.position.z")
+            #.Define("Rec_PV_x",        "Rec_PrimaryVertex.position.x")
+            #.Define("Rec_PV_y",        "Rec_PrimaryVertex.position.y")
+            #.Define("Rec_PV_z",        "Rec_PrimaryVertex.position.z")
 
             # Track information
             .Define("Rec_track_n",       "ReconstructedParticle2Track::getTK_n(EFlowTrack_1)")
@@ -531,10 +531,10 @@ class RDFanalysis():
             "Rec_track_normd0",
             "Rec_track_normz0",
 
-            "Rec_PV_ntracks",
-            "Rec_PV_x",
-            "Rec_PV_y",
-            "Rec_PV_z",
+            #"Rec_PV_ntracks",
+            #"Rec_PV_x",
+            #"Rec_PV_y",
+            #"Rec_PV_z",
 
             "Rec_vtx_n",
             "Rec_vtx_ntracks",

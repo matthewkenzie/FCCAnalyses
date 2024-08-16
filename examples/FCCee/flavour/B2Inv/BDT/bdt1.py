@@ -71,9 +71,9 @@ def plot_bdt_response():
     ax.set_title('BDT1 applied to stage1')
     fig.tight_layout()
 
-def plot_roc(bdt, x_test, y_test):
+def plot_roc(bdt, x_test, y_test, w_test):
     y_score = bdt.predict_proba(x_test)[:,1]
-    fpr, tpr, thresholds = roc_curve(y_test, y_score)
+    fpr, tpr, thresholds = roc_curve(y_test, y_score, sample_weight=w_test)
     area = auc(fpr, tpr)
 
     plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
@@ -86,9 +86,9 @@ def plot_roc(bdt, x_test, y_test):
     plt.gca().set_aspect('equal', adjustable='box')
     plt.tight_layout()
 
-def plot_significance(bdt, x_test, y_test, n_sig, n_bkg):
+def plot_significance(bdt, x_test, y_test, w_test, n_sig, n_bkg):
     y_score = bdt.predict_proba(x_test)[:,1]
-    fpr, tpr, thresholds = roc_curve(y_test, y_score)
+    fpr, tpr, thresholds = roc_curve(y_test, y_score, sample_weight=w_test)
     S = n_sig*tpr
     B = n_bkg*fpr
     epsilon = 1e-10
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     
     # Define BDT
     config_dict = {
-        "n_estimators": 400,
+        "n_estimators": 200,
         "learning_rate": 0.3,
         "max_depth": 3,
         "subsample": 1.0,
@@ -223,44 +223,47 @@ if __name__ == "__main__":
     
     # Save model to output file
     bdt.save_model(os.path.join(outpath, "bdt1.json"))
-    ROOT.TMVA.Experimental.SaveXGBoost(bdt, "bdt", os.path.join(outpath, "tmva1.root"), num_inputs=len(bdtvars))
+    ROOT.TMVA.Experimental.SaveXGBoost(bdt, "bdt", os.path.join(outpath, "tmva1.root"), num_inputs=x_train.shape[1])
     print(f"Model saved to {os.path.join(outpath, 'bdt1.json')}")
-    print(f"Model saved to {os.path.join(outpath, 'tmva1.root')}")
-    
-    feature_importances = pd.DataFrame(bdt.feature_importances_,
-                                       index = bdtvars,
-                                       columns=['importance']).sort_values('importance',ascending=False)
-    
-    print("\nFeature importances")
-    print(feature_importances)
-    print(f"{30*'-'}\n")
+    rint(f"Model saved to {os.path.join(outpath, 'tmva1.root')}")
+    #print("Model already saved, skipping...")
 
-    # bdt response
-    for df in [sg_x, bb_x, cc_x, ss_x, ud_x]:
-        df['XGB'] = bdt.predict_proba(df)[:, 1]
+    #feature_importances = pd.DataFrame(bdt.feature_importances_,
+    #                                   index = bdtvars,
+    #                                   columns=['importance']).sort_values('importance',ascending=False)
+    #
+    #print("\nFeature importances")
+    #print(feature_importances)
+    #print(f"{30*'-'}\n")
 
-    # plotting
-    print(f"{30*'-'}")
-    print("PLOTTING")
-    plot_bdt_response()
-    plt.savefig(os.path.join(outpath, "bdt1-response.pdf"))
-    print(f'BDT1 response curve saved to {os.path.join(outpath, "bdt1-response.pdf")}')
-    plt.close()
+    ## bdt response
+    #for df in [sg_x, bb_x, cc_x, ss_x, ud_x]:
+    #    df['XGB'] = bdt.predict_proba(df)[:, 1]
+    #    after = df.query('XGB > 0.5').shape[0]
+    #    print(f'{after}')
 
-    plot_roc(bdt, x_test, y_test)
-    plt.savefig(os.path.join(outpath, "roc.pdf"))
-    print(f'ROC saved to {os.path.join(outpath, "roc.pdf")}')
-    plt.close()
+    ## plotting
+    #print(f"{30*'-'}")
+    #print("PLOTTING")
+    #plot_bdt_response()
+    #plt.savefig(os.path.join(outpath, "bdt1-response.pdf"))
+    #print(f'BDT1 response curve saved to {os.path.join(outpath, "bdt1-response.pdf")}')
+    #plt.close()
 
-    plot_significance(bdt, x_test, y_test, 0.25*sg_x.shape[0], 0.25*(tot_x.shape[0]-sg_x.shape[0]))
-    plt.savefig(os.path.join(outpath, "significance.pdf"))
-    print(f'Significance plot saved to {os.path.join(outpath, "significance.pdf")}')
-    plt.close()
+    #plot_roc(bdt, x_test, y_test, w_test)
+    #plt.savefig(os.path.join(outpath, "roc.pdf"))
+    #print(f'ROC saved to {os.path.join(outpath, "roc.pdf")}')
+    #plt.close()
 
-    end = time()
-    exec_time = end - start
-    hours, rem = divmod(exec_time, 3600)
-    minutes, sec = divmod(exec_time, 60)
-    print(f"{30*'-'}")
-    print(f"Execution time in HH::MM::YY = {int(hours):02}:{int(minutes):02}:{sec:.3f}")
-    print(f"{30*'-'}")
+    #plot_significance(bdt, x_test, y_test, w_test, 0.25*sg_x.shape[0], 0.25*(tot_x.shape[0]-sg_x.shape[0]))
+    #plt.savefig(os.path.join(outpath, "significance.pdf"))
+    #print(f'Significance plot saved to {os.path.join(outpath, "significance.pdf")}')
+    #plt.close()
+
+    #end = time()
+    #exec_time = end - start
+    #hours, rem = divmod(exec_time, 3600)
+    #minutes, sec = divmod(exec_time, 60)
+    #print(f"{30*'-'}")
+    #print(f"Execution time in H:M:S = {int(hours):02}:{int(minutes):02}:{sec:.3f}")
+    #print(f"{30*'-'}")

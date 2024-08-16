@@ -1,17 +1,17 @@
 #Mandatory: List of processes
 processList = {
-        'p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu': {'fraction': 0.2, 'chunks': 100},
-        'p8_ee_Zbb_ecm91': {'fraction': 0.001, 'chunks': 50},
-        'p8_ee_Zcc_ecm91': {'fraction': 0.001, 'chunks': 50},
-        'p8_ee_Zss_ecm91': {'fraction': 0.001, 'chunks': 50},
-        'p8_ee_Zud_ecm91': {'fraction': 0.001, 'chunks': 50},
+        'p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu': {'fraction': 0.2, 'chunks': 10},
+        'p8_ee_Zbb_ecm91': {'fraction': 0.001, 'chunks': 20},
+        'p8_ee_Zcc_ecm91': {'fraction': 0.001, 'chunks': 20},
+        'p8_ee_Zss_ecm91': {'fraction': 0.001, 'chunks': 20},
+        'p8_ee_Zud_ecm91': {'fraction': 0.001, 'chunks': 20},
         }
 
 #Mandatory: Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics
 prodTag     = "FCCee/winter2023/IDEA/"
 
 #Optional: output directory, default is local running directory
-outputDir   = "/r01/lhcb/rrm42/fcc/stage0_testcondor/"
+outputDir   = "/r01/lhcb/rrm42/fcc/stage0/"
 
 #Optional: analysisName, default is ""
 analysisName = "B2Inv"
@@ -420,28 +420,28 @@ class RDFanalysis():
             .Define("EVT_hemisEmin_nLept",                "(EVT_EminPartInfo.at(0)).num")
             .Define("EVT_hemisEmin_nKaon",                "(EVT_EminPartInfo.at(1)).num")
             .Define("EVT_hemisEmin_nPion",                "(EVT_EminPartInfo.at(2)).num")
-            .Define("EVT_hemisEmin_eMaxLept",             "(EVT_EminPartInfo.at(0)).maxE")
-            .Define("EVT_hemisEmin_eMaxKaon",             "(EVT_EminPartInfo.at(1)).maxE")
-            .Define("EVT_hemisEmin_eMaxPion",             "(EVT_EminPartInfo.at(2)).maxE")
-            .Define("EVT_hemisEmin_eMaxLept_fromtruePV",  "(EVT_EminPartInfo.at(0)).fromPV")
-            .Define("EVT_hemisEmin_eMaxKaon_fromtruePV",  "(EVT_EminPartInfo.at(1)).fromPV")
-            .Define("EVT_hemisEmin_eMaxPion_fromtruePV",  "(EVT_EminPartInfo.at(2)).fromPV")
-            .Define("EVT_hemisEmin_eMaxLept_ind",         "(EVT_EminPartInfo.at(0)).index")
-            .Define("EVT_hemisEmin_eMaxKaon_ind",         "(EVT_EminPartInfo.at(1)).index")
-            .Define("EVT_hemisEmin_eMaxPion_ind",         "(EVT_EminPartInfo.at(2)).index")
+            .Define("EVT_hemisEmin_maxeLept",             "(EVT_EminPartInfo.at(0)).maxE")
+            .Define("EVT_hemisEmin_maxeKaon",             "(EVT_EminPartInfo.at(1)).maxE")
+            .Define("EVT_hemisEmin_maxePion",             "(EVT_EminPartInfo.at(2)).maxE")
+            .Define("EVT_hemisEmin_maxeLept_fromtruePV",  "(EVT_EminPartInfo.at(0)).fromPV")
+            .Define("EVT_hemisEmin_maxeKaon_fromtruePV",  "(EVT_EminPartInfo.at(1)).fromPV")
+            .Define("EVT_hemisEmin_maxePion_fromtruePV",  "(EVT_EminPartInfo.at(2)).fromPV")
+            .Define("EVT_hemisEmin_maxeLept_ind",         "(EVT_EminPartInfo.at(0)).index")
+            .Define("EVT_hemisEmin_maxeKaon_ind",         "(EVT_EminPartInfo.at(1)).index")
+            .Define("EVT_hemisEmin_maxePion_ind",         "(EVT_EminPartInfo.at(2)).index")
             
             .Define("EVT_hemisEmax_nLept",                "(EVT_EmaxPartInfo.at(0)).num")
             .Define("EVT_hemisEmax_nKaon",                "(EVT_EmaxPartInfo.at(1)).num")
             .Define("EVT_hemisEmax_nPion",                "(EVT_EmaxPartInfo.at(2)).num")
-            .Define("EVT_hemisEmax_eMaxLept",             "(EVT_EmaxPartInfo.at(0)).maxE")
-            .Define("EVT_hemisEmax_eMaxKaon",             "(EVT_EmaxPartInfo.at(1)).maxE")
-            .Define("EVT_hemisEmax_eMaxPion",             "(EVT_EmaxPartInfo.at(2)).maxE")
-            .Define("EVT_hemisEmax_eMaxLept_fromtruePV",  "(EVT_EmaxPartInfo.at(0)).fromPV")
-            .Define("EVT_hemisEmax_eMaxKaon_fromtruePV",  "(EVT_EmaxPartInfo.at(1)).fromPV")
-            .Define("EVT_hemisEmax_eMaxPion_fromtruePV",  "(EVT_EmaxPartInfo.at(2)).fromPV")
-            .Define("EVT_hemisEmax_eMaxLept_ind",         "(EVT_EmaxPartInfo.at(0)).index")
-            .Define("EVT_hemisEmax_eMaxKaon_ind",         "(EVT_EmaxPartInfo.at(1)).index")
-            .Define("EVT_hemisEmax_eMaxPion_ind",         "(EVT_EmaxPartInfo.at(2)).index")
+            .Define("EVT_hemisEmax_maxeLept",             "(EVT_EmaxPartInfo.at(0)).maxE")
+            .Define("EVT_hemisEmax_maxeKaon",             "(EVT_EmaxPartInfo.at(1)).maxE")
+            .Define("EVT_hemisEmax_maxePion",             "(EVT_EmaxPartInfo.at(2)).maxE")
+            .Define("EVT_hemisEmax_maxeLept_fromtruePV",  "(EVT_EmaxPartInfo.at(0)).fromPV")
+            .Define("EVT_hemisEmax_maxeKaon_fromtruePV",  "(EVT_EmaxPartInfo.at(1)).fromPV")
+            .Define("EVT_hemisEmax_maxePion_fromtruePV",  "(EVT_EmaxPartInfo.at(2)).fromPV")
+            .Define("EVT_hemisEmax_maxeLept_ind",         "(EVT_EmaxPartInfo.at(0)).index")
+            .Define("EVT_hemisEmax_maxeKaon_ind",         "(EVT_EmaxPartInfo.at(1)).index")
+            .Define("EVT_hemisEmax_maxePion_ind",         "(EVT_EmaxPartInfo.at(2)).index")
             
             #############################################
             ##  Thrust hemispheres energy difference   ##
@@ -672,27 +672,27 @@ class RDFanalysis():
             "EVT_hemisEmin_nLept",                
             "EVT_hemisEmin_nKaon",                
             "EVT_hemisEmin_nPion",                
-            "EVT_hemisEmin_eMaxLept",                
-            "EVT_hemisEmin_eMaxKaon",                
-            "EVT_hemisEmin_eMaxPion",                
-            "EVT_hemisEmin_eMaxLept_fromtruePV",                
-            "EVT_hemisEmin_eMaxKaon_fromtruePV",                
-            "EVT_hemisEmin_eMaxPion_fromtruePV",                
-            "EVT_hemisEmin_eMaxLept_ind",                
-            "EVT_hemisEmin_eMaxKaon_ind",                
-            "EVT_hemisEmin_eMaxPion_ind",                
+            "EVT_hemisEmin_maxeLept",                
+            "EVT_hemisEmin_maxeKaon",                
+            "EVT_hemisEmin_maxePion",                
+            "EVT_hemisEmin_maxeLept_fromtruePV",                
+            "EVT_hemisEmin_maxeKaon_fromtruePV",                
+            "EVT_hemisEmin_maxePion_fromtruePV",                
+            "EVT_hemisEmin_maxeLept_ind",                
+            "EVT_hemisEmin_maxeKaon_ind",                
+            "EVT_hemisEmin_maxePion_ind",                
 
             "EVT_hemisEmax_nLept",                
             "EVT_hemisEmax_nKaon",                
             "EVT_hemisEmax_nPion",                
-            "EVT_hemisEmax_eMaxLept",                
-            "EVT_hemisEmax_eMaxKaon",                
-            "EVT_hemisEmax_eMaxPion",                
-            "EVT_hemisEmax_eMaxLept_fromtruePV",                
-            "EVT_hemisEmax_eMaxKaon_fromtruePV",                
-            "EVT_hemisEmax_eMaxPion_fromtruePV",                
-            "EVT_hemisEmax_eMaxLept_ind",                 
-            "EVT_hemisEmax_eMaxKaon_ind",                
-            "EVT_hemisEmax_eMaxPion_ind",                
+            "EVT_hemisEmax_maxeLept",                
+            "EVT_hemisEmax_maxeKaon",                
+            "EVT_hemisEmax_maxePion",                
+            "EVT_hemisEmax_maxeLept_fromtruePV",                
+            "EVT_hemisEmax_maxeKaon_fromtruePV",                
+            "EVT_hemisEmax_maxePion_fromtruePV",                
+            "EVT_hemisEmax_maxeLept_ind",                 
+            "EVT_hemisEmax_maxeKaon_ind",                
+            "EVT_hemisEmax_maxePion_ind",                
         ]
         return branchList
