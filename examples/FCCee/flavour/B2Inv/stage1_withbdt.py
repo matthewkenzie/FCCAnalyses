@@ -1,56 +1,60 @@
-import argparse
 import os
+import argparse
 import sys
+sys.path.append('/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv')
 
+import ROOT
 import config as cfg
 
-#Mandatory: List of processes
-#processList = {
-#        'p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu': {'fraction': 0.5, 'chunks': 10},
-#        'p8_ee_Zbb_ecm91': {'fraction': 0.1, 'chunks': 50},
-#        'p8_ee_Zcc_ecm91': {'fraction': 0.1, 'chunks': 50},
-#        'p8_ee_Zss_ecm91': {'fraction': 0.1, 'chunks': 50},
-#        'p8_ee_Zud_ecm91': {'fraction': 0.1, 'chunks': 50},
-#        }
-processList = {
-        'p8_ee_Zss_ecm91' : {'fraction': 0.05, 'chunks': 100},
-        'p8_ee_Zud_ecm91' : {'fraction': 0.05, 'chunks': 100}
+testFile = "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root"
+
+
+class RDFanalysis():
+    def __init__(self, cmdline_args):
+        parser = argparse.ArgumentParser(description="Applies preselection cuts", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        self.ana_args, _ = parser.parse_known_args(cmdline_args['unknown'])
+
+# Optional: output directory, default is local running directory
+        self.output_dir = cfg.outputs
+
+        # Mandatory: List of processes to run over
+        self.process_list = {
+            "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu" : {"fraction": 0.5, "chunks":15},
+            "p8_ee_Zbb_ecm91" : {"fraction": 0.1, "chunks": 50},
+            "p8_ee_Zcc_ecm91" : {"fraction": 0.1, "chunks": 50},
+            "p8_ee_Zss_ecm91" : {"fraction": 0.1, "chunks": 50},
+            "p8_ee_Zud_ecm91" : {"fraction": 0.1, "chunks": 50},
         }
 
-#Mandatory: Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics
-prodTag     = "FCCee/winter2023/IDEA/"
+        # Mandatory: Production tag when running over the centrally produced
+        # samples, this points to the yaml files for getting sample statistics
+        self.prod_tag = 'FCCee/winter2023/IDEA/'
 
-#Optional: output directory, default is local running directory
-outputDir   = "/r01/lhcb/rrm42/fcc/stage1-ss-ud/"
+        # Optional: analysisName, default is ''
+        # self.analysis_name = 'My Analysis'
 
-#Optional: analysisName, default is ""
-analysisName = "B2Inv"
+        # Optional:number of threads to run on, default is 'all available'
+        self.nCPUs = 8
 
-#Optional: ncpus, default is 4
-nCPUS       = 8
+        # Optional: running on HTCondor, default is False
+        self.run_batch = True
+        #self.batch_queue = "workday"
+        #self.comp_group = "group_u_FCC.local_gen"
+        self.test_file = testFile
+        
+        # List of branches
+        self.branchList = cfg.stage1_branchList
+        # List of BDT features used in the model
+        self.BDTbranchList = cfg.bdt_branchList
 
-#Optional running on HTCondor, default is False
-runBatch    = True
+        # Load BDT model
+        if not self.ana_args.training:
+            ROOT.gInterpreter.ProcessLine(f'''
+            TMVA::Experimental::RBDT<> bdt("bdt", "{args.mvapath}");
+            computeModel = TMVA::Experimental::Compute<{len(self.BDTbranchList)}, float> (bdt);
+            ''')
 
-#Optional batch queue name when running on HTCondor, default is workday
-#batchQueue = "longlunch"
-
-#Optional computing account when running on HTCondor, default is group_u_FCC.local_gen
-#compGroup = "group_u_FCC.local_gen"
-
-#Optional test file
-testFile = "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root"
-#testFile = "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91/events_000083138.root"
-#testFile = "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zcc_ecm91/events_000046867.root"
-#testFile = "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zss_ecm91/events_000099129.root"
-#testFile = "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zud_ecm91/events_000071896.root"
-
-#Mandatory: RDFanalysis class where the use defines the operations on the TTree
-class RDFanalysis():
-
-    #__________________________________________________________
-    #Mandatory: analysers funtion to define the analysers to process, please make sure you return the last dataframe, in this example it is df2
-    def analysers(df):
+    def analyzers(self, df):
         df2 = (
             df
             #############################################
@@ -414,216 +418,27 @@ class RDFanalysis():
             #############################################
             .Define("EVT_Thrust_deltaE",            "(EVT_hemisEmax_e) - (EVT_hemisEmin_e)")
         )
-        
-        return df2
+        if not self.ana_args.training:
+            MVAfilter = f"EVT_MVA1 > {self.ana_args.mvacut}"
+            df3 = (
+                df2
+                #############################################
+                ##                Build BDT                ##
+                #############################################
+                .Define("MVAVec",    ROOT.computeModel, self.BDTbranchList)
+                .Define("EVT_MVA1",  "MVAVec.at(0)")
+                .Filter(MVAFilter)
+            )
+        else:
+            df3 = df2
 
-    #__________________________________________________________
-    #Mandatory: output function, please make sure you return the branchlist as a python list
-    def output():
-        branchList = [
-            "MCem_e",
-            "MCem_m",
-            "MCem_q",
-            "MCem_p",
-            "MCem_pt",
-            "MCem_px",
-            "MCem_py",
-            "MCem_pz",
-            "MCem_eta",
-            "MCem_phi",
-            "MCem_orivtx_x",
-            "MCem_orivtx_y",
-            "MCem_orivtx_z",
+        return df3
 
-            "MCep_e",
-            "MCep_m",
-            "MCep_q",
-            "MCep_p",
-            "MCep_pt",
-            "MCep_px",
-            "MCep_py",
-            "MCep_pz",
-            "MCep_eta",
-            "MCep_phi",
-            "MCep_orivtx_x",
-            "MCep_orivtx_y",
-            "MCep_orivtx_z",
+    def output(self):
+        desired_branches = self.branchList
+        if not self.ana_args.training:
+            desired_branches.append("EVT_MVA1")
 
-            "MCZ_e",
-            "MCZ_m",
-            "MCZ_q",
-            "MCZ_p",
-            "MCZ_pt",
-            "MCZ_px",
-            "MCZ_py",
-            "MCZ_pz",
-            "MCZ_eta",
-            "MCZ_phi",
-            "MCZ_orivtx_x",
-            "MCZ_orivtx_y",
-            "MCZ_orivtx_z",
+        return desired_branches
 
-            "MCq1_PDG",
-            "MCq1_e",
-            "MCq1_m",
-            "MCq1_q",
-            "MCq1_p",
-            "MCq1_pt",
-            "MCq1_px",
-            "MCq1_py",
-            "MCq1_pz",
-            "MCq1_eta",
-            "MCq1_phi",
-            "MCq1_orivtx_x",
-            "MCq1_orivtx_y",
-            "MCq1_orivtx_z",
-            "MCq2_PDG",
-            "MCq2_e",
-            "MCq2_m",
-            "MCq2_q",
-            "MCq2_p",
-            "MCq2_pt",
-            "MCq2_px",
-            "MCq2_py",
-            "MCq2_pz",
-            "MCq2_eta",
-            "MCq2_phi",
-            "MCq2_orivtx_x",
-            "MCq2_orivtx_y",
-            "MCq2_orivtx_z",
-
-            "Rec_true_PDG",
-            "Rec_true_e",
-            "Rec_true_m",
-            "Rec_true_q",
-            "Rec_true_p",
-            "Rec_true_pt",
-            "Rec_true_px",
-            "Rec_true_py",
-            "Rec_true_pz",
-            "Rec_true_eta",
-            "Rec_true_phi",
-            "Rec_true_orivtx_x",
-            "Rec_true_orivtx_y",
-            "Rec_true_orivtx_z",
-            
-            "Rec_true_M1",
-            "Rec_true_M2",
-            "Rec_true_M1ofM1",
-            "Rec_true_M2ofM1",
-            "Rec_true_M1ofM2",
-            "Rec_true_M2ofM2",
-
-            "Rec_n",
-            "Rec_type",
-            "Rec_indvtx",
-            "Rec_customid",
-            "Rec_e",
-            "Rec_m",
-            "Rec_q",
-            "Rec_p",
-            "Rec_pt",
-            "Rec_px",
-            "Rec_py",
-            "Rec_pz",
-            "Rec_eta",
-            "Rec_phi",
-            "Rec_thrustCosTheta",
-            "Rec_in_hemisEmin",
-
-            "Rec_track_n",
-            "Rec_track_d0",
-            "Rec_track_z0",
-            "Rec_track_normd0",
-            "Rec_track_normz0",
-
-            "Rec_PV_ntracks",
-            "Rec_PV_x",
-            "Rec_PV_y",
-            "Rec_PV_z",
-
-            "Rec_vtx_n",
-            "Rec_vtx_ntracks",
-            "Rec_vtx_indRP",
-            "Rec_vtx_chi2",
-            "Rec_vtx_isPV",
-            "Rec_vtx_m",
-            "Rec_vtx_x",
-            "Rec_vtx_y",
-            "Rec_vtx_z",
-            "Rec_vtx_xerr",
-            "Rec_vtx_yerr",
-            "Rec_vtx_zerr",
-
-            "Rec_vtx_d2PV",
-            "Rec_vtx_d2PV_min",
-            "Rec_vtx_d2PV_max",
-            "Rec_vtx_d2PV_ave",
-            "Rec_vtx_d2PV_x",
-            "Rec_vtx_d2PV_y",
-            "Rec_vtx_d2PV_z",
-            "Rec_vtx_d2PV_err",
-            "Rec_vtx_d2PV_xerr",
-            "Rec_vtx_d2PV_yerr",
-            "Rec_vtx_d2PV_zerr",
-            "Rec_vtx_normd2PV",
-            "Rec_vtx_normd2PV_x",
-            "Rec_vtx_normd2PV_y",
-            "Rec_vtx_normd2PV_z",
-
-            "Rec_vtx_thrustCosTheta",
-            "Rec_vtx_in_hemisEmin",
-
-            "EVT_Thrust_mag",
-            "EVT_Thrust_x",
-            "EVT_Thrust_y",
-            "EVT_Thrust_z",
-            "EVT_Thrust_xerr",
-            "EVT_Thrust_yerr",
-            "EVT_Thrust_zerr",
-            "EVT_Thrust_deltaE",
-
-            "EVT_hemisEmin_e",
-            "EVT_hemisEmin_eCharged",
-            "EVT_hemisEmin_eNeutral",
-            "EVT_hemisEmin_n",
-            "EVT_hemisEmin_nCharged",
-            "EVT_hemisEmin_nNeutral",
-            "EVT_hemisEmin_nDV",
-
-            "EVT_hemisEmax_e",
-            "EVT_hemisEmax_eCharged",
-            "EVT_hemisEmax_eNeutral",
-            "EVT_hemisEmax_n",
-            "EVT_hemisEmax_nCharged",
-            "EVT_hemisEmax_nNeutral",
-            "EVT_hemisEmax_nDV",
-
-            #"EVT_hemisEmin_nLept",
-            "EVT_hemisEmin_nKaon",
-            "EVT_hemisEmin_nPion",
-            #"EVT_hemisEmin_maxeLept",
-            "EVT_hemisEmin_maxeKaon",
-            "EVT_hemisEmin_maxePion",
-            #"EVT_hemisEmin_maxeLept_fromtruePV",
-            "EVT_hemisEmin_maxeKaon_fromtruePV",
-            "EVT_hemisEmin_maxePion_fromtruePV",
-            #"EVT_hemisEmin_maxeLept_ind",
-            "EVT_hemisEmin_maxeKaon_ind",
-            "EVT_hemisEmin_maxePion_ind",
-
-            "EVT_hemisEmax_nLept",
-            "EVT_hemisEmax_nKaon",
-            "EVT_hemisEmax_nPion",
-            "EVT_hemisEmax_maxeLept",
-            "EVT_hemisEmax_maxeKaon",
-            "EVT_hemisEmax_maxePion",
-            "EVT_hemisEmax_maxeLept_fromtruePV",
-            "EVT_hemisEmax_maxeKaon_fromtruePV",
-            "EVT_hemisEmax_maxePion_fromtruePV",
-            "EVT_hemisEmax_maxeLept_ind",
-            "EVT_hemisEmax_maxeKaon_ind",
-            "EVT_hemisEmax_maxePion_ind",
-        ]
-        return branchList
-
+ 

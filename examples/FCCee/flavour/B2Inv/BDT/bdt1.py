@@ -144,11 +144,11 @@ if __name__ == "__main__":
     sspath  = os.path.join(inpath, cfg.samples[3], "*.root")
     udpath  = os.path.join(inpath, cfg.samples[4], "*.root")
     
-    sigfiles = glob(sigpath)[:2]
-    bbfiles  = glob(bbpath)[:2]
-    ccfiles  = glob(ccpath)[:2]
-    ssfiles  = glob(sspath)[:15]
-    udfiles  = glob(udpath)[:15]
+    sigfiles = glob(sigpath)[0]
+    bbfiles  = glob(bbpath)[0]
+    ccfiles  = glob(ccpath)[0]
+    ssfiles  = glob(sspath)[:8]
+    udfiles  = glob(udpath)[:8]
     
     #print(f"Using {sigfiles} for the signal")
     #print(f"Using {bbfiles}\n, {ccfiles}\n, {ssfiles}\n, {udfiles}\n for the background\n\n")
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     #bdt.set_params(**grid_search.best_params_)
     bdt.set_params(**config_dict)
     bdt.fit(x_train.to_numpy(), y_train.to_numpy(), sample_weight=w_train.to_numpy())
-    data_dmatrix = xgb.DMatrix(data=x_train.to_numpy(), label=y_train.to_numpy(), weight=w_train.to_numpy())
+    data_dmatrix = xgb.DMatrix(data=x_test.to_numpy(), label=y_test.to_numpy(), weight=w_test.to_numpy())
     
     xgb_cv = xgb.cv(dtrain=data_dmatrix, params=config_dict, nfold=4, num_boost_round=50, early_stopping_rounds=10, metrics="auc", as_pandas=True, seed=123)
     print(f"{30*'-'}")
@@ -225,7 +225,7 @@ if __name__ == "__main__":
     bdt.save_model(os.path.join(outpath, "bdt1.json"))
     ROOT.TMVA.Experimental.SaveXGBoost(bdt, "bdt", os.path.join(outpath, "tmva1.root"), num_inputs=x_train.shape[1])
     print(f"Model saved to {os.path.join(outpath, 'bdt1.json')}")
-    rint(f"Model saved to {os.path.join(outpath, 'tmva1.root')}")
+    print(f"Model saved to {os.path.join(outpath, 'tmva1.root')}")
     #print("Model already saved, skipping...")
 
     #feature_importances = pd.DataFrame(bdt.feature_importances_,

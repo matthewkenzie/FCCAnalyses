@@ -504,10 +504,10 @@ merge_VertexObjet(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> in){
 }
 
 
-std::vector<std::vector<int>> get_Vertex_ind(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
-  std::vector<std::vector<int>> result;
+ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_Vertex_ind(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
+  ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> result;
   for (auto &p:vertex){
-    std::vector<int> tmp;
+    ROOT::VecOps::RVec<int> tmp;
     for (size_t i = 0; i < p.reco_ind.size(); ++i) tmp.push_back(p.reco_ind.at(i));
     result.push_back(tmp);
   }

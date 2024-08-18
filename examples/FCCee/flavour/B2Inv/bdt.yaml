@@ -29,11 +29,10 @@ bdt1-training-vars:
   - EVT_Thrust_z
     #- EVT_Thrust_deltaE
   - Rec_PV_ntracks
-    #- Rec_PV_x
-    #- Rec_PV_y
-    #- Rec_PV_z
-    #- Rec_vtx_n
-    #- Rec_vtx_n_hemisEmin
+  - Rec_PV_x
+  - Rec_PV_y
+  - Rec_PV_z
+  - Rec_vtx_n
   
   - Rec_vtx_d2PV_min
   - Rec_vtx_d2PV_max
@@ -220,9 +219,9 @@ stage1-vars:
   - Rec_vtx_d2PV_zerr
 
   - Rec_vtx_normd2PV
-    #- Rec_vtx_normd2PV_min   ### To add
-    #- Rec_vtx_normd2PV_max   ### To add
-    #- Rec_vtx_normd2PV_ave   ### To add
+  - Rec_vtx_normd2PV_min   ### To add
+  - Rec_vtx_normd2PV_max   ### To add
+  - Rec_vtx_normd2PV_ave   ### To add
   - Rec_vtx_normd2PV_x
   - Rec_vtx_normd2PV_y
   - Rec_vtx_normd2PV_z

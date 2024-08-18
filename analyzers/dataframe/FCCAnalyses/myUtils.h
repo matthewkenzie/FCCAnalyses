@@ -204,7 +204,7 @@ namespace myUtils{
 					    ROOT::VecOps::RVec<int> mcind,
 					    int comp);
 
-  std::vector<std::vector<int>> get_Vertex_ind(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex);
+  ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_Vertex_ind(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex);
 
   float get_d0(TVector3 x, TVector3 p);
   float get_z0(TVector3 x, TVector3 p);

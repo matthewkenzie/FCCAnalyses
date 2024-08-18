@@ -26,7 +26,7 @@ ROOT.gErrorIgnoreLevel = ROOT.kFatal
 class analysis():
 
     #__________________________________________________________
-    def __init__(self, inputlist, outname, ncpu):
+    def __init__(self, inputlist, outname, ncpu, stage1_vars):
         self.outname = outname
         if ".root" not in outname:
             self.outname+=".root"
@@ -35,8 +35,10 @@ class analysis():
         if ncpu>1: # MT and self.df.Range() is not allowed but MT must be enabled before constructing a df
             ROOT.ROOT.EnableImplicitMT(ncpu)
         ROOT.EnableThreadSafety()
-        self.df = ROOT.RDataFrame("events", inputlist)
+        self.df = ROOT.RDataFrame("events", inputlist, stage1_vars)
         print ("Input dataframe initialised!")
+        self.df.Snapshot("events", "/usera/rrm42/private/test.root", stage1_vars)
+        print ("Dataframe saved")
     #__________________________________________________________
     def run(self, n_events, MVA_cut, training, bdt1_training_vars, stage1_vars):
         print("Running...")
@@ -64,6 +66,7 @@ class analysis():
         for br in branchout:
             branchList.push_back(br)
 
+        #print(df3)
         df3.Snapshot("events", self.outname, branchList)
 
 
@@ -98,17 +101,14 @@ if __name__ == "__main__":
     if not os.path.exists( args.config ):
         raise RuntimeError(f"Looking for a config file that doesn't exist {args.config}")
 
-    bdt1_training_vars = list(vars_fromyaml(args.config, str(args.bdtnames)))
-    stage1_vars        = list(vars_fromyaml(args.config, str(args.branchnames)))
+    bdt1_training_vars = vars_fromyaml(args.config, args.bdtnames)
+    stage1_vars        = vars_fromyaml(args.config, args.branchnames)
 
     if not args.training:
         if not os.path.exists( args.mva ):
             raise RuntimeError(f"Looking for an MVA file that doesn't exist {args.mva}")
         # TODO make the above take the BDT name according to the decay
-        ROOT.gInterpreter.ProcessLine(f'''
-        TMVA::Experimental::RBDT bdt("bdt", "{args.mva}");
-        computeModel = TMVA::Experimental::Compute<{len(bdt1_training_vars)}, float>(bdt);
-        ''')
+        ROOT.gInterpreter.ProcessLine(f'TMVA::Experimental::RBDT bdt("bdt", "{args.mva}"); computeModel = TMVA::Experimental::Compute<{len(bdt1_training_vars)}, float>(bdt);')
 
     input_files = ROOT.vector('string')()
     if "*" in args.input:
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     
     import time
     start_time = time.time()
-    analysis = analysis(input_files, args.output, n_cpus)
+    analysis = analysis(input_files, args.output, n_cpus, stage1_vars)
     analysis.run(n_events, args.MVA_cut, args.training, bdt1_training_vars, stage1_vars)
 
     
