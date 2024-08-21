@@ -3,17 +3,33 @@
 # BDT1
 ###############
 bdt1-training-vars:
+  - EVT_Thrust_mag
+  - EVT_Thrust_x
+  - EVT_Thrust_y
+  - EVT_Thrust_z
+  - EVT_Thrust_deltaE
   - EVT_hemisEmin_e
   - EVT_hemisEmin_eCharged
   - EVT_hemisEmin_eNeutral
+  - EVT_hemisEmax_e
+  - EVT_hemisEmax_eCharged
+  - EVT_hemisEmax_eNeutral
+  - Rec_PV_x
+  - Rec_PV_y
+  - Rec_PV_z
+  - Rec_vtx_d2PV_min
+  - Rec_vtx_d2PV_max
+  - Rec_vtx_d2PV_ave
+  - EVT_hemisEmin_maxeKaon
+  - EVT_hemisEmin_maxePion
+  - EVT_hemisEmax_maxeLept
+  - EVT_hemisEmax_maxeKaon
+  - EVT_hemisEmax_maxePion
+
   - EVT_hemisEmin_n
   - EVT_hemisEmin_nCharged
   - EVT_hemisEmin_nNeutral
   - EVT_hemisEmin_nDV
-
-  - EVT_hemisEmax_e
-  - EVT_hemisEmax_eCharged
-  - EVT_hemisEmax_eNeutral
   - EVT_hemisEmax_n
   - EVT_hemisEmax_nCharged
   - EVT_hemisEmax_nNeutral
@@ -23,37 +39,21 @@ bdt1-training-vars:
     #- Rec_track_d0_max
     #- Rec_track_z0_max
   
-  - EVT_Thrust_mag
-  - EVT_Thrust_x
-  - EVT_Thrust_y
-  - EVT_Thrust_z
-    #- EVT_Thrust_deltaE
   - Rec_PV_ntracks
-  - Rec_PV_x
-  - Rec_PV_y
-  - Rec_PV_z
   - Rec_vtx_n
   
-  - Rec_vtx_d2PV_min
-  - Rec_vtx_d2PV_max
-  - Rec_vtx_d2PV_ave
     #- Rec_vtx_normd2PV_min
     #- Rec_vtx_normd2PV_max
     #- Rec_vtx_normd2PV_ave
     
   - EVT_hemisEmin_nKaon
   - EVT_hemisEmin_nPion
-  - EVT_hemisEmin_maxeKaon
-  - EVT_hemisEmin_maxePion
   - EVT_hemisEmin_maxeKaon_fromtruePV
   - EVT_hemisEmin_maxePion_fromtruePV
 
   - EVT_hemisEmax_nLept
   - EVT_hemisEmax_nKaon
   - EVT_hemisEmax_nPion
-  - EVT_hemisEmax_maxeLept
-  - EVT_hemisEmax_maxeKaon
-  - EVT_hemisEmax_maxePion
   - EVT_hemisEmax_maxeLept_fromtruePV
   - EVT_hemisEmax_maxeKaon_fromtruePV
   - EVT_hemisEmax_maxePion_fromtruePV

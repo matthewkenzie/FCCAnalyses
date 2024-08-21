@@ -20,7 +20,7 @@ import config as cfg
 ROOT.EnableImplicitMT()
 plt.rcParams['text.usetex'] = True
 outpath="/r01/lhcb/rrm42/fcc/bdt1out/"
-inpath="/r01/lhcb/rrm42/fcc/stage1/"
+inpath="/r01/lhcb/rrm42/fcc/stage1_preBDT/"
 yamlpath = "/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/bdt.yaml"
 
 # Return list of variables to use in the bdt as a python list
@@ -263,11 +263,17 @@ if __name__ == "__main__":
     #print("\nFeature importances")
     #print(feature_importances)
     #print(f"{30*'-'}\n")
-
+    
+    names = ["Signal", "bb", "cc", "ss", "ud"]
     # bdt response
-    for df in [sg_x, bb_x, cc_x, ss_x, ud_x]:
+    for i, df in enumerate([sg_x, bb_x, cc_x, ss_x, ud_x]):
         df['XGB'] = bdt.predict_proba(df[bdtvars])[:, 1]
-
+    #    before = df.shape[0]
+    #    after = df.query('XGB > 0.7').shape[0]
+    #    print(f"{names[i]} number before cut = {before}")
+    #    print(f"{names[i]} number after cut  = {after}")
+    #    print(f"{names[i]} efficiency = {after/before:.5f}")
+    #    print("\n\n")
     # plotting
     print(f"{30*'-'}")
     print("PLOTTING")
@@ -276,35 +282,35 @@ if __name__ == "__main__":
     print(f'BDT1 response curve saved to {os.path.join(outpath, "response-stage1.pdf")}')
     plt.close()
 
-    #plot_roc(bdt, tot_x, tot_y, tot_w)
-    #plt.savefig(os.path.join(outpath, "roc-stage1.pdf"))
-    #print(f'ROC saved to {os.path.join(outpath, "roc-stage1.pdf")}')
-    #plt.close()
+    plot_roc(bdt, tot_x, tot_y, tot_w)
+    plt.savefig(os.path.join(outpath, "roc-stage1.pdf"))
+    print(f'ROC saved to {os.path.join(outpath, "roc-stage1.pdf")}')
+    plt.close()
     
-    #N_Z = 6e12
-    #bb_pred = N_Z*bb_bf*bb_eff
-    #cc_pred = N_Z*cc_bf*cc_eff
-    #ss_pred = N_Z*ss_bf*ss_eff
-    #ud_pred = N_Z*ud_bf*ud_eff
-    #S = 2*N_Z*bb_bf*0.096*1e-5*sig_eff
-    #B = bb_pred+cc_pred+ss_pred+ud_pred
-    #plot_significance(bdt, tot_x, tot_y, tot_w, S, B)
-    #plt.savefig(os.path.join(outpath, "significance-stage1.pdf"))
-    #print(f'Significance plot saved to {os.path.join(outpath, "significance-stage1.pdf")}')
-    #plt.close()
+    N_Z = 6e12
+    bb_pred = N_Z*bb_bf*bb_eff
+    cc_pred = N_Z*cc_bf*cc_eff
+    ss_pred = N_Z*ss_bf*ss_eff
+    ud_pred = N_Z*ud_bf*ud_eff
+    S = 2*N_Z*bb_bf*0.096*1e-5*sig_eff
+    B = bb_pred+cc_pred+ss_pred+ud_pred
+    plot_significance(bdt, tot_x, tot_y, tot_w, S, B)
+    plt.savefig(os.path.join(outpath, "significance-stage1.pdf"))
+    print(f'Significance plot saved to {os.path.join(outpath, "significance-stage1.pdf")}')
+    plt.close()
 
-    #end = time()
-    #exec_time = end - start
-    #hours, rem = divmod(exec_time, 3600)
-    #minutes, sec = divmod(exec_time, 60)
-    #print(f"{30*'-'}")
-    #print(f"Execution time in H:M:S = {int(hours):02}:{int(minutes):02}:{sec:.3f}")
-    #print(f"{30*'-'}")
+    end = time()
+    exec_time = end - start
+    hours, rem = divmod(exec_time, 3600)
+    minutes, sec = divmod(exec_time, 60)
+    print(f"{30*'-'}")
+    print(f"Execution time in H:M:S = {int(hours):02}:{int(minutes):02}:{sec:.3f}")
+    print(f"{30*'-'}")
 
-    #plot_var('EVT_Thrust_deltaE')
-    #plt.savefig(os.path.join(outpath, 'delE-nocut-stage1.pdf'))
-    #plt.close()
+    plot_var('EVT_Thrust_deltaE')
+    plt.savefig(os.path.join(outpath, 'delE-nocut-stage1.pdf'))
+    plt.close()
 
-    #plot_var('EVT_Thrust_deltaE', cut='XGB > 0.6')
-    #plt.savefig(os.path.join(outpath, 'delE-cut-stage1.pdf'))
-    #plt.close()
+    plot_var('EVT_Thrust_deltaE', cut='XGB > 0.6')
+    plt.savefig(os.path.join(outpath, 'delE-cut-stage1.pdf'))
+    plt.close()
