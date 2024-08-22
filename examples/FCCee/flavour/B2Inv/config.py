@@ -86,7 +86,7 @@ efficiencies = {
         "p8_ee_Zss_ecm91": 1,
         "p8_ee_Zud_ecm91": 1,
     },
-    "pre_bdt1_filters": {
+    "pre_bdt1_cut": {
         "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": 0.931654,
         "p8_ee_Zbb_ecm91": 0.0843694570,
         "p8_ee_Zcc_ecm91": 0.0845756524,
@@ -96,8 +96,8 @@ efficiencies = {
     "post_bdt1_cut": {
         "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": 0.929954,
         "p8_ee_Zbb_ecm91": 0.026951298076923078,
-        "p8_ee_Zcc_ecm91": 0.0198, # Placeholder till full data processed
-        "p8_ee_Zss_ecm91": 0.01645, # Placeholder till full data processed
-        "p8_ee_Zud_ecm91": 0.007577,  # Placeholder till full data processed
+        "p8_ee_Zcc_ecm91": 0.01976784759011348,
+        "p8_ee_Zss_ecm91": 0.016586942271539597,
+        "p8_ee_Zud_ecm91": 0.007837139711792738,
     }
 }

@@ -214,7 +214,7 @@ if __name__ == "__main__":
     #bdt.set_params(**grid_search.best_params_)
     bdt.set_params(**config_dict)
     bdt.fit(x_train.to_numpy(), y_train.to_numpy(), sample_weight=w_train.to_numpy())
-    data_dmatrix = xgb.DMatrix(data=x_test.to_numpy(), label=y_test.to_numpy(), weight=w_test.to_numpy())
+    data_dmatrix = xgb.DMatrix(data=x_train.to_numpy(), label=y_train.to_numpy(), weight=w_train.to_numpy())
     
     xgb_cv = xgb.cv(dtrain=data_dmatrix, params=config_dict, nfold=4, num_boost_round=50, early_stopping_rounds=10, metrics="auc", as_pandas=True, seed=123)
     print(f"{30*'-'}")

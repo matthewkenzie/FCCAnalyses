@@ -173,6 +173,24 @@ def plot_var(name, cut=None):
         ax.set_title(f'{name} without cut')
     fig.tight_layout()
 
+def plot_sens(x, sig, B):
+    fig, ax = plt.subplots()
+    y = np.divide(sig, np.sqrt(B) + 1.5*np.ones_like(B))
+    optimum = x[np.argmax(y)]
+    ax.plot(x, y)
+    ax.axvline(optimum, color='lightgray', linestyle='--', label=f'Optimum cut = {optimum:.3f}')
+    ax.set_xlabel('BDT1')
+    ax.set_ylabel(r'$\frac{\epsilon_s}{\sqrt{B} + 3/2}$')
+    ax.legend(loc='best')
+    ax.set_title('BDT sensitivity')
+
+    fig.tight_layout()
+
+def get_eff(df, val):
+    before = df.shape[0]
+    after = df.query(f'XGB > {val}').shape[0]
+    return after/before
+
 if __name__ == "__main__":
     start = time()
     print(f"\n{30*'-'}\n")
@@ -268,36 +286,57 @@ if __name__ == "__main__":
     # bdt response
     for i, df in enumerate([sg_x, bb_x, cc_x, ss_x, ud_x]):
         df['XGB'] = bdt.predict_proba(df[bdtvars])[:, 1]
-    #    before = df.shape[0]
-    #    after = df.query('XGB > 0.7').shape[0]
-    #    print(f"{names[i]} number before cut = {before}")
-    #    print(f"{names[i]} number after cut  = {after}")
-    #    print(f"{names[i]} efficiency = {after/before:.5f}")
-    #    print("\n\n")
+        
+    cut_val = np.linspace(0, 1, 50)
+    sigma_sg = []
+    sigma_bb = []
+    sigma_cc = []
+    sigma_ss = []
+    sigma_ud = []
+    sigma = [sigma_sg, sigma_bb, sigma_cc, sigma_ss, sigma_ud]
+
+    for cut in cut_val:
+        for j, df in enumerate([sg_x, bb_x, cc_x, ss_x, ud_x]):
+            sigma[j].append(get_eff(df, cut))
+
     # plotting
     print(f"{30*'-'}")
     print("PLOTTING")
-    plot_bdt_response()
-    plt.savefig(os.path.join(outpath, "response-stage1.pdf"))
-    print(f'BDT1 response curve saved to {os.path.join(outpath, "response-stage1.pdf")}')
-    plt.close()
-
-    plot_roc(bdt, tot_x, tot_y, tot_w)
-    plt.savefig(os.path.join(outpath, "roc-stage1.pdf"))
-    print(f'ROC saved to {os.path.join(outpath, "roc-stage1.pdf")}')
-    plt.close()
-    
     N_Z = 6e12
-    bb_pred = N_Z*bb_bf*bb_eff
-    cc_pred = N_Z*cc_bf*cc_eff
-    ss_pred = N_Z*ss_bf*ss_eff
-    ud_pred = N_Z*ud_bf*ud_eff
-    S = 2*N_Z*bb_bf*0.096*1e-5*sig_eff
+    bb_pred = N_Z*bb_bf*bb_eff*np.array(sigma[1])
+    cc_pred = N_Z*cc_bf*cc_eff*np.array(sigma[2])
+    ss_pred = N_Z*ss_bf*ss_eff*np.array(sigma[3])
+    ud_pred = N_Z*ud_bf*ud_eff*np.array(sigma[4])
+    #S = 2*N_Z*bb_bf*0.096*1e-5*sig_eff
     B = bb_pred+cc_pred+ss_pred+ud_pred
-    plot_significance(bdt, tot_x, tot_y, tot_w, S, B)
-    plt.savefig(os.path.join(outpath, "significance-stage1.pdf"))
-    print(f'Significance plot saved to {os.path.join(outpath, "significance-stage1.pdf")}')
+    plot_sens(cut_val, np.array(sigma[0]), B)
+    plt.savefig(os.path.join(outpath, "fom.pdf"))
     plt.close()
+    print(f'Sensitivity plot saved to {os.path.join(outpath, "fom.pdf")}')
+    
+
+
+    #plot_bdt_response()
+    #plt.savefig(os.path.join(outpath, "response-stage1.pdf"))
+    #print(f'BDT1 response curve saved to {os.path.join(outpath, "response-stage1.pdf")}')
+    #plt.close()
+
+    #plot_roc(bdt, tot_x, tot_y, tot_w)
+    #plt.savefig(os.path.join(outpath, "roc-stage1.pdf"))
+    #print(f'ROC saved to {os.path.join(outpath, "roc-stage1.pdf")}')
+    #plt.close()
+    
+    #N_Z = 6e12
+    #bb_pred = N_Z*bb_bf*bb_eff
+    #cc_pred = N_Z*cc_bf*cc_eff
+    #ss_pred = N_Z*ss_bf*ss_eff
+    #ud_pred = N_Z*ud_bf*ud_eff
+    #S = 2*N_Z*bb_bf*0.096*1e-5*sig_eff
+    #B = bb_pred+cc_pred+ss_pred+ud_pred
+    #plot_significance(bdt, tot_x, tot_y, tot_w, S, B)
+    #plt.savefig(os.path.join(outpath, "significance-stage1.pdf"))
+    #print(f'Significance plot saved to {os.path.join(outpath, "significance-stage1.pdf")}')
+    #plt.close()
 
     end = time()
     exec_time = end - start
@@ -307,10 +346,10 @@ if __name__ == "__main__":
     print(f"Execution time in H:M:S = {int(hours):02}:{int(minutes):02}:{sec:.3f}")
     print(f"{30*'-'}")
 
-    plot_var('EVT_Thrust_deltaE')
-    plt.savefig(os.path.join(outpath, 'delE-nocut-stage1.pdf'))
-    plt.close()
+    #plot_var('EVT_Thrust_deltaE')
+    #plt.savefig(os.path.join(outpath, 'delE-nocut-stage1.pdf'))
+    #plt.close()
 
-    plot_var('EVT_Thrust_deltaE', cut='XGB > 0.6')
-    plt.savefig(os.path.join(outpath, 'delE-cut-stage1.pdf'))
-    plt.close()
+    #plot_var('EVT_Thrust_deltaE', cut='XGB > 0.6')
+    #plt.savefig(os.path.join(outpath, 'delE-cut-stage1.pdf'))
+    #plt.close()

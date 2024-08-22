@@ -47,7 +47,11 @@ def check_var(folder, varname):
     return True
 
 def as_array(folder, varname, cut,  ):
-    path = os.path.join( args.inputpath, folder, "*.root" )
+    if folder == cfg.samples[0]:
+        path = os.path.join( args.inputpath, folder, "chunk_0.root" )
+    else:
+        path = os.path.join( args.inputpath, folder, "*.root" )
+
     try: 
         # awkward array instead of numpy -> allows variable length elements
         #arr = uproot.concatenate( path+":events", expressions=varname, library="np")[varname]
@@ -58,8 +62,7 @@ def as_array(folder, varname, cut,  ):
         for br in branches:
             print('  ', br)
         raise RuntimeError( f"Cannot process expression {varname} in files at path {folder}. Try combinations of branches from the list above." )
-    # Return awkward array for further analysis
-    return arr
+
     # Return awkward array as a flattened ndarray
     return ak.to_numpy(ak.ravel(arr))
 
@@ -103,44 +106,44 @@ def get_weights():
     
     return hist_weights
 
-def parse_pid(branch_cond, particleclass, particle, pids=cfg.PIDs):
-    """
-    Returns a string of PIDs to match and pass to `cut`
+#def parse_pid(branch_cond, particleclass, particle, pids=cfg.PIDs):
+#    """
+#    Returns a string of PIDs to match and pass to `cut`
+#
+#    Parameters
+#    ----------
+#    branch_cond : str
+#        Specify which branch to check, such as "MC_PDG".
+#    particleclass : array
+#        Array of high level keys in PIDs.
+#    particle : array
+#        Array of nested keys for each high level key. Accepts "all" to use every nested key
+#    pids : dict, optional
+#        Dictionary that contains PIDs. Default: cfg.PIDs.
+#
+#    Returns
+#    -------
+#    cut_str : str
+#        String containing the expression passed to `cut`. Example "MC_PDG==x||MC_PD==y||MC_PDG==z..."
+#    """
+#
+#    if len(particleclass) != len(particle):
+#        raise ValueError("`particle` must contain an element for every `particleclass`")
+#
+#    cut_str = ""
+#    for idx, pclass in enumerate(particleclass):
+#        if particle[idx] == 'all':
+#            for pvalue in pids[pclass].values():
+#                cut_str = cut_str + branch_cond + "==" + str(pvalue) + " or "
+#        else:
+#            for pkey in particle[idx]:
+#                cut_str = cut_str + branch_cond + "==" + str(pids[pclass][pkey]) + " or "
+#
+#    # Remove trailing ' or '
+#    return cut_str[:-4]
 
-    Parameters
-    ----------
-    branch_cond : str
-        Specify which branch to check, such as "MC_PDG".
-    particleclass : array
-        Array of high level keys in PIDs.
-    particle : array
-        Array of nested keys for each high level key. Accepts "all" to use every nested key
-    pids : dict, optional
-        Dictionary that contains PIDs. Default: cfg.PIDs.
 
-    Returns
-    -------
-    cut_str : str
-        String containing the expression passed to `cut`. Example "MC_PDG==x||MC_PD==y||MC_PDG==z..."
-    """
-
-    if len(particleclass) != len(particle):
-        raise ValueError("`particle` must contain an element for every `particleclass`")
-
-    cut_str = ""
-    for idx, pclass in enumerate(particleclass):
-        if particle[idx] == 'all':
-            for pvalue in pids[pclass].values():
-                cut_str = cut_str + branch_cond + "==" + str(pvalue) + " or "
-        else:
-            for pkey in particle[idx]:
-                cut_str = cut_str + branch_cond + "==" + str(pids[pclass][pkey]) + " or "
-
-    # Remove trailing ' or '
-    return cut_str[:-4]
-
-
-def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, interactive=False, save=None, bins=50, range=None, total=["background"], components=["signal", "background"], cut=None):
+def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, interactive=False, save=None, bins=50, range=None, total=["background"], components=["signal", "background"], cut=None, xtitle=None):
     
     """ 
     plot( varname, **opts ) will plot a variable
@@ -233,12 +236,17 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
             )
 
     ax.legend(reverse=True)
-    if varname in cfg.variable_plot_titles:
-        ax.set_xlabel( cfg.variable_plot_titles[varname] )
+    #if varname in cfg.variable_plot_titles:
+    #    ax.set_xlabel( cfg.variable_plot_titles[varname] )
+    #else:
+    #    ax.set_xlabel(f'{varname}, cut={cut}')
+    if xtitle is not None:
+        ax.set_xlabel(xtitle)
     else:
         ax.set_xlabel(f'{varname}, cut={cut}')
+    
     ax.set_ylabel('Density')
-
+    fig.tight_layout()
     if interactive:
         plt.show()
 
