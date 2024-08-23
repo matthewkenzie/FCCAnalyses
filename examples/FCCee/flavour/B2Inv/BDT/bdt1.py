@@ -19,7 +19,7 @@ import config as cfg
 ROOT.EnableImplicitMT()
 plt.rcParams['text.usetex'] = True
 outpath="/r01/lhcb/rrm42/fcc/bdt1out/"
-inpath="/r01/lhcb/rrm42/fcc/stage1/"
+inpath="/r01/lhcb/rrm42/fcc/stage1_postBDT/"
 yamlpath = "/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/bdt.yaml"
 
 # Return list of variables to use in the bdt as a python list
@@ -120,11 +120,11 @@ if __name__ == "__main__":
     ss_bf /= (bb_bf + cc_bf + ss_bf + ud_bf)
     ud_bf /= (bb_bf + cc_bf + ss_bf + ud_bf)
     
-    sig_eff = cfg.efficiencies['stage1']['Bs2NuNu']['eff']
-    bb_eff  = cfg.efficiencies['stage1']['bb']['eff']
-    cc_eff  = cfg.efficiencies['stage1']['cc']['eff']
-    ss_eff  = cfg.efficiencies['stage1']['ss']['eff']
-    ud_eff  = cfg.efficiencies['stage1']['ud']['eff']
+    sig_eff = cfg.efficiencies['post_bdt1_cut']['p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu']
+    bb_eff  = cfg.efficiencies['post_bdt1_cut']['p8_ee_Zbb_ecm91']
+    cc_eff  = cfg.efficiencies['post_bdt1_cut']['p8_ee_Zcc_ecm91']
+    ss_eff  = cfg.efficiencies['post_bdt1_cut']['p8_ee_Zss_ecm91']
+    ud_eff  = cfg.efficiencies['post_bdt1_cut']['p8_ee_Zud_ecm91']
 
     sig_eff *= sig_bf
     bb_eff  *= bb_bf
@@ -144,11 +144,11 @@ if __name__ == "__main__":
     sspath  = os.path.join(inpath, cfg.samples[3], "*.root")
     udpath  = os.path.join(inpath, cfg.samples[4], "*.root")
     
-    sigfiles = glob(sigpath)[0]
-    bbfiles  = glob(bbpath)[0]
-    ccfiles  = glob(ccpath)[0]
-    ssfiles  = glob(sspath)[:8]
-    udfiles  = glob(udpath)[:8]
+    sigfiles = glob(sigpath)[:10]
+    bbfiles  = glob(bbpath)
+    ccfiles  = glob(ccpath)
+    ssfiles  = glob(sspath)
+    udfiles  = glob(udpath)
     
     #print(f"Using {sigfiles} for the signal")
     #print(f"Using {bbfiles}\n, {ccfiles}\n, {ssfiles}\n, {udfiles}\n for the background\n\n")
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     print(f"Number of ss events = {ss_x.shape[0]}")
     print(f"Number of ud events = {ud_x.shape[0]}")
 
-    x_train, x_test, y_train, y_test, w_train, w_test = train_test_split(tot_x, tot_y, tot_w, test_size=0.25, random_state=27)
+    x_train, x_test, y_train, y_test, w_train, w_test = train_test_split(tot_x, tot_y, tot_w, test_size=0.5, random_state=27)
 
     #sc = StandardScaler()
     #sc.set_output(transform = 'pandas')
@@ -222,48 +222,48 @@ if __name__ == "__main__":
     print(xgb_cv.head())
     
     # Save model to output file
-    bdt.save_model(os.path.join(outpath, "bdt1.json"))
-    ROOT.TMVA.Experimental.SaveXGBoost(bdt, "bdt", os.path.join(outpath, "tmva1.root"), num_inputs=x_train.shape[1])
+    bdt.save_model(os.path.join(outpath, "bdt1_test.json"))
+    ROOT.TMVA.Experimental.SaveXGBoost(bdt, "bdt", os.path.join(outpath, "tmva1_test.root"), num_inputs=x_train.shape[1])
     print(f"Model saved to {os.path.join(outpath, 'bdt1.json')}")
     print(f"Model saved to {os.path.join(outpath, 'tmva1.root')}")
     #print("Model already saved, skipping...")
 
-    #feature_importances = pd.DataFrame(bdt.feature_importances_,
-    #                                   index = bdtvars,
-    #                                   columns=['importance']).sort_values('importance',ascending=False)
-    #
-    #print("\nFeature importances")
-    #print(feature_importances)
-    #print(f"{30*'-'}\n")
+    feature_importances = pd.DataFrame(bdt.feature_importances_,
+                                       index = bdtvars,
+                                       columns=['importance']).sort_values('importance',ascending=False)
+    
+    print("\nFeature importances")
+    print(feature_importances)
+    print(f"{30*'-'}\n")
 
-    ## bdt response
-    #for df in [sg_x, bb_x, cc_x, ss_x, ud_x]:
-    #    df['XGB'] = bdt.predict_proba(df)[:, 1]
-    #    after = df.query('XGB > 0.5').shape[0]
-    #    print(f'{after}')
+    # bdt response
+    for df in [sg_x, bb_x, cc_x, ss_x, ud_x]:
+        df['XGB'] = bdt.predict_proba(df)[:, 1]
+        after = df.query('XGB > 0.5').shape[0]
+        print(f'{after}')
 
-    ## plotting
-    #print(f"{30*'-'}")
-    #print("PLOTTING")
-    #plot_bdt_response()
-    #plt.savefig(os.path.join(outpath, "bdt1-response.pdf"))
-    #print(f'BDT1 response curve saved to {os.path.join(outpath, "bdt1-response.pdf")}')
-    #plt.close()
+    # plotting
+    print(f"{30*'-'}")
+    print("PLOTTING")
+    plot_bdt_response()
+    plt.savefig(os.path.join(outpath, "bdt1-response-test.pdf"))
+    print(f'BDT1 response curve saved to {os.path.join(outpath, "bdt1-response-test.pdf")}')
+    plt.close()
 
-    #plot_roc(bdt, x_test, y_test, w_test)
-    #plt.savefig(os.path.join(outpath, "roc.pdf"))
-    #print(f'ROC saved to {os.path.join(outpath, "roc.pdf")}')
-    #plt.close()
+    plot_roc(bdt, x_test, y_test, w_test)
+    plt.savefig(os.path.join(outpath, "roc-test.pdf"))
+    print(f'ROC saved to {os.path.join(outpath, "roc-test.pdf")}')
+    plt.close()
 
     #plot_significance(bdt, x_test, y_test, w_test, 0.25*sg_x.shape[0], 0.25*(tot_x.shape[0]-sg_x.shape[0]))
     #plt.savefig(os.path.join(outpath, "significance.pdf"))
     #print(f'Significance plot saved to {os.path.join(outpath, "significance.pdf")}')
     #plt.close()
 
-    #end = time()
-    #exec_time = end - start
-    #hours, rem = divmod(exec_time, 3600)
-    #minutes, sec = divmod(exec_time, 60)
-    #print(f"{30*'-'}")
-    #print(f"Execution time in H:M:S = {int(hours):02}:{int(minutes):02}:{sec:.3f}")
-    #print(f"{30*'-'}")
+    end = time()
+    exec_time = end - start
+    hours, rem = divmod(exec_time, 3600)
+    minutes, sec = divmod(exec_time, 60)
+    print(f"{30*'-'}")
+    print(f"Execution time in H:M:S = {int(hours):02}:{int(minutes):02}:{sec:.3f}")
+    print(f"{30*'-'}")

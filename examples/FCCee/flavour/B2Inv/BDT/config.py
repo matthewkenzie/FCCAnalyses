@@ -1,3 +1,35 @@
+# processList to pass to `fccanalysis run`
+processList = {
+    "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": {"fraction": 0.5, "chunks": 20},
+    "p8_ee_Zbb_ecm91": {"fraction": 0.05, "chunks": 100},
+    "p8_ee_Zcc_ecm91": {"fraction": 0.05, "chunks": 100},
+    "p8_ee_Zss_ecm91": {"fraction": 0.05, "chunks": 100},
+    "p8_ee_Zud_ecm91": {"fraction": 0.05, "chunks": 100}
+}
+
+# Options to pass to `fccanalysis run`
+fccana_opts = {
+    "prodTag"      : "FCCee/winter2023/IDEA",
+    "outputDir"    : "/r01/lhcb/rrm42/fcc/stage1_postBDT/",
+    "analysisName" : "B2Inv",
+    "nCPUs"        : 8,
+    "runBatch"     : True,
+    "batchQueue"   : "workday",
+    "compGroup"    : "group_u_FCC.local_gen",
+    "testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root",
+    "path2yaml"    : "/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/bdt.yaml",
+    "outBranchList": "stage1-vars",
+}
+
+# TMVA options
+bdt_opts = {
+    "training"     : False,
+    "mvaPath"      : "/r01/lhcb/rrm42/fcc/bdt1out/tmva1.root",
+    "mvaTreeName"  : "bdt",
+    "mvaCut"       : 0.2,
+    "mvaBranchList": "bdt1-training-vars"
+}
+
 samples = [ 
     "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu",
     "p8_ee_Zbb_ecm91",
@@ -54,64 +86,18 @@ efficiencies = {
         "p8_ee_Zss_ecm91": 1,
         "p8_ee_Zud_ecm91": 1,
     },
-    "stage1": {
-        "Bs2NuNu": {
-            'eff': 0.931654, 
-            'sel': 931654,
-            'proc': 1000000,
-            'aveeff': 0.931654, 
-            'stdeff': 0.0005513111644071647},
-        "bb" : {
-            'eff': 0.08436945703319386, 
-            'sel': 3709784,
-            'proc': 43970699,
-            'aveeff': 0.0843684355706641, 
-            'stdeff': 0.0003160042609441379},
-        "cc": {
-            'eff': 0.08457565235334542,
-            'sel': 4233143,
-            'proc': 50051556,
-            'aveeff': 0.08457507303477463,
-            'stdeff': 0.0002669246409145492},
-        "ss": {
-            'eff': 0.11353,
-            'sel': 0,
-            'proc': 0,
-            'aveeff': 0,
-            'stdeff': 0},
-        "ud": {
-            'eff': 0.08848,
-            'sel': 0,
-            'proc': 0,
-            'aveeff': 0,
-            'stdeff': 0}
+    "pre_bdt1_cut": {
+        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": 0.931654,
+        "p8_ee_Zbb_ecm91": 0.0843694570,
+        "p8_ee_Zcc_ecm91": 0.0845756524,
+        "p8_ee_Zss_ecm91": 0.11353,
+        "p8_ee_Zud_ecm91": 0.08848,
+    },
+    "post_bdt1_cut": {
+        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": 0.929954,
+        "p8_ee_Zbb_ecm91": 0.026951298076923078,
+        "p8_ee_Zcc_ecm91": 0.01976784759011348,
+        "p8_ee_Zss_ecm91": 0.016586942271539597,
+        "p8_ee_Zud_ecm91": 0.007837139711792738,
     }
 }
-
-variable_plot_titles = {}
-
-PIDs = {
-    "kaon": {
-        "K0L":         130,
-        "K0Lbar":     -130,
-        "K0S":         310,
-        "K0Sbar":     -310,
-        "K0":          311,
-        "K0bar":      -311,
-        "K+":          321,
-        "K-":         -321,
-        "K0star":      313,
-        "K0starbar":  -313,
-        "K+star":      323,
-        "K-star":     -323,
-    }
-}
-
-# Samples of post_stage0 analysis
-samples_poststage0 = [
-    "Bs2NuNu_fromrecp",
-    "bb_fromrecp",
-    "cc_fromrecp",
-    "ss_fromrecp",
-    "ud_fromrecp",
-]

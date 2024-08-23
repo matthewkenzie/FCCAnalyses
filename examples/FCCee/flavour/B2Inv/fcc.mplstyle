@@ -29,4 +29,3 @@ legend.labelspacing : 0.3
 hatch.linewidth : 0.3
 
 figure.autolayout : True
-figure.tightlayout : True
