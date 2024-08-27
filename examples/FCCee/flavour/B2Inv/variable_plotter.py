@@ -159,7 +159,7 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
         Weight histograms by their expected branching fraction 
         multiplied by efficiency. Default: true
     density : bool, optional
-        Normalise histograms so that they reresent a probability
+        Normalise histograms so that they represent a probability
         density. Default: true
     remove_outliers : bool, optional
         Remove severe outliers from the distribution. Default: true
@@ -169,6 +169,8 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
         Save file for the plot. If None then no plot is saved. Default: none 
     cuts : str, optional
         Cut branch varname according to a (valid) ROOT expression. Default: none
+    xtitle : str, optional
+        Provide a custom title for the x axis. Default : `varname`, cut=`cut`
     """
 
     if remove_outliers:

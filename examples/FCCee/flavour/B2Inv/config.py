@@ -16,7 +16,11 @@ fccana_opts = {
     "runBatch"     : True,
     "batchQueue"   : "workday",
     "compGroup"    : "group_u_FCC.local_gen",
-    "testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root",
+    #"testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root",
+    "testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91/events_000083138.root",
+    #"testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zcc_ecm91/events_000046867.root",
+    #"testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zss_ecm91/events_000099129.root",
+    #"testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zud_ecm91/events_000071896.root",
     "path2yaml"    : "/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/bdt.yaml",
     "outBranchList": "stage1-vars",
 }
@@ -86,18 +90,18 @@ efficiencies = {
         "p8_ee_Zss_ecm91": 1,
         "p8_ee_Zud_ecm91": 1,
     },
-    "pre_bdt1_cut": {
+    "presel": {
         "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": 0.931654,
         "p8_ee_Zbb_ecm91": 0.0843694570,
         "p8_ee_Zcc_ecm91": 0.0845756524,
         "p8_ee_Zss_ecm91": 0.11353,
         "p8_ee_Zud_ecm91": 0.08848,
     },
-    "post_bdt1_cut": {
+    "presel+bdt1>0.2": {
         "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": 0.929954,
         "p8_ee_Zbb_ecm91": 0.026951298076923078,
         "p8_ee_Zcc_ecm91": 0.01976784759011348,
         "p8_ee_Zss_ecm91": 0.016586942271539597,
         "p8_ee_Zud_ecm91": 0.007837139711792738,
-    }
+    },
 }
