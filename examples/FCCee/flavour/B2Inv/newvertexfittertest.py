@@ -70,10 +70,12 @@ class RDFanalysis():
 
             #### Test method -- ACTS, VertexFinderActs or VertexFitterActs           
             .Define("Rec_VertexObjectActs",     "VertexFinderActs::VertexFinderAMVF( EFlowTrack_1 )")
-            .Define("Rec_vtx_n",                "Rec_VertexObjectActs.size()")
-            .Define("Rec_vtx_x",                "myUtils::get_Vertex_x(Rec_VertexObjectActs)")
-            .Define("Rec_vtx_y",                "myUtils::get_Vertex_y(Rec_VertexObjectActs)")
-            .Define("Rec_vtx_z",                "myUtils::get_Vertex_z(Rec_VertexObjectActs)")
+            #.Define("Rec_vtx_n",                "Rec_VertexObjectActs.size()")
+            #.Define("Rec_vtx_x",                "myUtils::get_Vertex_x(Rec_VertexObjectActs)")
+            #.Define("Rec_vtx_y",                "myUtils::get_Vertex_y(Rec_VertexObjectActs)")
+            #.Define("Rec_vtx_z",                "myUtils::get_Vertex_z(Rec_VertexObjectActs)")
+            
+            #.Define("VertexObject",              "VertexingACTS::VertexFinder( EFlowTrack_1 )")
         )
 
         return df2
@@ -86,10 +88,10 @@ class RDFanalysis():
             #"Rec_PV_x",
             #"Rec_PV_y",
             #"Rec_PV_z",
-            "Rec_vtx_n",
-            "Rec_vtx_x",
-            "Rec_vtx_y",
-            "Rec_vtx_z",
+            #"Rec_vtx_n",
+            #"Rec_vtx_x",
+            #"Rec_vtx_y",
+            #"Rec_vtx_z",
         ]
 
         return branchList
