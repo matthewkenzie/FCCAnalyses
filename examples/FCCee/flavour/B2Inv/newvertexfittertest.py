@@ -1,6 +1,6 @@
 import sys
 import os
-import ROOT
+#import ROOT
 from yaml import YAMLError, safe_load
 sys.path.append('/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv')
 import configtest as cfg
@@ -50,37 +50,42 @@ class RDFanalysis():
             .Define("MC_e",                 "MCParticle::get_e(Particle)")
             .Define("MC_m",                 "MCParticle::get_mass(Particle)")
 
-
             ##############################
             ## Test
             ##############################
             #### Current method -- Franco Bedeschi, VertexFitterSimple
-            .Define("MC_VertexObject",          "myUtils::get_MCVertexObject(Particle, ParticleParents)")
-            .Define("Rec_PrimaryTracks",        "VertexFitterSimple::get_PrimaryTracks(EFlowTrack_1, true, 4.5, 20e-3, 300, 0., 0., 0.)")
-            .Define("Rec_PrimaryVertexObject",  "VertexFitterSimple::VertexFitter_Tk( 1, Rec_PrimaryTracks, true, 4.5, 20e-3, 300 )")
-            .Define("Rec_PrimaryVertex",        "Rec_PrimaryVertexObject.vertex")
-            .Define("Rec_VertexObject",         "myUtils::get_VertexObject(MC_VertexObject, ReconstructedParticles, EFlowTrack_1, MCAssociations, MCRecoAssociationsRec, MCRecoAssociationsGen)")
+            #.Define("MC_VertexObject",          "myUtils::get_MCVertexObject(Particle, ParticleParents)")
+            #.Define("Rec_PrimaryTracks",        "VertexFitterSimple::get_PrimaryTracks(EFlowTrack_1, true, 4.5, 20e-3, 300, 0., 0., 0.)")
+            #.Define("Rec_PrimaryVertexObject",  "VertexFitterSimple::VertexFitter_Tk( 1, Rec_PrimaryTracks, true, 4.5, 20e-3, 300 )")
+            #.Define("Rec_PrimaryVertex",        "Rec_PrimaryVertexObject.vertex")
+            #.Define("Rec_VertexObject",         "myUtils::get_VertexObject(MC_VertexObject, ReconstructedParticles, EFlowTrack_1, MCRecoAssociationsRec, MCRecoAssociationsGen)")
 
-            .Define("Rec_PV_x",                 "Rec_PrimaryVertex.position.x")
-            .Define("Rec_PV_y",                 "Rec_PrimaryVertex.position.y")
-            .Define("Rec_PV_z",                 "Rec_PrimaryVertex.position.z")
-            .Define("Rec_vtx_n",                "Rec_VertexObject.size()")
-            .Define("Rec_vtx_x",                "myUtils::get_Vertex_x(Rec_VertexObject)")
-            .Define("Rec_vtx_y",                "myUtils::get_Vertex_y(Rec_VertexObject)")
-            .Define("Rec_vtx_z",                "myUtils::get_Vertex_z(Rec_VertexObject)")
+            #.Define("Rec_PV_x",                 "Rec_PrimaryVertex.position.x")
+            #.Define("Rec_PV_y",                 "Rec_PrimaryVertex.position.y")
+            #.Define("Rec_PV_z",                 "Rec_PrimaryVertex.position.z")
+            #.Define("Rec_vtx_n",                "Rec_VertexObject.size()")
+            #.Define("Rec_vtx_x",                "myUtils::get_Vertex_x(Rec_VertexObject)")
+            #.Define("Rec_vtx_y",                "myUtils::get_Vertex_y(Rec_VertexObject)")
+            #.Define("Rec_vtx_z",                "myUtils::get_Vertex_z(Rec_VertexObject)")
 
             #### Test method -- ACTS, VertexFinderActs or VertexFitterActs           
-            #.Define("Rec_VertexObjectActs",     "VertexFinderActs::VertexFinderAMVF( EFlowTrack_1 )")
+            .Define("Rec_VertexObjectActs",     "VertexFinderActs::VertexFinderAMVF( EFlowTrack_1 )")
+            .Define("Rec_vtx_n",                "Rec_VertexObjectActs.size()")
+            .Define("Rec_vtx_x",                "myUtils::get_Vertex_x(Rec_VertexObjectActs)")
+            .Define("Rec_vtx_y",                "myUtils::get_Vertex_y(Rec_VertexObjectActs)")
+            .Define("Rec_vtx_z",                "myUtils::get_Vertex_z(Rec_VertexObjectActs)")
         )
+
+        return df2
     
     def output():
         branchList = [
             "MC_PDG",
             "MC_e",
             "MC_m",
-            "Rec_PV_x",
-            "Rec_PV_y",
-            "Rec_PV_z",
+            #"Rec_PV_x",
+            #"Rec_PV_y",
+            #"Rec_PV_z",
             "Rec_vtx_n",
             "Rec_vtx_x",
             "Rec_vtx_y",
