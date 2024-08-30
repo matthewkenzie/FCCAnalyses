@@ -277,6 +277,48 @@ ROOT::VecOps::RVec<HemisParticleInfo> get_RP_HemisInfo(ROOT::VecOps::RVec<edm4he
   return result;
 }
 
+int get_hemis_containstau23pi(ROOT::VecOps::RVec<int> should_eval,
+    ROOT::VecOps::RVec<int> pdg,
+    ROOT::VecOps::RVec<int> m1_pdg,
+    ROOT::VecOps::RVec<int> reco_indvtx,
+    ROOT::VecOps::RVec<float> reco_vtx_ntracks) {
+
+  int result = 0;
+  for (size_t i = 0; i < should_eval.size(); ++i) {
+    // If the particle is a charged pion, comes from a tau and is in the correct hemisphere, find its vertex index
+    if (should_eval.at(i) && (abs(pdg.at(i)) == 211) && (abs(m1_pdg.at(i)) == 15)) {
+      int indvtx = reco_indvtx.at(i);
+      if ((reco_indvtx.at(i) != -999) && (reco_vtx_ntracks.at(indvtx) == 3)) {
+        result = 1;
+        break;
+      }
+  
+  return result;
+}
+
+// If `sign` is 1 return value, else return -(value)
+ROOT::VecOps::RVec<float> get_vtxFeature_signed(ROOT::VecOps::RVec<int> sign,
+    ROOT::VecOps::RVec<float> feature_vtx) {
+  ROOT::VecOps::RVec<float> result;
+
+  for (size_t i = 0; i < feature_vtx.size(); ++i) {
+    if (sign.at(i) == 1) result.push_back(feature_vtx.at(i));
+    else result.push_back(-feature_vtx.at(i));
+  }
+
+  return result;
+}
+
+ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
+    ROOT::VecOps::RVec<int> condition) {
+  ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> result;
+  for (size_t i = 0; i < vertex.size(); ++i) {
+    if (condition.at(i) == 1) result.push_back(vertex.at(i));
+  }
+
+  return result;
+}
+
 /**********************************
   END OF B2INV FUNCTIONS
 ***********************************/
