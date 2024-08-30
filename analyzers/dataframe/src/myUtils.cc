@@ -278,10 +278,8 @@ ROOT::VecOps::RVec<HemisParticleInfo> get_RP_HemisInfo(ROOT::VecOps::RVec<edm4he
 }
 
 int get_hemis_containstau23pi(ROOT::VecOps::RVec<int> should_eval,
-    ROOT::VecOps::RVec<int> pdg,
-    ROOT::VecOps::RVec<int> m1_pdg,
-    ROOT::VecOps::RVec<int> reco_indvtx,
-    ROOT::VecOps::RVec<float> reco_vtx_ntracks) {
+    ROOT::VecOps::RVec<int> pdg, ROOT::VecOps::RVec<int> m1_pdg,
+    ROOT::VecOps::RVec<int> reco_indvtx, ROOT::VecOps::RVec<float> reco_vtx_ntracks) {
 
   int result = 0;
   for (size_t i = 0; i < should_eval.size(); ++i) {
@@ -292,7 +290,8 @@ int get_hemis_containstau23pi(ROOT::VecOps::RVec<int> should_eval,
         result = 1;
         break;
       }
-  
+    }
+  }
   return result;
 }
 
@@ -310,12 +309,11 @@ ROOT::VecOps::RVec<float> get_vtxFeature_signed(ROOT::VecOps::RVec<int> sign,
 }
 
 ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
-    ROOT::VecOps::RVec<int> condition) {
+    ROOT::VecOps::RVec<int> condition){
   ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> result;
   for (size_t i = 0; i < vertex.size(); ++i) {
     if (condition.at(i) == 1) result.push_back(vertex.at(i));
   }
-
   return result;
 }
 
@@ -324,7 +322,7 @@ ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(
 ***********************************/
 
 ROOT::VecOps::RVec<float> get_Vertex_mass(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
-						   ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco) {
+						   ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco){
 
   ROOT::VecOps::RVec<float> result;
   for (auto &p:vertex){
