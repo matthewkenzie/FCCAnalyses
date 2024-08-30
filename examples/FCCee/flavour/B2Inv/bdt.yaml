@@ -24,13 +24,6 @@ bdt1-planned-vars:
   - EVT_hemisEmax_nNeutral
   - EVT_hemisEmax_nDV
 
-  # Should these be in stage2?
-  - EVT_hemisEmin_nKaon
-  - EVT_hemisEmin_nPion
-  - EVT_hemisEmax_nLept
-  - EVT_hemisEmax_nKaon
-  - EVT_hemisEmax_nPion
-
   - Rec_track_n
   - Rec_vtx_n
   - Rec_PV_x
@@ -54,7 +47,7 @@ bdt2-planned-vars:
   - Rec_vtx_thrustCosTheta_ave_fromHemisEmin
   - Rec_vtx_thrustCosTheta_ave_fromHemisEmax
 
-  # Should these exclude photons from brem
+  # Should these exclude photons from brem -- yes
   # Should min and max also be included? Maybe only min because max is going to be close to 1 always
   - Rec_thrustCosTheta_ave_fromHemisEmin
   - Rec_thrustCosTheta_ave_fromHemisEmax
@@ -69,6 +62,13 @@ bdt2-planned-vars:
   # Similarly z0
 
   # These are highly populated with placeholders -- NN?
+
+  # Should these be in stage2? -- Yes
+  - EVT_hemisEmin_nKaon
+  - EVT_hemisEmin_nPion
+  - EVT_hemisEmax_nLept
+  - EVT_hemisEmax_nKaon
+  - EVT_hemisEmax_nPion
   - EVT_hemisEmin_maxeKaon
   - EVT_hemisEmin_maxePion
   - EVT_hemisEmax_maxeLept
