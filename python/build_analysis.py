@@ -51,7 +51,7 @@ def build_analysis(mainparser)->None:
     LOGGER.info('Building analysis located in:\n%s', local_dir)
 
     if args.acts_on:
-        LOGGER.info('Building also ACTS based analyzersi...')
+        LOGGER.info('Building also ACTS based analyzers...')
         cmake_args += ['-DWITH_ACTS=ON']
 
     if args.clean_build:
