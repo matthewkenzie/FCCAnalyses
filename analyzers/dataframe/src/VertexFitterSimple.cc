@@ -1,6 +1,8 @@
 #include "FCCAnalyses/VertexFitterSimple.h"
 #include "FCCAnalyses/MCParticle.h"
 
+#include "edm4hep/EDM4hepVersion.h"
+
 #include <iostream>
 
 #include "TFile.h"
@@ -143,8 +145,10 @@ VertexFitter_Tk(int Primary, ROOT::VecOps::RVec<edm4hep::TrackState> tracks,
 
   int Ntr = tracks.size();
   TheVertex.ntracks = Ntr;
-  if (Ntr <= 1)
+  if (Ntr <= 1) {
+    resume_stdout(fd);
     return TheVertex; // can not reconstruct a vertex with only one track...
+  }
 
   TVectorD **trkPar = new TVectorD *[Ntr];
   TMatrixDSym **trkCov = new TMatrixDSym *[Ntr];
@@ -207,8 +211,12 @@ VertexFitter_Tk(int Primary, ROOT::VecOps::RVec<edm4hep::TrackState> tracks,
 
   result.algorithmType = 1;
 
+#if EDM4HEP_BUILD_VERSION <= EDM4HEP_VERSION(0, 10, 5)
   result.primary = Primary;
-
+#else
+  result.type = Primary; // NOTE: Here we are relying on users passing in the
+                         // correct value
+#endif
   TheVertex.vertex = result;
 
   // Use VertexMore to retrieve more information :
