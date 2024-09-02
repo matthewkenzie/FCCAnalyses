@@ -68,7 +68,8 @@ fig, ax = plt.subplots()
 ax.set_yscale('log')
 bins = 100
 for sample in cfg.samples:
-    ax.hist(data[sample], bins=bins, weights=weights[sample]*np.ones_like(data[sample]), histtype='step', label=cfg.titles[sample])
+    ax.hist(data[sample], bins=bins, weights=weights[sample]*np.ones_like(data[sample])/len(data[sample]), histtype='step', label=cfg.titles[sample])
 
 ax.legend()
+plt.savefig('/usera/rrm42/private/test.png')
 plt.show()

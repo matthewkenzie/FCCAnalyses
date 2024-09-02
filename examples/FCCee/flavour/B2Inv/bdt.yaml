@@ -25,19 +25,23 @@ bdt1-planned-vars:
   - EVT_hemisEmax_nDV
 
   - Rec_track_n
+  - Rec_PV_ntracks
   - Rec_vtx_n
   - Rec_PV_x
   - Rec_PV_y
   - Rec_PV_z
+  # Should we include number of vertices on minimum side as well?
+  # Rec_vtx_n_hemisEmin
+  # Rec_vtx_ntracks_hemisEmin
 
 bdt2-planned-vars:
   # Either separate variables or signed
-  - Rec_vtx_d2PV_min_fromHemisEmin
-  - Rec_vtx_d2PV_max_fromHemisEmin
-  - Rec_vtx_d2PV_ave_fromHemisEmin
-  - Rec_vtx_d2PV_min_fromHemisEmax
-  - Rec_vtx_d2PV_max_fromHemisEmax
-  - Rec_vtx_d2PV_ave_fromHemisEmax
+  - Rec_vtx_d2PV_min_hemisEmin
+  - Rec_vtx_d2PV_max_hemisEmin
+  - Rec_vtx_d2PV_ave_hemisEmin
+  - Rec_vtx_d2PV_min_hemisEmax
+  - Rec_vtx_d2PV_max_hemisEmax
+  - Rec_vtx_d2PV_ave_hemisEmax
 
   - Rec_vtx_d2PV_x
   - Rec_vtx_d2PV_y
@@ -53,6 +57,7 @@ bdt2-planned-vars:
   - Rec_thrustCosTheta_ave_fromHemisEmax
 
   # Should these tracks be id'd? Ex only look at K, pi, tau
+  # Not sure how to incorporate these, no immediate way to get if a track is in Emin or Emax
   - Rec_track_d0_max_fromHemisEmin
   - Rec_track_d0_min_fromHemisEmin
   - Rec_track_d0_ave_fromHemisEmin
@@ -250,6 +255,11 @@ stage1-vars:
   - Rec_phi
   - Rec_thrustCosTheta
   - Rec_in_hemisEmin
+  # For new planned bdt features
+  #- Rec_thrustCosTheta_min_hemisEmin
+  #- Rec_thrustCosTheta_max_hemisEmin
+  #- Rec_thrustCosTheta_ave_hemisEmin
+  #
 
   # Track parameters
   - Rec_track_n
@@ -269,11 +279,18 @@ stage1-vars:
     #- Rec_truePV_z
 
   - Rec_vtx_n
+  # For new planned bdt features -- maybe don't need to store above
+  #- Rec_vtx_n_hemisEmin
+  #- Rec_vtx_n_hemisEmax
   - Rec_vtx_ntracks
+  #- Rec_vtx_ntracks_hemisEmin
+  #- Rec_vtx_ntracks_hemisEmax
   - Rec_vtx_indRP
   - Rec_vtx_chi2
   - Rec_vtx_isPV
   - Rec_vtx_m
+  #- Rec_vtx_m_hemisEmin
+  #- Rec_vtx_m_hemisEmax
   - Rec_vtx_x
   - Rec_vtx_y
   - Rec_vtx_z
@@ -303,6 +320,20 @@ stage1-vars:
   
   - Rec_vtx_thrustCosTheta
   - Rec_vtx_in_hemisEmin
+  
+  # For new planned bdt features
+  #- Rec_vtx_d2PV_signed
+  #- Rec_vtx_normd2PV_signed
+  #- Rec_vtx_d2PV_min_hemisEmin
+  #- Rec_vtx_d2PV_max_hemisEmin
+  #- Rec_vtx_d2PV_ave_hemisEmin
+  #- Rec_vtx_d2PV_min_hemisEmax
+  #- Rec_vtx_d2PV_max_hemisEmax
+  #- Rec_vtx_d2PV_ave_hemisEmax
+  #- Rec_vtx_thrustCosTheta_min_hemisEmin
+  #- Rec_vtx_thrustCosTheta_max_hemisEmin
+  #- Rec_vtx_thrustCosTheta_ave_hemisEmin
+  # Similarly Emax
 
   # Event variables -- thrust
   - EVT_Thrust_mag
