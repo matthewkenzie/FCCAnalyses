@@ -30,7 +30,7 @@ bdt1-planned-vars:
   - Rec_PV_x
   - Rec_PV_y
   - Rec_PV_z
-  # Should we include number of vertices on minimum side as well?
+  # Should we include number of tracks from vertices on minimum side as well?
   # Rec_vtx_n_hemisEmin
   # Rec_vtx_ntracks_hemisEmin
 
@@ -256,10 +256,12 @@ stage1-vars:
   - Rec_thrustCosTheta
   - Rec_in_hemisEmin
   # For new planned bdt features
-  #- Rec_thrustCosTheta_min_hemisEmin
-  #- Rec_thrustCosTheta_max_hemisEmin
-  #- Rec_thrustCosTheta_ave_hemisEmin
-  #
+  - Rec_thrustCosTheta_min_hemisEmin
+  - Rec_thrustCosTheta_max_hemisEmin
+  - Rec_thrustCosTheta_ave_hemisEmin
+  - Rec_thrustCosTheta_min_hemisEmax
+  - Rec_thrustCosTheta_max_hemisEmax
+  - Rec_thrustCosTheta_ave_hemisEmax
 
   # Track parameters
   - Rec_track_n
@@ -267,6 +269,12 @@ stage1-vars:
   - Rec_track_z0
   - Rec_track_normd0
   - Rec_track_normz0
+  - Rec_track_d0_min
+  - Rec_track_d0_max
+  - Rec_track_d0_ave
+  - Rec_track_z0_min
+  - Rec_track_z0_max
+  - Rec_track_z0_ave
 
   # Reconstructed vertex variables
   - Rec_PV_ntracks
@@ -279,17 +287,15 @@ stage1-vars:
     #- Rec_truePV_z
 
   - Rec_vtx_n
-  # For new planned bdt features -- maybe don't need to store above
-  #- Rec_vtx_n_hemisEmin
-  #- Rec_vtx_n_hemisEmax
-  - Rec_vtx_ntracks
-  #- Rec_vtx_ntracks_hemisEmin
-  #- Rec_vtx_ntracks_hemisEmax
+  #- Rec_vtx_ntracks         ---> No longer needed
+  - Rec_vtx_ntracks_hemisEmin
+  - Rec_vtx_ntracks_hemisEmax
   - Rec_vtx_indRP
   - Rec_vtx_chi2
   - Rec_vtx_isPV
   - Rec_vtx_m
-  #- Rec_vtx_m_hemisEmin
+  #- Rec_vtx_m_hemisEmin_min
+  #- Rec_vtx_
   #- Rec_vtx_m_hemisEmax
   - Rec_vtx_x
   - Rec_vtx_y
@@ -298,10 +304,10 @@ stage1-vars:
   - Rec_vtx_yerr
   - Rec_vtx_zerr
 
-  - Rec_vtx_d2PV
-  - Rec_vtx_d2PV_min
-  - Rec_vtx_d2PV_max
-  - Rec_vtx_d2PV_ave
+  #- Rec_vtx_d2PV     --> No longer needed
+  #- Rec_vtx_d2PV_min
+  #- Rec_vtx_d2PV_max
+  #- Rec_vtx_d2PV_ave
   - Rec_vtx_d2PV_x
   - Rec_vtx_d2PV_y
   - Rec_vtx_d2PV_z
@@ -311,9 +317,6 @@ stage1-vars:
   - Rec_vtx_d2PV_zerr
 
   - Rec_vtx_normd2PV
-  - Rec_vtx_normd2PV_min   ### To add
-  - Rec_vtx_normd2PV_max   ### To add
-  - Rec_vtx_normd2PV_ave   ### To add
   - Rec_vtx_normd2PV_x
   - Rec_vtx_normd2PV_y
   - Rec_vtx_normd2PV_z
@@ -322,18 +325,20 @@ stage1-vars:
   - Rec_vtx_in_hemisEmin
   
   # For new planned bdt features
-  #- Rec_vtx_d2PV_signed
-  #- Rec_vtx_normd2PV_signed
-  #- Rec_vtx_d2PV_min_hemisEmin
-  #- Rec_vtx_d2PV_max_hemisEmin
-  #- Rec_vtx_d2PV_ave_hemisEmin
-  #- Rec_vtx_d2PV_min_hemisEmax
-  #- Rec_vtx_d2PV_max_hemisEmax
-  #- Rec_vtx_d2PV_ave_hemisEmax
-  #- Rec_vtx_thrustCosTheta_min_hemisEmin
-  #- Rec_vtx_thrustCosTheta_max_hemisEmin
-  #- Rec_vtx_thrustCosTheta_ave_hemisEmin
-  # Similarly Emax
+  - Rec_vtx_d2PV_signed
+  - Rec_vtx_normd2PV_signed
+  - Rec_vtx_d2PV_min_hemisEmin
+  - Rec_vtx_d2PV_max_hemisEmin
+  - Rec_vtx_d2PV_ave_hemisEmin
+  - Rec_vtx_d2PV_min_hemisEmax
+  - Rec_vtx_d2PV_max_hemisEmax
+  - Rec_vtx_d2PV_ave_hemisEmax
+  - Rec_vtx_thrustCosTheta_min_hemisEmin
+  - Rec_vtx_thrustCosTheta_max_hemisEmin
+  - Rec_vtx_thrustCosTheta_ave_hemisEmin
+  - Rec_vtx_thrustCosTheta_min_hemisEmax
+  - Rec_vtx_thrustCosTheta_max_hemisEmax
+  - Rec_vtx_thrustCosTheta_ave_hemisEmax
 
   # Event variables -- thrust
   - EVT_Thrust_mag
@@ -388,6 +393,10 @@ stage1-vars:
   - EVT_hemisEmax_maxeKaon_ind
   - EVT_hemisEmax_maxePion_ind
 
+  # New --- Emin hemisphere contains a tau -> 3pi vertex
+  # Uses true MC mother info
+  - EVT_hemisEmin_containsTau23Pi
+
 ###############
 # STAGE0
 ###############
@@ -432,7 +441,7 @@ stage0-vars:
   - MCem_phi
   - MCem_orivtx_x
   - MCem_orivtx_y
-  - MCem_ortvtx_z 
+  - MCem_orivtx_z 
   # MC beam positron variables
   - MCep_e
   - MCep_m
@@ -446,7 +455,7 @@ stage0-vars:
   - MCep_phi
   - MCep_orivtx_x
   - MCep_orivtx_y
-  - MCep_ortvtx_z
+  - MCep_orivtx_z
 
   # MC Z boson variables
   - MCZ_e
@@ -540,13 +549,13 @@ stage0-vars:
   - Rec_in_hemisEmin
 
   # Reconstructed PrimaryVertex variables
-  - Rec_ntracks
   - Rec_PV_ntracks
   - Rec_PV_x
   - Rec_PV_y
   - Rec_PV_z
 
   # Track impact parameters
+  - Rec_track_n
   - Rec_track_d0
   - Rec_track_normd0
   - Rec_track_z0
@@ -580,9 +589,6 @@ stage0-vars:
   - Rec_vtx_d2PV_zerr
 
   - Rec_vtx_normd2PV
-  - Rec_vtx_normd2PV_min
-  - Rec_vtx_normd2PV_max
-  - Rec_vtx_normd2PV_ave
   - Rec_vtx_normd2PV_x
   - Rec_vtx_normd2PV_y
   - Rec_vtx_normd2PV_z
@@ -590,7 +596,6 @@ stage0-vars:
   # Reconstructed vertex <--> thrust variables
   - Rec_vtx_thrustCosTheta
   - Rec_vtx_in_hemisEmin
-  - Rec_vtx_in_hemisEmax
 
   # Event level -- thrust variables
   - EVT_Thrust_mag
@@ -643,3 +648,6 @@ stage0-vars:
   - EVT_hemisEmax_maxeLept_ind
   - EVT_hemisEmax_maxeKaon_ind
   - EVT_hemisEmax_maxePion_ind
+
+  # New ---> probably not needed in stage0 right now
+  - EVT_hemisEmin_containsTau23Pi
