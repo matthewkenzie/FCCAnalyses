@@ -365,7 +365,7 @@ if __name__ == "__main__":
         plt.close()
 
         # responsevars is expected to be a single element list
-        plot_feature(x, bdtcut, responsevars)
+        plot_feature(x, 0.6, responsevars)
         plt.savefig(os.path.join(outputpath, "bdt1-feature.pdf"))
         print(f'Feature plot saved to {os.path.join(outputpath, "bdt1-feature.pdf")}')
         plt.close()
