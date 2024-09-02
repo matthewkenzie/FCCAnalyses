@@ -35,7 +35,12 @@ bdt1-planned-vars:
   # Rec_vtx_ntracks_hemisEmin
 
 bdt2-planned-vars:
-  # Either separate variables or signed
+  - Rec_vtx_ntracks_min_hemisEmin
+  - Rec_vtx_ntracks_max_hemisEmin
+  - Rec_vtx_ntracks_ave_hemisEmin
+  - Rec_vtx_ntracks_min_hemisEmax
+  - Rec_vtx_ntracks_max_hemisEmax
+  - Rec_vtx_ntracks_ave_hemisEmax
   - Rec_vtx_d2PV_min_hemisEmin
   - Rec_vtx_d2PV_max_hemisEmin
   - Rec_vtx_d2PV_ave_hemisEmin
@@ -48,39 +53,56 @@ bdt2-planned-vars:
   - Rec_vtx_d2PV_z
 
   # Should min and max also be included? Maybe only min because max is going to be close to 1 always
-  - Rec_vtx_thrustCosTheta_ave_fromHemisEmin
-  - Rec_vtx_thrustCosTheta_ave_fromHemisEmax
+  - Rec_vtx_thrustCosTheta_min_hemisEmin
+  - Rec_vtx_thrustCosTheta_max_hemisEmin
+  - Rec_vtx_thrustCosTheta_ave_hemisEmin
+  - Rec_vtx_thrustCosTheta_min_hemisEmax
+  - Rec_vtx_thrustCosTheta_max_hemisEmax
+  - Rec_vtx_thrustCosTheta_ave_hemisEmax
 
   # Should these exclude photons from brem -- yes
   # Should min and max also be included? Maybe only min because max is going to be close to 1 always
-  - Rec_thrustCosTheta_ave_fromHemisEmin
-  - Rec_thrustCosTheta_ave_fromHemisEmax
+  - Rec_thrustCosTheta_min_hemisEmin
+  - Rec_thrustCosTheta_max_hemisEmin
+  - Rec_thrustCosTheta_ave_hemisEmin
+  - Rec_thrustCosTheta_min_hemisEmax
+  - Rec_thrustCosTheta_max_hemisEmax
+  - Rec_thrustCosTheta_ave_hemisEmax
+  - Rec_thrustCosTheta_min_hemisEmin_noBrem
+  - Rec_thrustCosTheta_max_hemisEmin_noBrem
+  - Rec_thrustCosTheta_ave_hemisEmin_noBrem
+  - Rec_thrustCosTheta_min_hemisEmax_noBrem
+  - Rec_thrustCosTheta_max_hemisEmax_noBrem
+  - Rec_thrustCosTheta_ave_hemisEmax_noBrem
 
   # Should these tracks be id'd? Ex only look at K, pi, tau
   # Not sure how to incorporate these, no immediate way to get if a track is in Emin or Emax
-  - Rec_track_d0_max_fromHemisEmin
-  - Rec_track_d0_min_fromHemisEmin
-  - Rec_track_d0_ave_fromHemisEmin
-  - Rec_track_d0_max_fromHemisEmax
-  - Rec_track_d0_min_fromHemisEmax
-  - Rec_track_d0_ave_fromHemisEmax
-  # Similarly z0
+  - Rec_track_d0_min
+  - Rec_track_d0_max
+  - Rec_track_d0_ave
+  - Rec_track_z0_min
+  - Rec_track_z0_max
+  - Rec_track_z0_ave
 
   # These are highly populated with placeholders -- NN?
 
   # Should these be in stage2? -- Yes
   - EVT_hemisEmin_nKaon
   - EVT_hemisEmin_nPion
-  - EVT_hemisEmax_nLept
-  - EVT_hemisEmax_nKaon
-  - EVT_hemisEmax_nPion
   - EVT_hemisEmin_maxeKaon
   - EVT_hemisEmin_maxePion
+  - EVT_hemisEmin_maxeKaon_fromtruePV
+  - EVT_hemisEmin_maxePion_fromtruePV
+
+  - EVT_hemisEmax_nLept
+  - EVT_hemisEmax_nKaon
+  - EVT_hemisEmax_nPion 
   - EVT_hemisEmax_maxeLept
   - EVT_hemisEmax_maxeKaon
   - EVT_hemisEmax_maxePion
-  # Similarly fromtruePV
-
+  - EVT_hemisEmax_maxeLept_fromtruePV
+  - EVT_hemisEmax_maxeKaon_fromtruePV
+  - EVT_hemisEmax_maxePion_fromtruePV
 
 bdt1-training-vars:
   - EVT_Thrust_mag
@@ -137,6 +159,78 @@ bdt1-training-vars:
   - EVT_hemisEmax_maxeLept_fromtruePV
   - EVT_hemisEmax_maxeKaon_fromtruePV
   - EVT_hemisEmax_maxePion_fromtruePV
+
+###############
+# STAGE2
+###############
+stage2-vars:
+  # Either separate variables or signed
+  - Rec_vtx_d2PV_min_hemisEmin
+  - Rec_vtx_d2PV_max_hemisEmin
+  - Rec_vtx_d2PV_ave_hemisEmin
+  - Rec_vtx_d2PV_min_hemisEmax
+  - Rec_vtx_d2PV_max_hemisEmax
+  - Rec_vtx_d2PV_ave_hemisEmax
+
+  - Rec_vtx_d2PV_x
+  - Rec_vtx_d2PV_y
+  - Rec_vtx_d2PV_z
+
+  - Rec_vtx_ntracks_min_hemisEmin
+  - Rec_vtx_ntracks_max_hemisEmin
+  - Rec_vtx_ntracks_ave_hemisEmin
+  - Rec_vtx_ntracks_min_hemisEmax
+  - Rec_vtx_ntracks_max_hemisEmax
+  - Rec_vtx_ntracks_ave_hemisEmax
+  - Rec_vtx_thrustCosTheta_min_hemisEmin
+  - Rec_vtx_thrustCosTheta_max_hemisEmin
+  - Rec_vtx_thrustCosTheta_ave_hemisEmin
+  - Rec_vtx_thrustCosTheta_min_hemisEmax
+  - Rec_vtx_thrustCosTheta_max_hemisEmax
+  - Rec_vtx_thrustCosTheta_ave_hemisEmax
+
+  # Should these exclude photons from brem -- yes
+  # Should min and max also be included? Maybe only min because max is going to be close to 1 always
+  - Rec_thrustCosTheta_min_hemisEmin
+  - Rec_thrustCosTheta_max_hemisEmin
+  - Rec_thrustCosTheta_ave_hemisEmin
+  - Rec_thrustCosTheta_min_hemisEmax
+  - Rec_thrustCosTheta_max_hemisEmax
+  - Rec_thrustCosTheta_ave_hemisEmax
+  - Rec_thrustCosTheta_min_hemisEmin_noBrem
+  - Rec_thrustCosTheta_max_hemisEmin_noBrem
+  - Rec_thrustCosTheta_ave_hemisEmin_noBrem
+  - Rec_thrustCosTheta_min_hemisEmax_noBrem
+  - Rec_thrustCosTheta_max_hemisEmax_noBrem
+  - Rec_thrustCosTheta_ave_hemisEmax_noBrem
+
+  - Rec_track_d0_min
+  - Rec_track_d0_max
+  - Rec_track_d0_ave
+  - Rec_track_z0_min
+  - Rec_track_z0_max
+  - Rec_track_z0_ave
+
+  - EVT_hemisEmin_nKaon
+  - EVT_hemisEmin_nPion
+  - EVT_hemisEmin_maxeKaon
+  - EVT_hemisEmin_maxePion
+  - EVT_hemisEmin_maxeKaon_fromtruePV
+  - EVT_hemisEmin_maxePion_fromtruePV
+
+  - EVT_hemisEmax_nLept
+  - EVT_hemisEmax_nKaon
+  - EVT_hemisEmax_nPion 
+  - EVT_hemisEmax_maxeLept
+  - EVT_hemisEmax_maxeKaon
+  - EVT_hemisEmax_maxePion
+  - EVT_hemisEmax_maxeLept_fromtruePV
+  - EVT_hemisEmax_maxeKaon_fromtruePV
+  - EVT_hemisEmax_maxePion_fromtruePV
+
+  - EVT_hemisEmin_containsTau23Pi
+  - EVT_hemisEmin_Emiss
+  - EVT_hemisEmax_Emiss
 
 ###############
 # STAGE1
@@ -262,6 +356,12 @@ stage1-vars:
   - Rec_thrustCosTheta_min_hemisEmax
   - Rec_thrustCosTheta_max_hemisEmax
   - Rec_thrustCosTheta_ave_hemisEmax
+  - Rec_thrustCosTheta_min_hemisEmin_noBrem
+  - Rec_thrustCosTheta_max_hemisEmin_noBrem
+  - Rec_thrustCosTheta_ave_hemisEmin_noBrem
+  - Rec_thrustCosTheta_min_hemisEmax_noBrem
+  - Rec_thrustCosTheta_max_hemisEmax_noBrem
+  - Rec_thrustCosTheta_ave_hemisEmax_noBrem
 
   # Track parameters
   - Rec_track_n
@@ -281,10 +381,6 @@ stage1-vars:
   - Rec_PV_x
   - Rec_PV_y
   - Rec_PV_z
-    #- Rec_truePV_ntracks
-    #- Rec_truePV_x
-    #- Rec_truePV_y
-    #- Rec_truePV_z
 
   - Rec_vtx_n
   #- Rec_vtx_ntracks         ---> No longer needed
@@ -294,9 +390,6 @@ stage1-vars:
   - Rec_vtx_chi2
   - Rec_vtx_isPV
   - Rec_vtx_m
-  #- Rec_vtx_m_hemisEmin_min
-  #- Rec_vtx_
-  #- Rec_vtx_m_hemisEmax
   - Rec_vtx_x
   - Rec_vtx_y
   - Rec_vtx_z
@@ -396,6 +489,8 @@ stage1-vars:
   # New --- Emin hemisphere contains a tau -> 3pi vertex
   # Uses true MC mother info
   - EVT_hemisEmin_containsTau23Pi
+  - EVT_hemisEmin_Emiss
+  - EVT_hemisEmax_Emiss
 
 ###############
 # STAGE0
@@ -651,3 +746,5 @@ stage0-vars:
 
   # New ---> probably not needed in stage0 right now
   - EVT_hemisEmin_containsTau23Pi
+  - EVT_hemisEmin_Emiss
+  - EVT_hemisEmax_Emiss

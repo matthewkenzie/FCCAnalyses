@@ -46,16 +46,17 @@ def check_var(folder, varname):
         raise RuntimeError( f"No branch {varname} found in files at path {folder}. Try one from the list above." )
     return True
 
-def as_array(folder, varname, cut,  ):
-    if folder == cfg.samples[0]:
-        path = os.path.join( args.inputpath, folder, "chunk_0.root" )
+def as_array(folder, varname, cut, nchunks):
+    if nchunks is not None:
+        files = glob(os.path.join(args.inputpath, folder, "*.root"))[:nchunks]
+        path = [ f"{f}:events" for f in files ]
     else:
-        path = os.path.join( args.inputpath, folder, "*.root" )
+        path = os.path.join( args.inputpath, folder, "*.root:events" )
 
     try: 
         # awkward array instead of numpy -> allows variable length elements
         #arr = uproot.concatenate( path+":events", expressions=varname, library="np")[varname]
-        arr = uproot.concatenate( path+":events", expressions=varname, cut=cut)[varname]
+        arr = uproot.concatenate( path, expressions=varname, cut=cut)[varname]
     except:
         branches = get_list_of_branches(folder)
         print( f"Branches found in files at path {folder}:" )
@@ -143,7 +144,9 @@ def get_weights():
 #    return cut_str[:-4]
 
 
-def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, interactive=False, save=None, bins=50, range=None, total=["background"], components=["signal", "background"], cut=None, xtitle=None):
+def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, 
+         interactive=False, save=None, bins=50, range=None, 
+         total=["background"], components=["signal", "background"], cut=None, xtitle=None, nchunks=None):
     
     """ 
     plot( varname, **opts ) will plot a variable
@@ -171,12 +174,14 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
         Cut branch varname according to a (valid) ROOT expression. Default: none
     xtitle : str, optional
         Provide a custom title for the x axis. Default : `varname`, cut=`cut`
+    nchunks : int, optional
+        Provide number of files to use per sample for the plot. Default: None (all files are used)
     """
 
     if remove_outliers:
-        values = { sample: outlier_removal(as_array(sample, varname, cut)) for sample in cfg.samples }
+        values = { sample: outlier_removal(as_array(sample, varname, cut, nchunks)) for sample in cfg.samples }
     else:
-        values = { sample: as_array(sample, varname, cut) for sample in cfg.samples }
+        values = { sample: as_array(sample, varname, cut, nchunks) for sample in cfg.samples }
 
     if range is None:
         xmin = min( [ min(values[sample]) for sample in values ] )

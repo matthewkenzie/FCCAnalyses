@@ -1,6 +1,7 @@
 import os
-import argparse
 import sys
+# Config and yaml file must be in this directory by default
+# Absolute path must be supplied for the script to work in batch mode
 sys.path.append('/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv')
 import ROOT
 import config as cfg
@@ -37,7 +38,7 @@ testFile = cfg.fccana_opts['testFile']
 print(f"----> INFO: Using config.py file:")
 print(f"            /r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/config.py")
 print(f"----> INFO: Using branch names from:")
-print(f"            {cfg.fccana_opts['path2yaml']}")
+print(f"            {cfg.fccana_opts['yamlPath']}")
 
 class RDFanalysis():
 
@@ -65,6 +66,16 @@ class RDFanalysis():
             # Rec_PrimaryTracks
             # Rec_PrimaryVertexObject
             # Rec_VertexObject
+            # Rec_thrustCosThetaStatsEmin
+            # Rec_thrustCosThetaStatsEmax
+            # Rec_vtx_in_hemisEmin_andNotPV
+            # Rec_vtx_in_hemisEmax_andNotPV
+            # Rec_VertexObjectEmin
+            # Rec_VertexObjectEmax
+            # Rec_vtx_thrustCosThetaStatsEmin
+            # Rec_vtx_thrustCosThetaStatsEmax
+            # Rec_vtx_d2PVStatsEmin
+            # Rec_vtx_d2PVStatsEmax
             # -- RecoParticlesPID : NOT USED EXCEPT TO DEFINE RECOPARTICLESPIDATVERTEX
             # RecoParticlesPIDAtVertex
             # True_ParentInfo
@@ -254,7 +265,27 @@ class RDFanalysis():
             .Define("Rec_thrustCosTheta",  "Algorithms::getAxisCosTheta(EVT_ThrustInfo, Rec_px, Rec_py, Rec_pz)")
             .Define("Rec_in_hemisEmin",    "myUtils::get_RP_inHemis(1)(Rec_thrustCosTheta)")
             .Define("Rec_in_hemisEmax",    "myUtils::get_RP_inHemis(0)(Rec_thrustCosTheta)") # Not saved because redundant but used for other variables
+            
+            # NEW ---- CHECK
+            .Define("Rec_thrustCosTheta_in_hemisEmin_andNoBrem", "myUtils::remove_BremPhotons_fromRecoParticleStats(Rec_in_hemisEmin, Rec_true_PDG, Rec_true_M1)")
+            .Define("Rec_thrustCosTheta_in_hemisEmax_andNoBrem", "myUtils::remove_BremPhotons_fromRecoParticleStats(Rec_in_hemisEmax, Rec_true_PDG, Rec_true_M1)")
+            .Define("Rec_thrustCosThetaEminStats", "myUtils::get_Stats_fromRVec(Rec_in_hemisEmin, Rec_thrustCosTheta)")
+            .Define("Rec_thrustCosThetaEmaxStats", "myUtils::get_Stats_fromRVec(Rec_in_hemisEmax, Rec_thrustCosTheta)")
+            .Define("Rec_thrustCosThetaEminStats_noBrem", "myUtils::get_Stats_fromRVec(Rec_thrustCosTheta_in_hemisEmin_andNoBrem, Rec_thrustCosTheta)")
+            .Define("Rec_thrustCosThetaEmaxStats_noBrem", "myUtils::get_Stats_fromRVec(Rec_thrustCosTheta_in_hemisEmax_andNoBrem, Rec_thrustCosTheta)")
+            .Define("Rec_thrustCosTheta_min_hemisEmin", "Rec_thrustCosThetaEminStats.at(0)")
+            .Define("Rec_thrustCosTheta_max_hemisEmin", "Rec_thrustCosThetaEminStats.at(1)")
+            .Define("Rec_thrustCosTheta_ave_hemisEmin", "Rec_thrustCosThetaEminStats.at(2)")
+            .Define("Rec_thrustCosTheta_min_hemisEmax", "Rec_thrustCosThetaEmaxStats.at(0)")
+            .Define("Rec_thrustCosTheta_max_hemisEmax", "Rec_thrustCosThetaEmaxStats.at(1)")
+            .Define("Rec_thrustCosTheta_ave_hemisEmax", "Rec_thrustCosThetaEmaxStats.at(2)")
 
+            .Define("Rec_thrustCosTheta_min_hemisEmin_noBrem", "Rec_thrustCosThetaEminStatsnoBrem.at(0)")
+            .Define("Rec_thrustCosTheta_max_hemisEmin_noBrem", "Rec_thrustCosThetaEminStatsnoBrem.at(1)")
+            .Define("Rec_thrustCosTheta_ave_hemisEmin_noBrem", "Rec_thrustCosThetaEminStatsnoBrem.at(2)")
+            .Define("Rec_thrustCosTheta_min_hemisEmax_noBrem", "Rec_thrustCosThetaEmaxStatsnoBrem.at(0)")
+            .Define("Rec_thrustCosTheta_max_hemisEmax_noBrem", "Rec_thrustCosThetaEmaxStatsnoBrem.at(1)")
+            .Define("Rec_thrustCosTheta_ave_hemisEmax_noBrem", "Rec_thrustCosThetaEmaxStatsnoBrem.at(2)")
 
             #############################################
             ##       Reconstructed PrimaryVertex       ##
@@ -272,6 +303,14 @@ class RDFanalysis():
             .Define("Rec_track_normd0",  "ReconstructedParticle2Track::getRP2TRK_D0_sig(RecoParticlesPIDAtVertex, EFlowTrack_1)")
             .Define("Rec_track_z0",      "ReconstructedParticle2Track::getRP2TRK_Z0(RecoParticlesPIDAtVertex, EFlowTrack_1)")
             .Define("Rec_track_normz0",  "ReconstructedParticle2Track::getRP2TRK_Z0_sig(RecoParticlesPIDAtVertex, EFlowTrack_1)")
+
+            # NEW ---- CHECK
+            .Define("Rec_track_d0_min",  "ROOT::VecOps::Min(Rec_track_d0)")
+            .Define("Rec_track_d0_max",  "ROOT::VecOps::Max(Rec_track_d0)")
+            .Define("Rec_track_d0_ave",  "ROOT::VecOps::Mean(Rec_track_d0)")
+            .Define("Rec_track_z0_min",  "ROOT::VecOps::Min(Rec_track_z0)")
+            .Define("Rec_track_z0_max",  "ROOT::VecOps::Max(Rec_track_z0)")
+            .Define("Rec_track_z0_ave",  "ROOT::VecOps::Mean(Rec_track_z0)")
 
             #############################################
             ##           Reconstructed Vertex          ##
@@ -316,6 +355,42 @@ class RDFanalysis():
             # Flag vertex in max or min hemisphere
             .Define("Rec_vtx_in_hemisEmin",    "myUtils::get_Vertex_thrusthemis(Rec_vtx_thrustCosTheta, 1)")
             .Define("Rec_vtx_in_hemisEmax",    "myUtils::get_Vertex_thrusthemis(Rec_vtx_thrustCosTheta, 0)")
+
+            # NEW ---- CHECK
+            .Define("Rec_vtx_in_hemisEmin_andNotPV",  "myUtils::remove_PV_fromVertexStats(Rec_vtx_in_hemisEmin, Rec_VertexObject)")
+            .Define("Rec_vtx_in_hemisEmax_andNotPV",  "myUtils::remove_PV_fromVertexStats(Rec_vtx_in_hemisEmax, Rec_VertexObject)")
+            .Define("Rec_VertexObjectEmin", "myUtils::get_VertexObject_withcond(Rec_in_hemisEmin_andNotPV, Rec_VertexObject)")
+            .Define("Rec_VertexObjectEmax", "myUtils::get_VertexObject_withcond(Rec_in_hemisEmax_andNotPV, Rec_VertexObject)")
+            .Define("Rec_vtx_ntracks_hemisEmin",       "myUtils::get_Vertex_ntracks(Rec_VertexObjectEmin)")
+            .Define("Rec_vtx_ntracks_hemisEmax",       "myUtils::get_Vertex_ntracks(Rec_VertexObjectEmax)")
+            .Define("Rec_vtx_d2PV_signed",  "myUtils::get_VertexFeature_signed(Rec_in_hemisEmin, Rec_vtx_d2PV)")
+            .Define("Rec_vtx_normd2PV_signed",  "myUtils::get_VertexFeature_signed(Rec_in_hemisEmin, Rec_vtx_normd2PV)")
+
+            .Define("Rec_vtx_ntracksStatsEmin",  "myUtils::get_Stats_fromRVec(Rec_vtx_in_hemisEmin_andNotPV, Rec_vtx_ntracks)")
+            .Define("Rec_vtx_ntracksStatsEmax",  "myUtils::get_Stats_fromRVec(Rec_vtx_in_hemisEmax_andNotPV, Rec_vtx_ntracks)")
+            .Define("Rec_vtx_ntracks_min_hemisEmin",  "Rec_vtx_ntracksStatsEmin.at(0)")
+            .Define("Rec_vtx_ntracks_max_hemisEmin",  "Rec_vtx_ntracksStatsEmin.at(1)")
+            .Define("Rec_vtx_ntracks_ave_hemisEmin",  "Rec_vtx_ntracksStatsEmin.at(2)")
+            .Define("Rec_vtx_ntracks_min_hemisEmax",  "Rec_vtx_ntracksStatsEmax.at(0)")
+            .Define("Rec_vtx_ntracks_max_hemisEmax",  "Rec_vtx_ntracksStatsEmax.at(1)")
+            .Define("Rec_vtx_ntracks_ave_hemisEmax",  "Rec_vtx_ntracksStatsEmax.at(2)")
+            .Define("Rec_vtx_d2PVStatsEmin",       "myUtils::get_Stats_fromRVec(Rec_vtx_in_hemisEmin_andNotPV, Rec_vtx_d2PV)")
+            .Define("Rec_vtx_d2PVStatsEmax",       "myUtils::get_Stats_fromRVec(Rec_vtx_in_hemisEmax_andNotPV, Rec_vtx_d2PV)")
+            .Define("Rec_vtx_d2PV_min_hemisEmin",      "Rec_vtx_d2PVStatsEmin.at(0)")
+            .Define("Rec_vtx_d2PV_max_hemisEmin",      "Rec_vtx_d2PVStatsEmin.at(1)")
+            .Define("Rec_vtx_d2PV_ave_hemisEmin",      "Rec_vtx_d2PVStatsEmin.at(2)")
+            .Define("Rec_vtx_d2PV_min_hemisEmax",      "Rec_vtx_d2PVStatsEmax.at(0)")
+            .Define("Rec_vtx_d2PV_max_hemisEmax",      "Rec_vtx_d2PVStatsEmax.at(1)")
+            .Define("Rec_vtx_d2PV_ave_hemisEmax",      "Rec_vtx_d2PVStatsEmax.at(2)")
+            .Define("Rec_vtx_thrustCosThetaStatsEmin",      "myUtils::get_Stats_fromRVec(Rec_vtx_in_hemisEmin_andNotPV, Rec_vtx_thrustCosTheta)")
+            .Define("Rec_vtx_thrustCosThetaStatsEmax",      "myUtils::get_Stats_fromRVec(Rec_vtx_in_hemisEmax_andNotPV, Rec_vtx_thrustCosTheta)")
+            .Define("Rec_vtx_thrustCosTheta_min_hemisEmin",   "Rec_vtx_thrustCosThetaStatsEmin.at(0)")
+            .Define("Rec_vtx_thrustCosTheta_max_hemisEmin",   "Rec_vtx_thrustCosThetaStatsEmin.at(1)")
+            .Define("Rec_vtx_thrustCosTheta_ave_hemisEmin",   "Rec_vtx_thrustCosThetaStatsEmin.at(2)")
+            .Define("Rec_vtx_thrustCosTheta_min_hemisEmax",   "Rec_vtx_thrustCosThetaStatsEmax.at(0)")
+            .Define("Rec_vtx_thrustCosTheta_max_hemisEmax",   "Rec_vtx_thrustCosThetaStatsEmax.at(1)")
+            .Define("Rec_vtx_thrustCosTheta_ave_hemisEmax",   "Rec_vtx_thrustCosThetaStatsEmax.at(2)")
+
 
             #############################################
             ##               Reco Thrust               ##
@@ -405,20 +480,30 @@ class RDFanalysis():
             ##  Thrust hemispheres energy difference   ##
             #############################################
             .Define("EVT_Thrust_deltaE",            "(EVT_hemisEmax_e) - (EVT_hemisEmin_e)")
+            .Define("EVT_hemisEmin_Emiss",          f"{0.5*cfg.mass_Z} - EVT_hemiEmin_e")
+            .Define("EVT_hemisEmax_Emiss",          f"{0.5*cfg.mass_Z} - EVT_hemiEmax_e")
+
+            #############################################
+            ##  Tau -> 3 pi vertex on the signal side  ##
+            #############################################
+            .Define("EVT_hemisEmin_containsTau23Pi",   "myUtils::get_Vertex_containsTau23Pi(Rec_in_hemisEmin, Rec_true_PDG, Rec_true_M1, Rec_indRP, Rec_vtx_ntracks)")
+
         )
 
-        if not cfg.bdt_opts['training']:
+        if not cfg.bdt1_opts['training']:
             # Read list of feature names used in the BDT from the config YAML file
-            with open(cfg.fccana_opts['path2yaml']) as stream:
+            with open(cfg.fccana_opts['yamlPath']) as stream:
                 try:
                     yaml = safe_load(stream)
-                    BDTbranchList = yaml[cfg.bdt_opts['mvaBranchList']]
-                except YAMLError:
-                    print(f"Could not safe_load {cfg.fccana_opts['path2yaml']}")
+                    BDT1branchList = yaml[cfg.bdt1_opts['mvaBranchList']]
+                except YAMLError as exc:
+                    print(f"----> ERRROR:")
+                    print(f"             Could not safe_load {cfg.fccana_opts['yamlPath']}")
+                    print(f"             {exc}")
 
             ROOT.gInterpreter.ProcessLine(f'''
-            TMVA::Experimental::RBDT bdt("{cfg.bdt_opts['mvaTreeName']}", "{cfg.bdt_opts['mvaPath']}");
-            auto computeModel = TMVA::Experimental::Compute<{len(BDTbranchList)}, float> (bdt);
+            TMVA::Experimental::RBDT bdt1("{cfg.bdt1_opts['mvaTreeName']}", "{cfg.bdt1_opts['mvaPath']}");
+            auto computeModel1 = TMVA::Experimental::Compute<{len(BDT1branchList)}, float> (bdt1);
             ''')
 
             df3 = (
@@ -426,13 +511,13 @@ class RDFanalysis():
                 #############################################
                 ##                Build BDT                ##
                 #############################################
-                .Define("MVAVec",    ROOT.computeModel, BDTbranchList)
+                .Define("MVAVec",    ROOT.computeModel1, BDT1branchList)
                 .Define("EVT_MVA1",  "MVAVec.at(0)")
             )
 
             # If the cut value is given filter on it else return the entire DataFrame
-            if cfg.bdt_opts['mvaCut'] is not None:
-                df4 = df3.Filter(f"EVT_MVA1 > {cfg.bdt_opts['mvaCut']}")
+            if cfg.bdt1_opts['mvaCut'] is not None:
+                df4 = df3.Filter(f"EVT_MVA1 > {cfg.bdt1_opts['mvaCut']}")
             else:
                 df4 = df3
         
@@ -442,19 +527,21 @@ class RDFanalysis():
 
         return df4
 
-    def output():
-        
+    def output():        
         # Get the output branchList from the config YAML file
-        with open(cfg.fccana_opts['path2yaml']) as stream:
+        with open(cfg.fccana_opts['yamlPath']) as stream:
             try:
                 yaml = safe_load(stream)
-                branchList = yaml[cfg.fccana_opts['outBranchList']]
-            except YAMLError:
+                branchList = yaml[cfg.fccana_opts['outBranchList1']]
+                print(f"----> INFO:")
+                print(f"             Output branch list used = {cfg.fccana_opts['outBranchList1']}")
+            except YAMLError as exc:
                 print(f"----> ERROR:")
-                print(f"             Could not safe load {cfg.fccana_opts['path2yaml']}")
+                print(f"             Could not safe load {cfg.fccana_opts['yamlPath']}")
+                print(f"             {exc}")
 
-        if not cfg.bdt_opts['training']:
+        if not cfg.bdt1_opts['training']:
             branchList.append("EVT_MVA1")
 
         return branchList
- 
+

@@ -1,13 +1,17 @@
+import os
+# Mandatory --> replace the default string with the path to the B2Inv directory in the FCCAnalyses repo
+FCCAnalysesPath = "/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/"
+
 # processList to pass to `fccanalysis run`
 processList = {
     "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": {"fraction": 0.5, "chunks": 20},
-    "p8_ee_Zbb_ecm91": {"fraction": 0.05, "chunks": 100},
-    "p8_ee_Zcc_ecm91": {"fraction": 0.05, "chunks": 100},
-    "p8_ee_Zss_ecm91": {"fraction": 0.05, "chunks": 100},
-    "p8_ee_Zud_ecm91": {"fraction": 0.05, "chunks": 100}
+    "p8_ee_Zbb_ecm91": {"fraction": 0.002, "chunks": 10},
+    "p8_ee_Zcc_ecm91": {"fraction": 0.002, "chunks": 10},
+    "p8_ee_Zss_ecm91": {"fraction": 0.002, "chunks": 10},
+    "p8_ee_Zud_ecm91": {"fraction": 0.002, "chunks": 10}
 }
 
-# Options to pass to `fccanalysis run`
+# Default options to pass to `fccanalysis run`. Recommended to keep, fccana_opts should be used for custom options.
 fccana_opts = {
     "prodTag"      : "FCCee/winter2023/IDEA",
     "outputDir"    : "/r01/lhcb/rrm42/fcc/stage1_postBDT/",
@@ -16,22 +20,42 @@ fccana_opts = {
     "runBatch"     : True,
     "batchQueue"   : "workday",
     "compGroup"    : "group_u_FCC.local_gen",
-    #"testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root",
-    "testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91/events_000083138.root",
+    "testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root",
+    #"testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91/events_000083138.root",
     #"testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zcc_ecm91/events_000046867.root",
     #"testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zss_ecm91/events_000099129.root",
     #"testFile"     : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zud_ecm91/events_000071896.root",
-    "path2yaml"    : "/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/bdt.yaml",
-    "outBranchList": "stage1-vars",
+    "yamlPath"     : os.path.abspath(os.path.join(FCCAnalysesPath, "b2nunu.yaml")),
+    "outBranchList1": "stage1-vars",
+    "outBranchList2": "stage2-vars",
 }
 
 # TMVA options
-bdt_opts = {
-    "training"     : False,
-    "mvaPath"      : "/r01/lhcb/rrm42/fcc/bdt1out/tmva1.root",
+bdt1_opts = {
+    "training"     : True,
+    "mvaPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "tmva1.root")),
     "mvaTreeName"  : "bdt",
     "mvaCut"       : 0.2,
-    "mvaBranchList": "bdt1-training-vars"
+    "mvaBranchList": "bdt1-training-vars",
+}
+
+bdt2_opts = {
+    "training"     : True,
+    "mvaPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "tmva2.root")),
+    "mvaTreeName"  : "bdt",
+    "mvaCut"       : 0.2,
+    "mvaBranchList": "bdt2-training-vars",
+    "preselection" : "(EVT_hemisEmin_nCharged > 0) && (EVT_MVA1 > 0.6)"
+}
+
+xgb1_train_opts = {
+    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage1/',
+    "outputpath" : os.path.abspath(os.path.join(FCCAnalysesPath, "bdt1out/")), 
+}
+
+xgb2_train_opts = {
+    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage2/',
+    "outputpath" : os.path.abspath(os.path.join(FCCAnalysesPath, "bdt2out/")),
 }
 
 samples = [ 

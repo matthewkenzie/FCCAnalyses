@@ -296,7 +296,7 @@ int get_hemis_containstau23pi(ROOT::VecOps::RVec<int> should_eval,
 }
 
 // If `sign` is 1 return value, else return -(value)
-ROOT::VecOps::RVec<float> get_vtxFeature_signed(ROOT::VecOps::RVec<int> sign,
+ROOT::VecOps::RVec<float> get_VertexFeature_signed(ROOT::VecOps::RVec<int> sign,
     ROOT::VecOps::RVec<float> feature_vtx) {
   ROOT::VecOps::RVec<float> result;
 
@@ -308,15 +308,57 @@ ROOT::VecOps::RVec<float> get_vtxFeature_signed(ROOT::VecOps::RVec<int> sign,
   return result;
 }
 
-ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
-    ROOT::VecOps::RVec<int> condition){
+ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(ROOT::VecOps::RVec<int> should_eval, 
+    ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
   ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> result;
   for (size_t i = 0; i < vertex.size(); ++i) {
-    if (condition.at(i) == 1) result.push_back(vertex.at(i));
+    if (should_eval.at(i) == 1) result.push_back(vertex.at(i));
   }
   return result;
 }
 
+ROOT::VecOps::RVec<int>  remove_PV_fromVertexStats(ROOT::VecOps::RVec<int> should_eval, 
+    ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> reco_vtx) {
+  ROOT::VecOps::RVec<int> result;
+  for (size_t i = 0; i < reco_vtx.size(); {
+    // One line expression, truth table of NOT(should_eval => isPV) i.e. ((NOT PV) AND SHOULD_EVAL)
+    result.push_back((!(reco_vtx.at(i).vertex.primary) && should_eval.at(i)));
+
+    // if (should_eval.at(i) == 1 && reco_vtx.at(i).vertex.primary == 1) result.push_back(0);
+    // else result.push_back(should_eval.at(i));
+  }
+
+  return result;
+}
+
+ROOT::VecOps::RVec<float> get_Stats_fromRVec(ROOT::VecOps::RVec<int> should_eval, ROOT::VecOps::RVec<float> values) {
+  ROOT::VecOps::RVec<float> values_to_eval;
+  for (size_t i = 0; i < values.size(); ++i) {
+    if (should_eval.at(i) == 1) values_to_eval.push_back(values.at(i));
+  }
+
+  auto min = ROOT::VecOps::Min(values_to_eval);
+  auto max = ROOT::VecOps::Max(values_to_eval);
+  auto ave = ROOT::VecOps::Mean(values_to_eval);
+  ROOT::VecOps::RVec<float> result {float(min), float(max), float(ave)};
+  return result;
+}
+
+ROOT::VecOps::RVec<int> remove_BremPhotons_fromRecoParticleStats(ROOT::VecOps::RVec<int> should_eval,
+    ROOT::VecOps::RVec<int> pdg, ROOT::VecOps::RVec<int> m1_pdg) {
+  ROOT::VecOps::RVec<int> result;
+  for (size_t i = 0; i < should_eval.size(); ++i) {
+    // One line expression, truth table of ((NOT BremPhoton) AND SHOULD_EVAL)
+    // A BremPhoton is one with a true id of 22 and a mother with a true id of 11 (can be replaced with reco ids instead of true ids)
+    result.push_back((!(abs(pdg.at(i)) == 22 && abs(m1_pdg.at(i)) == 11) && should_eval.at(i) == 1));
+    
+    // if (should_eval.at(i) == 1) {
+    //  if (abs(pdg.at(i)) == 22 && abs(m1_pdg.at(i)) == 11) result.push_back(0);
+    //  else result.push_back(1);
+    // }
+  }
+  return result;
+}
 /**********************************
   END OF B2INV FUNCTIONS
 ***********************************/

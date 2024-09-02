@@ -134,10 +134,21 @@ namespace myUtils{
       ROOT::VecOps::RVec<int> reco_indvtx, ROOT::VecOps::RVec<int> reco_vtx_ntracks);
     
   // Meant to take the output of get_Vertex_d2PV and sign based on the hemisphere
-  ROOT::VecOps::RVec<float> get_vtxFeature_signed(ROOT::VecOps::RVec<int> sign, ROOT::VecOps::RVec<float> feature_vtx);
+  ROOT::VecOps::RVec<float> get_VertexFeature_signed(ROOT::VecOps::RVec<int> sign, ROOT::VecOps::RVec<float> feature_vtx);
 
-  ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
-      ROOT::VecOps::RVec<int> condition);
+  ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(ROOT::VecOps::RVec<int> should_eval, 
+      ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,);
+
+  // Remove the true PV from a list of bools to evaluate, if present
+  ROOT::VecOps::RVec<int> remove_PV_fromVertexStats(ROOT::VecOps::RVec<int> should_eval, 
+      ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> reco_vtx);
+
+  // Given a vector of floats and a vector of bools, return the minimum, maximum and average of the values using indices where the bools are true
+  ROOT::VecOps::RVec<float> get_Stats_fromRVec(ROOT::VecOps::RVec<int> should_eval, ROOT::VecOps::RVec<float> values);
+
+  // Remove photons from Bremsstrahlung from the list of particles
+  ROOT::VecOps::RVec<int> remove_BremPhotons_fromRecoParticleStats(ROOT::VecOps::RVec<int> should_eval, 
+      ROOT::VecOps::RVec<int> pdg, ROOT::VecOps::RVec<int> m1_pdg);
   /********************************** 
     END OF B2INV FUNCTIONS
   ***********************************/
