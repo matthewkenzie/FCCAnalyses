@@ -10,12 +10,12 @@ processList = {
     # p8_ee_Zcc_ecm91                == 3.5T
     # p8_ee_Zss_ecm91                == 3.3T
     # p8_ee_Zud_ecm91                == 3.3T
-    "stage1_training": { # Roughly 2-5G per sample
-        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": {"fraction": 0.3, "chunks": 20},
-        "p8_ee_Zbb_ecm91": {"fraction": 0.001, "chunks": 10},
-        "p8_ee_Zcc_ecm91": {"fraction": 0.001, "chunks": 10},
-        "p8_ee_Zss_ecm91": {"fraction": 0.001, "chunks": 10},
-        "p8_ee_Zud_ecm91": {"fraction": 0.001, "chunks": 10},    
+    "stage1_training": { # ~2G or ~500k events per sample
+        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": {"fraction": 0.3, "chunks": 10},
+        "p8_ee_Zbb_ecm91": {"fraction": 0.01, "chunks": 50},
+        "p8_ee_Zcc_ecm91": {"fraction": 0.01, "chunks": 50},
+        "p8_ee_Zss_ecm91": {"fraction": 0.01, "chunks": 50},
+        "p8_ee_Zud_ecm91": {"fraction": 0.01, "chunks": 50},    
     },
     "stage1": {
         "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": {"fraction": 0.5, "chunks": 20},
@@ -27,7 +27,7 @@ processList = {
     "stage2_training": {
     },
     "stage2": {
-    }
+    },
 }
 
 # Default options to pass to `fccanalysis run`. Recommended to keep, fccana_opts should be used for custom options.
@@ -55,7 +55,7 @@ fccana_opts = {
 # TMVA options
 bdt1_opts = {
     "training"     : True,
-    "mvaPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/tmva1.root")),
+    "mvaPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt1out/tmva1.root")),
     "mvaTreeName"  : "bdt",
     "mvaCut"       : 0.2,
     "mvaBranchList": "bdt1-training-vars",
@@ -63,7 +63,7 @@ bdt1_opts = {
 
 bdt2_opts = {
     "training"     : True,
-    "mvaPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/tmva2.root")),
+    "mvaPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt2out/tmva2.root")),
     "mvaTreeName"  : "bdt",
     "mvaCut"       : 0.2,
     "mvaBranchList": "bdt2-training-vars",
@@ -71,12 +71,12 @@ bdt2_opts = {
 }
 
 xgb1_train_opts = {
-    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage1/',
+    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage1_training/',
     "outputpath" : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt1out/")), 
 }
 
 xgb2_train_opts = {
-    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage2/',
+    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage2_training/',
     "outputpath" : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt2out/")),
 }
 

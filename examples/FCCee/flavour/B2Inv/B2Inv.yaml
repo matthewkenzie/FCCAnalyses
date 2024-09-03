@@ -1,8 +1,8 @@
 ---
 ###############
-# BDT1
+# BDT
 ###############
-bdt1-planned-vars:
+bdt1-training-vars:
   - EVT_Thrust_mag
   - EVT_Thrust_x
   - EVT_Thrust_y
@@ -34,7 +34,7 @@ bdt1-planned-vars:
   # Rec_vtx_n_hemisEmin
   # Rec_vtx_ntracks_hemisEmin
 
-bdt2-planned-vars:
+bdt2-training-vars:
   - Rec_vtx_ntracks_min_hemisEmin
   - Rec_vtx_ntracks_max_hemisEmin
   - Rec_vtx_ntracks_ave_hemisEmin
@@ -52,7 +52,6 @@ bdt2-planned-vars:
   - Rec_vtx_d2PV_y
   - Rec_vtx_d2PV_z
 
-  # Should min and max also be included? Maybe only min because max is going to be close to 1 always
   - Rec_vtx_thrustCosTheta_min_hemisEmin
   - Rec_vtx_thrustCosTheta_max_hemisEmin
   - Rec_vtx_thrustCosTheta_ave_hemisEmin
@@ -60,8 +59,6 @@ bdt2-planned-vars:
   - Rec_vtx_thrustCosTheta_max_hemisEmax
   - Rec_vtx_thrustCosTheta_ave_hemisEmax
 
-  # Should these exclude photons from brem -- yes
-  # Should min and max also be included? Maybe only min because max is going to be close to 1 always
   - Rec_thrustCosTheta_min_hemisEmin
   - Rec_thrustCosTheta_max_hemisEmin
   - Rec_thrustCosTheta_ave_hemisEmin
@@ -75,16 +72,12 @@ bdt2-planned-vars:
   - Rec_thrustCosTheta_max_hemisEmax_noBrem
   - Rec_thrustCosTheta_ave_hemisEmax_noBrem
 
-  # Should these tracks be id'd? Ex only look at K, pi, tau
-  # Not sure how to incorporate these, no immediate way to get if a track is in Emin or Emax
   - Rec_track_d0_min
   - Rec_track_d0_max
   - Rec_track_d0_ave
   - Rec_track_z0_min
   - Rec_track_z0_max
   - Rec_track_z0_ave
-
-  # These are highly populated with placeholders -- NN?
 
   # Should these be in stage2? -- Yes
   - EVT_hemisEmin_nKaon
@@ -100,62 +93,6 @@ bdt2-planned-vars:
   - EVT_hemisEmax_maxeLept
   - EVT_hemisEmax_maxeKaon
   - EVT_hemisEmax_maxePion
-  - EVT_hemisEmax_maxeLept_fromtruePV
-  - EVT_hemisEmax_maxeKaon_fromtruePV
-  - EVT_hemisEmax_maxePion_fromtruePV
-
-bdt1-training-vars:
-  - EVT_Thrust_mag
-  - EVT_Thrust_x
-  - EVT_Thrust_y
-  - EVT_Thrust_z
-  - EVT_Thrust_deltaE
-  - EVT_hemisEmin_e
-  - EVT_hemisEmin_eCharged
-  - EVT_hemisEmin_eNeutral
-  - EVT_hemisEmax_e
-  - EVT_hemisEmax_eCharged
-  - EVT_hemisEmax_eNeutral
-  - Rec_PV_x
-  - Rec_PV_y
-  - Rec_PV_z
-  - Rec_vtx_d2PV_min
-  - Rec_vtx_d2PV_max
-  - Rec_vtx_d2PV_ave
-  - EVT_hemisEmin_maxeKaon
-  - EVT_hemisEmin_maxePion
-  - EVT_hemisEmax_maxeLept
-  - EVT_hemisEmax_maxeKaon
-  - EVT_hemisEmax_maxePion
-
-  - EVT_hemisEmin_n
-  - EVT_hemisEmin_nCharged
-  - EVT_hemisEmin_nNeutral
-  - EVT_hemisEmin_nDV
-  - EVT_hemisEmax_n
-  - EVT_hemisEmax_nCharged
-  - EVT_hemisEmax_nNeutral
-  - EVT_hemisEmax_nDV
-
-  - Rec_track_n
-    #- Rec_track_d0_max
-    #- Rec_track_z0_max
-  
-  - Rec_PV_ntracks
-  - Rec_vtx_n
-  
-    #- Rec_vtx_normd2PV_min
-    #- Rec_vtx_normd2PV_max
-    #- Rec_vtx_normd2PV_ave
-    
-  - EVT_hemisEmin_nKaon
-  - EVT_hemisEmin_nPion
-  - EVT_hemisEmin_maxeKaon_fromtruePV
-  - EVT_hemisEmin_maxePion_fromtruePV
-
-  - EVT_hemisEmax_nLept
-  - EVT_hemisEmax_nKaon
-  - EVT_hemisEmax_nPion
   - EVT_hemisEmax_maxeLept_fromtruePV
   - EVT_hemisEmax_maxeKaon_fromtruePV
   - EVT_hemisEmax_maxePion_fromtruePV
