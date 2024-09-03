@@ -2,23 +2,30 @@ import os
 import sys
 # Config and yaml file must be in this directory by default
 # Absolute path must be supplied for the script to work in batch mode
-sys.path.append('/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv')
+configPath = '/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv'
+sys.path.append(os.path.abspath(configPath))
 import ROOT
 import config as cfg
 
 from yaml import YAMLError, safe_load
 
 #Mandatory: List of processes
-processList = cfg.processList
+if cfg.bdt1_opts['training']:
+    processList = cfg.processList['stage1_training']
+else:
+    processList = cfg.processList['stage1']
 
 #Mandatory: Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics
 prodTag   = cfg.fccana_opts['prodTag']
 
 #Optional: output directory, default is local running directory
-outputDir = cfg.fccana_opts['outputDir'] 
+if cfg.bdt1_opts['training']:
+    outputDir = cfg.fccana_opts['outputDir']['stage1_training'] 
+else:
+    outputDir = cfg.fccana_opts['outputDir']['stage1'] 
 
 #Optional: analysisName, default is ""
-#analysisName = cfg.fccana_opts['analysisName']
+analysisName = cfg.fccana_opts['analysisName']
 
 #Optional: ncpus, default is 4
 nCPUs = cfg.fccana_opts['nCPUs']
@@ -27,16 +34,16 @@ nCPUs = cfg.fccana_opts['nCPUs']
 runBatch    = cfg.fccana_opts['runBatch']
 
 #Optional batch queue name when running on HTCondor, default is workday
-#batchQueue = cfg.fccana_opts['batchQueue']
+batchQueue = cfg.fccana_opts['batchQueue']
 
 #Optional computing account when running on HTCondor, default is group_u_FCC.local_gen
-#compGroup = cfg.fccana_opts['compGroup']
+compGroup = cfg.fccana_opts['compGroup']
 
 #Optional test file
 testFile = cfg.fccana_opts['testFile']
 
-print(f"----> INFO: Using config.py file:")
-print(f"            /r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/config.py")
+print(f"----> INFO: Using config.py file from:")
+print(f"            {os.path.abspath(configPath)}")
 print(f"----> INFO: Using branch names from:")
 print(f"            {cfg.fccana_opts['yamlPath']}")
 
@@ -280,12 +287,12 @@ class RDFanalysis():
             .Define("Rec_thrustCosTheta_max_hemisEmax", "Rec_thrustCosThetaEmaxStats.at(1)")
             .Define("Rec_thrustCosTheta_ave_hemisEmax", "Rec_thrustCosThetaEmaxStats.at(2)")
 
-            .Define("Rec_thrustCosTheta_min_hemisEmin_noBrem", "Rec_thrustCosThetaEminStatsnoBrem.at(0)")
-            .Define("Rec_thrustCosTheta_max_hemisEmin_noBrem", "Rec_thrustCosThetaEminStatsnoBrem.at(1)")
-            .Define("Rec_thrustCosTheta_ave_hemisEmin_noBrem", "Rec_thrustCosThetaEminStatsnoBrem.at(2)")
-            .Define("Rec_thrustCosTheta_min_hemisEmax_noBrem", "Rec_thrustCosThetaEmaxStatsnoBrem.at(0)")
-            .Define("Rec_thrustCosTheta_max_hemisEmax_noBrem", "Rec_thrustCosThetaEmaxStatsnoBrem.at(1)")
-            .Define("Rec_thrustCosTheta_ave_hemisEmax_noBrem", "Rec_thrustCosThetaEmaxStatsnoBrem.at(2)")
+            .Define("Rec_thrustCosTheta_min_hemisEmin_noBrem", "Rec_thrustCosThetaEminStats_noBrem.at(0)")
+            .Define("Rec_thrustCosTheta_max_hemisEmin_noBrem", "Rec_thrustCosThetaEminStats_noBrem.at(1)")
+            .Define("Rec_thrustCosTheta_ave_hemisEmin_noBrem", "Rec_thrustCosThetaEminStats_noBrem.at(2)")
+            .Define("Rec_thrustCosTheta_min_hemisEmax_noBrem", "Rec_thrustCosThetaEmaxStats_noBrem.at(0)")
+            .Define("Rec_thrustCosTheta_max_hemisEmax_noBrem", "Rec_thrustCosThetaEmaxStats_noBrem.at(1)")
+            .Define("Rec_thrustCosTheta_ave_hemisEmax_noBrem", "Rec_thrustCosThetaEmaxStats_noBrem.at(2)")
 
             #############################################
             ##       Reconstructed PrimaryVertex       ##
@@ -359,8 +366,8 @@ class RDFanalysis():
             # NEW ---- CHECK
             .Define("Rec_vtx_in_hemisEmin_andNotPV",  "myUtils::remove_PV_fromVertexStats(Rec_vtx_in_hemisEmin, Rec_VertexObject)")
             .Define("Rec_vtx_in_hemisEmax_andNotPV",  "myUtils::remove_PV_fromVertexStats(Rec_vtx_in_hemisEmax, Rec_VertexObject)")
-            .Define("Rec_VertexObjectEmin", "myUtils::get_VertexObject_withcond(Rec_in_hemisEmin_andNotPV, Rec_VertexObject)")
-            .Define("Rec_VertexObjectEmax", "myUtils::get_VertexObject_withcond(Rec_in_hemisEmax_andNotPV, Rec_VertexObject)")
+            .Define("Rec_VertexObjectEmin", "myUtils::get_VertexObject_withcond(Rec_vtx_in_hemisEmin_andNotPV, Rec_VertexObject)")
+            .Define("Rec_VertexObjectEmax", "myUtils::get_VertexObject_withcond(Rec_vtx_in_hemisEmax_andNotPV, Rec_VertexObject)")
             .Define("Rec_vtx_ntracks_hemisEmin",       "myUtils::get_Vertex_ntracks(Rec_VertexObjectEmin)")
             .Define("Rec_vtx_ntracks_hemisEmax",       "myUtils::get_Vertex_ntracks(Rec_VertexObjectEmax)")
             .Define("Rec_vtx_d2PV_signed",  "myUtils::get_VertexFeature_signed(Rec_in_hemisEmin, Rec_vtx_d2PV)")
@@ -480,13 +487,13 @@ class RDFanalysis():
             ##  Thrust hemispheres energy difference   ##
             #############################################
             .Define("EVT_Thrust_deltaE",            "(EVT_hemisEmax_e) - (EVT_hemisEmin_e)")
-            .Define("EVT_hemisEmin_Emiss",          f"{0.5*cfg.mass_Z} - EVT_hemiEmin_e")
-            .Define("EVT_hemisEmax_Emiss",          f"{0.5*cfg.mass_Z} - EVT_hemiEmax_e")
+            .Define("EVT_hemisEmin_Emiss",          f"{0.5*cfg.mass_Z} - EVT_hemisEmin_e")
+            .Define("EVT_hemisEmax_Emiss",          f"{0.5*cfg.mass_Z} - EVT_hemisEmax_e")
 
             #############################################
             ##  Tau -> 3 pi vertex on the signal side  ##
             #############################################
-            .Define("EVT_hemisEmin_containsTau23Pi",   "myUtils::get_Vertex_containsTau23Pi(Rec_in_hemisEmin, Rec_true_PDG, Rec_true_M1, Rec_indRP, Rec_vtx_ntracks)")
+            .Define("EVT_hemisEmin_containsTau23Pi",   "myUtils::get_hemis_containstau23pi(Rec_in_hemisEmin, Rec_true_PDG, Rec_true_M1, Rec_indvtx, Rec_vtx_ntracks)")
 
         )
 
@@ -534,7 +541,7 @@ class RDFanalysis():
                 yaml = safe_load(stream)
                 branchList = yaml[cfg.fccana_opts['outBranchList1']]
                 print(f"----> INFO:")
-                print(f"             Output branch list used = {cfg.fccana_opts['outBranchList1']}")
+                print(f"            Output branch list used = {cfg.fccana_opts['outBranchList1']}")
             except YAMLError as exc:
                 print(f"----> ERROR:")
                 print(f"             Could not safe load {cfg.fccana_opts['yamlPath']}")

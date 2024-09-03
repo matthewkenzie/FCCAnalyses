@@ -137,7 +137,7 @@ namespace myUtils{
   ROOT::VecOps::RVec<float> get_VertexFeature_signed(ROOT::VecOps::RVec<int> sign, ROOT::VecOps::RVec<float> feature_vtx);
 
   ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(ROOT::VecOps::RVec<int> should_eval, 
-      ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,);
+      ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex);
 
   // Remove the true PV from a list of bools to evaluate, if present
   ROOT::VecOps::RVec<int> remove_PV_fromVertexStats(ROOT::VecOps::RVec<int> should_eval, 

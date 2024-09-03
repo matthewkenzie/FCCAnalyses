@@ -279,7 +279,7 @@ ROOT::VecOps::RVec<HemisParticleInfo> get_RP_HemisInfo(ROOT::VecOps::RVec<edm4he
 
 int get_hemis_containstau23pi(ROOT::VecOps::RVec<int> should_eval,
     ROOT::VecOps::RVec<int> pdg, ROOT::VecOps::RVec<int> m1_pdg,
-    ROOT::VecOps::RVec<int> reco_indvtx, ROOT::VecOps::RVec<float> reco_vtx_ntracks) {
+    ROOT::VecOps::RVec<int> reco_indvtx, ROOT::VecOps::RVec<int> reco_vtx_ntracks) {
 
   int result = 0;
   for (size_t i = 0; i < should_eval.size(); ++i) {
@@ -320,7 +320,7 @@ ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(
 ROOT::VecOps::RVec<int>  remove_PV_fromVertexStats(ROOT::VecOps::RVec<int> should_eval, 
     ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> reco_vtx) {
   ROOT::VecOps::RVec<int> result;
-  for (size_t i = 0; i < reco_vtx.size(); {
+  for (size_t i = 0; i < reco_vtx.size(); ++i) {
     // One line expression, truth table of NOT(should_eval => isPV) i.e. ((NOT PV) AND SHOULD_EVAL)
     result.push_back((!(reco_vtx.at(i).vertex.primary) && should_eval.at(i)));
 
