@@ -43,9 +43,9 @@ compGroup = cfg.fccana_opts['compGroup']
 testFile = cfg.fccana_opts['testFile']
 
 print(f"----> INFO: Using config.py file from:")
-print(f"            {os.path.abspath(configPath)}")
+print(f"{15*' '}{os.path.abspath(configPath)}")
 print(f"----> INFO: Using branch names from:")
-print(f"            {cfg.fccana_opts['yamlPath']}")
+print(f"{15*' '}{cfg.fccana_opts['yamlPath']}")
 
 class RDFanalysis():
 
@@ -58,9 +58,8 @@ class RDFanalysis():
             #############################################
             .Alias("MCRecoAssociationsRec", "MCRecoAssociations#0.index") # points to ReconstructedParticles
             .Alias("MCRecoAssociationsGen", "MCRecoAssociations#1.index") # points to Particle
-            .Alias("ParticleParents",       "Particle#0.index") # gen particle parents
-            .Alias("ParticleChildren",      "Particle#1.index") # gen particle children
-
+            .Alias("ParticleParents",       "Particle#0.index")           # gen particle parents
+            .Alias("ParticleChildren",      "Particle#1.index")           # gen particle children
 
             # --------------------------------------- #
             #        List of intermediates used       #
@@ -68,8 +67,8 @@ class RDFanalysis():
             # MC_ee
             # MC_Z
             # MC_qq
-            # MC_fromRP -- needs RecoParticlesPIDAtVertex
-            # MC_VertexObject --- only to seed Rec_VertexObject
+            # MC_fromRP
+            # MC_VertexObject
             # Rec_PrimaryTracks
             # Rec_PrimaryVertexObject
             # Rec_VertexObject
@@ -83,7 +82,7 @@ class RDFanalysis():
             # Rec_vtx_thrustCosThetaStatsEmax
             # Rec_vtx_d2PVStatsEmin
             # Rec_vtx_d2PVStatsEmax
-            # -- RecoParticlesPID : NOT USED EXCEPT TO DEFINE RECOPARTICLESPIDATVERTEX
+            # RecoParticlesPID
             # RecoParticlesPIDAtVertex
             # True_ParentInfo
             # EVT_ThrustInfo
@@ -95,20 +94,18 @@ class RDFanalysis():
             # EVT_EminPartInfo
             # EVT_EmaxPartInfo
             # --------------------------------------- #
+
             #############################################
             ##               MC Particles              ##
             #############################################
-            # --------------------------------------- #
-            #             MC intermediates            #
-            # --------------------------------------- #
             # Pythia8 generatorStatus
             # 21 - incoming particles of hardest process (e+ e- beams)
             # 22 - intermediate particles of hardest process (Z)
             # 23 - outgoing particles of hardest process (quark pair produced from Z)
             #  1 - final-state particles
-            .Define("MC_ee",          "MCParticle::sel_genStatus(21)(Particle)")
-            .Define("MC_Z",           "MCParticle::sel_genStatus(22)(Particle)")
-            .Define("MC_qq",          "MCParticle::sel_genStatus(23)(Particle)")
+            .Define("MC_ee",          "MCParticle::sel_genStatus(21)(Particle)")   # INTERMEDIATE
+            .Define("MC_Z",           "MCParticle::sel_genStatus(22)(Particle)")   # INTERMEDIATE
+            .Define("MC_qq",          "MCParticle::sel_genStatus(23)(Particle)")   # INTERMEDIATE
             # .Define("MC_fromRP") --- needs RecoParticlesPIDAtVertex so defined later
 
             # --------------------------------------- #
@@ -204,38 +201,20 @@ class RDFanalysis():
             # function to get all reco vertices (uses MC vertex to seed the vertexing)
             .Define("MC_VertexObject",   "myUtils::get_MCVertexObject(Particle, ParticleParents)")
             .Define("Rec_VertexObject",         "myUtils::get_VertexObject(MC_VertexObject, ReconstructedParticles, EFlowTrack_1, MCRecoAssociationsRec, MCRecoAssociationsGen)")
-            # --------------------------------------- #
-            #            Rec intermediates            #
-            # --------------------------------------- #
-            # actually add the PID hypothesis info to the RecParticles (based on MC truth)
-            # ie we assume perfect PID here
-            .Define("RecoParticlesPID",          "myUtils::PID(ReconstructedParticles, MCRecoAssociationsRec, MCRecoAssociationsGen, Particle)")
-            # now update reco momentum based on the rec vertex
-            .Define("RecoParticlesPIDAtVertex",  "myUtils::get_RP_atVertex(RecoParticlesPID, Rec_VertexObject)")
-
 
             #############################################
             ##         Reconstructed Particles         ##
             #############################################
-            .Define("Rec_n",         "ReconstructedParticle::get_n(RecoParticlesPIDAtVertex)")
-            .Define("Rec_type",      "ReconstructedParticle::get_type(RecoParticlesPIDAtVertex)")
-            .Define("Rec_indvtx",    "myUtils::get_Vertex_fromRP(RecoParticlesPIDAtVertex, Rec_VertexObject)")
-            .Define("Rec_customid",  "ReconstructedParticle::get_customid(RecoParticlesPIDAtVertex)")
-            .Define("Rec_e",         "ReconstructedParticle::get_e(RecoParticlesPIDAtVertex)")
-            .Define("Rec_m",         "ReconstructedParticle::get_mass(RecoParticlesPIDAtVertex)")
-            .Define("Rec_q",         "ReconstructedParticle::get_charge(RecoParticlesPIDAtVertex)")
-            .Define("Rec_p",         "ReconstructedParticle::get_p(RecoParticlesPIDAtVertex)")
-            .Define("Rec_pt",        "ReconstructedParticle::get_pt(RecoParticlesPIDAtVertex)")
-            .Define("Rec_px",        "ReconstructedParticle::get_px(RecoParticlesPIDAtVertex)")
-            .Define("Rec_py",        "ReconstructedParticle::get_py(RecoParticlesPIDAtVertex)")
-            .Define("Rec_pz",        "ReconstructedParticle::get_pz(RecoParticlesPIDAtVertex)")
-            .Define("Rec_eta",       "ReconstructedParticle::get_eta(RecoParticlesPIDAtVertex)")
-            .Define("Rec_phi",       "ReconstructedParticle::get_phi(RecoParticlesPIDAtVertex)")
+            # actually add the PID hypothesis info to the RecParticles (based on MC truth)
+            # ie we assume perfect PID here
+            .Define("RecoParticlesPID",          "myUtils::PID(ReconstructedParticles, MCRecoAssociationsRec, MCRecoAssociationsGen, Particle)")   # INTERMEDIATE
+            # now update reco momentum based on the rec vertex
+            .Define("RecoParticlesPIDAtVertex",  "myUtils::get_RP_atVertex(RecoParticlesPID, Rec_VertexObject)")   # INTERMEDIATE
 
             # --------------------------------------- #
             #   MC variables of truth matched RecoP   #
             # --------------------------------------- #
-            .Define("MC_fromRP",           "myUtils::get_MCObject_fromRP(MCRecoAssociationsRec, MCRecoAssociationsGen, RecoParticlesPIDAtVertex, Particle)")
+            .Define("MC_fromRP",           "myUtils::get_MCObject_fromRP(MCRecoAssociationsRec, MCRecoAssociationsGen, RecoParticlesPIDAtVertex, Particle)")  # INTERMEDIATE
             
             .Define("Rec_true_PDG",        "MCParticle::get_pdg(MC_fromRP)")
             .Define("Rec_true_e",          "MCParticle::get_e(MC_fromRP)")
@@ -252,8 +231,10 @@ class RDFanalysis():
             .Define("Rec_true_orivtx_y",   "MCParticle::get_vertex_y(MC_fromRP)")
             .Define("Rec_true_orivtx_z",   "MCParticle::get_vertex_z(MC_fromRP)")
             
-            # MCParticle history
-            .Define("True_ParentInfo",     "myUtils::get_MCParentandGParent_fromRP(MCRecoAssociationsRec, MCRecoAssociationsGen, ParticleParents, RecoParticlesPIDAtVertex, Particle)")
+            # --------------------------------------- #
+            #    MC history of truth matched RecoP    #
+            # --------------------------------------- #
+            .Define("True_ParentInfo",     "myUtils::get_MCParentandGParent_fromRP(MCRecoAssociationsRec, MCRecoAssociationsGen, ParticleParents, RecoParticlesPIDAtVertex, Particle)")   # INTERMEDIATE
             .Define("Rec_true_M1",         "True_ParentInfo.at(0)")
             .Define("Rec_true_M2",         "True_ParentInfo.at(1)")
             .Define("Rec_true_M1ofM1",     "True_ParentInfo.at(2)")
@@ -262,24 +243,43 @@ class RDFanalysis():
             .Define("Rec_true_M2ofM2",     "True_ParentInfo.at(5)")
 
             # --------------------------------------- #
-            #            EVT intermediates            #
+            #     ReconstructedParticle variables     #
             # --------------------------------------- #
-            .Define("EVT_ThrustInfoNoPointing",     'Algorithms::minimize_thrust("Minuit2","Migrad")(Rec_px, Rec_py, Rec_pz)')
-            .Define("EVT_ThrustCosThetaNoPointing", "Algorithms::getAxisCosTheta(EVT_ThrustInfoNoPointing, Rec_px, Rec_py, Rec_pz)")
-            .Define("EVT_ThrustInfo",               "Algorithms::getThrustPointing(1.)(EVT_ThrustCosThetaNoPointing, Rec_e, EVT_ThrustInfoNoPointing)")
+            .Define("Rec_n",         "ReconstructedParticle::get_n(RecoParticlesPIDAtVertex)")
+            .Define("Rec_type",      "ReconstructedParticle::get_type(RecoParticlesPIDAtVertex)")
+            .Define("Rec_indvtx",    "myUtils::get_Vertex_fromRP(RecoParticlesPIDAtVertex, Rec_VertexObject)") # --- Needs vertex
+            .Define("Rec_customid",  "ReconstructedParticle::get_customid(RecoParticlesPIDAtVertex)")
+            .Define("Rec_e",         "ReconstructedParticle::get_e(RecoParticlesPIDAtVertex)")
+            .Define("Rec_m",         "ReconstructedParticle::get_mass(RecoParticlesPIDAtVertex)")
+            .Define("Rec_q",         "ReconstructedParticle::get_charge(RecoParticlesPIDAtVertex)")
+            .Define("Rec_p",         "ReconstructedParticle::get_p(RecoParticlesPIDAtVertex)")
+            .Define("Rec_pt",        "ReconstructedParticle::get_pt(RecoParticlesPIDAtVertex)")
+            .Define("Rec_px",        "ReconstructedParticle::get_px(RecoParticlesPIDAtVertex)")
+            .Define("Rec_py",        "ReconstructedParticle::get_py(RecoParticlesPIDAtVertex)")
+            .Define("Rec_pz",        "ReconstructedParticle::get_pz(RecoParticlesPIDAtVertex)")
+            .Define("Rec_eta",       "ReconstructedParticle::get_eta(RecoParticlesPIDAtVertex)")
+            .Define("Rec_phi",       "ReconstructedParticle::get_phi(RecoParticlesPIDAtVertex)")
+
+            #############################################
+            ##           EVT -- Thrust Axis            ##
+            #############################################
+            .Define("EVT_ThrustInfoNoPointing",     'Algorithms::minimize_thrust("Minuit2","Migrad")(Rec_px, Rec_py, Rec_pz)')         # INTERMEDIATE
+            .Define("EVT_ThrustCosThetaNoPointing", "Algorithms::getAxisCosTheta(EVT_ThrustInfoNoPointing, Rec_px, Rec_py, Rec_pz)")   # INTERMEDIATE
+            .Define("EVT_ThrustInfo",               "Algorithms::getThrustPointing(1.)(EVT_ThrustCosThetaNoPointing, Rec_e, EVT_ThrustInfoNoPointing)")   # INTERMEDIATE
             
             # Remaining Rec variables
             .Define("Rec_thrustCosTheta",  "Algorithms::getAxisCosTheta(EVT_ThrustInfo, Rec_px, Rec_py, Rec_pz)")
             .Define("Rec_in_hemisEmin",    "myUtils::get_RP_inHemis(1)(Rec_thrustCosTheta)")
             .Define("Rec_in_hemisEmax",    "myUtils::get_RP_inHemis(0)(Rec_thrustCosTheta)") # Not saved because redundant but used for other variables
             
-            # NEW ---- CHECK
-            .Define("Rec_thrustCosTheta_in_hemisEmin_andNoBrem", "myUtils::remove_BremPhotons_fromRecoParticleStats(Rec_in_hemisEmin, Rec_true_PDG, Rec_true_M1)")
-            .Define("Rec_thrustCosTheta_in_hemisEmax_andNoBrem", "myUtils::remove_BremPhotons_fromRecoParticleStats(Rec_in_hemisEmax, Rec_true_PDG, Rec_true_M1)")
-            .Define("Rec_thrustCosThetaEminStats", "myUtils::get_Stats_fromRVec(Rec_in_hemisEmin, Rec_thrustCosTheta)")
-            .Define("Rec_thrustCosThetaEmaxStats", "myUtils::get_Stats_fromRVec(Rec_in_hemisEmax, Rec_thrustCosTheta)")
-            .Define("Rec_thrustCosThetaEminStats_noBrem", "myUtils::get_Stats_fromRVec(Rec_thrustCosTheta_in_hemisEmin_andNoBrem, Rec_thrustCosTheta)")
-            .Define("Rec_thrustCosThetaEmaxStats_noBrem", "myUtils::get_Stats_fromRVec(Rec_thrustCosTheta_in_hemisEmax_andNoBrem, Rec_thrustCosTheta)")
+            # ReconstructdParticle thrustCosTheta stats
+            .Define("Rec_thrustCosTheta_in_hemisEmin_andNoBrem", "myUtils::remove_BremPhotons_fromRecoParticleStats(Rec_in_hemisEmin, Rec_true_PDG, Rec_true_M1)")   # INTERMEDIATE
+            .Define("Rec_thrustCosTheta_in_hemisEmax_andNoBrem", "myUtils::remove_BremPhotons_fromRecoParticleStats(Rec_in_hemisEmax, Rec_true_PDG, Rec_true_M1)")   # INTERMEDIATE
+            .Define("Rec_thrustCosThetaEminStats", "myUtils::get_Stats_fromRVec(Rec_in_hemisEmin, Rec_thrustCosTheta)")                                              # INTERMEDIATE
+            .Define("Rec_thrustCosThetaEmaxStats", "myUtils::get_Stats_fromRVec(Rec_in_hemisEmax, Rec_thrustCosTheta)")                                              # INTERMEDIATE
+            .Define("Rec_thrustCosThetaEminStats_noBrem", "myUtils::get_Stats_fromRVec(Rec_thrustCosTheta_in_hemisEmin_andNoBrem, Rec_thrustCosTheta)")              # INTERMEDIATE
+            .Define("Rec_thrustCosThetaEmaxStats_noBrem", "myUtils::get_Stats_fromRVec(Rec_thrustCosTheta_in_hemisEmax_andNoBrem, Rec_thrustCosTheta)")              # INTERMEDIATE
+            
             .Define("Rec_thrustCosTheta_min_hemisEmin", "Rec_thrustCosThetaEminStats.at(0)")
             .Define("Rec_thrustCosTheta_max_hemisEmin", "Rec_thrustCosThetaEminStats.at(1)")
             .Define("Rec_thrustCosTheta_ave_hemisEmin", "Rec_thrustCosThetaEminStats.at(2)")
@@ -397,7 +397,6 @@ class RDFanalysis():
             .Define("Rec_vtx_thrustCosTheta_min_hemisEmax",   "Rec_vtx_thrustCosThetaStatsEmax.at(0)")
             .Define("Rec_vtx_thrustCosTheta_max_hemisEmax",   "Rec_vtx_thrustCosThetaStatsEmax.at(1)")
             .Define("Rec_vtx_thrustCosTheta_ave_hemisEmax",   "Rec_vtx_thrustCosThetaStatsEmax.at(2)")
-
 
             #############################################
             ##               Reco Thrust               ##

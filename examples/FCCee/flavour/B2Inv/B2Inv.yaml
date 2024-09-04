@@ -3,11 +3,14 @@
 # BDT
 ###############
 bdt1-training-vars:
+  # EVT level - thrust axis
   - EVT_Thrust_mag
   - EVT_Thrust_x
   - EVT_Thrust_y
   - EVT_Thrust_z
   - EVT_Thrust_deltaE
+
+  # EVT level - hemisphere properties
   - EVT_hemisEmin_e
   - EVT_hemisEmin_eCharged
   - EVT_hemisEmin_eNeutral
@@ -24,41 +27,40 @@ bdt1-training-vars:
   - EVT_hemisEmax_nNeutral
   - EVT_hemisEmax_nDV
 
+  # Event level vertex info
   - Rec_track_n
   - Rec_PV_ntracks
   - Rec_vtx_n
   - Rec_PV_x
   - Rec_PV_y
   - Rec_PV_z
-  # Should we include number of tracks from vertices on minimum side as well?
-  # Rec_vtx_n_hemisEmin
-  # Rec_vtx_ntracks_hemisEmin
 
 bdt2-training-vars:
+  # Reconstructed vertex - track info
   - Rec_vtx_ntracks_min_hemisEmin
   - Rec_vtx_ntracks_max_hemisEmin
   - Rec_vtx_ntracks_ave_hemisEmin
   - Rec_vtx_ntracks_min_hemisEmax
   - Rec_vtx_ntracks_max_hemisEmax
   - Rec_vtx_ntracks_ave_hemisEmax
+
+  # Reconstructed vertex - distance to primary vertex
   - Rec_vtx_d2PV_min_hemisEmin
   - Rec_vtx_d2PV_max_hemisEmin
   - Rec_vtx_d2PV_ave_hemisEmin
   - Rec_vtx_d2PV_min_hemisEmax
   - Rec_vtx_d2PV_max_hemisEmax
   - Rec_vtx_d2PV_ave_hemisEmax
-
-  - Rec_vtx_d2PV_x
-  - Rec_vtx_d2PV_y
-  - Rec_vtx_d2PV_z
-
+  
+  # Reconstructed vertex - angular distribution
   - Rec_vtx_thrustCosTheta_min_hemisEmin
   - Rec_vtx_thrustCosTheta_max_hemisEmin
   - Rec_vtx_thrustCosTheta_ave_hemisEmin
   - Rec_vtx_thrustCosTheta_min_hemisEmax
   - Rec_vtx_thrustCosTheta_max_hemisEmax
   - Rec_vtx_thrustCosTheta_ave_hemisEmax
-
+  
+  # Reconstructed particle - angular distribution
   - Rec_thrustCosTheta_min_hemisEmin
   - Rec_thrustCosTheta_max_hemisEmin
   - Rec_thrustCosTheta_ave_hemisEmin
@@ -72,14 +74,21 @@ bdt2-training-vars:
   - Rec_thrustCosTheta_max_hemisEmax_noBrem
   - Rec_thrustCosTheta_ave_hemisEmax_noBrem
 
-  - Rec_track_d0_min
-  - Rec_track_d0_max
-  - Rec_track_d0_ave
-  - Rec_track_z0_min
-  - Rec_track_z0_max
-  - Rec_track_z0_ave
+  # Reconstructed particle - track impact parameters
+  - Rec_track_d0_min_hemisEmin
+  - Rec_track_d0_max_hemisEmin
+  - Rec_track_d0_ave_hemisEmin
+  - Rec_track_z0_min_hemisEmin
+  - Rec_track_z0_max_hemisEmin
+  - Rec_track_z0_ave_hemisEmin
+  - Rec_track_d0_min_hemisEmax
+  - Rec_track_d0_max_hemisEmax
+  - Rec_track_d0_ave_hemisEmax
+  - Rec_track_z0_min_hemisEmax
+  - Rec_track_z0_max_hemisEmax
+  - Rec_track_z0_ave_hemisEmax
 
-  # Should these be in stage2? -- Yes
+  # EVT level - special properties of each hemisphere
   - EVT_hemisEmin_nKaon
   - EVT_hemisEmin_nPion
   - EVT_hemisEmin_maxeKaon
@@ -140,6 +149,8 @@ stage2-vars:
   - Rec_phi
   - Rec_thrustCosTheta
   - Rec_in_hemisEmin
+
+  # Reconstructed Particle stats for BDT2
   - Rec_thrustCosTheta_min_hemisEmin
   - Rec_thrustCosTheta_max_hemisEmin
   - Rec_thrustCosTheta_ave_hemisEmin
@@ -159,12 +170,20 @@ stage2-vars:
   - Rec_track_z0
   - Rec_track_normd0
   - Rec_track_normz0
-  - Rec_track_d0_min
-  - Rec_track_d0_max
-  - Rec_track_d0_ave
-  - Rec_track_z0_min
-  - Rec_track_z0_max
-  - Rec_track_z0_ave
+
+  # Reconstructed track stats for BDT2
+  - Rec_track_d0_min_hemisEmin
+  - Rec_track_d0_max_hemisEmin
+  - Rec_track_d0_ave_hemisEmin
+  - Rec_track_z0_min_hemisEmin
+  - Rec_track_z0_max_hemisEmin
+  - Rec_track_z0_ave_hemisEmin
+  - Rec_track_d0_min_hemisEmax
+  - Rec_track_d0_max_hemisEmax
+  - Rec_track_d0_ave_hemisEmax
+  - Rec_track_z0_min_hemisEmax
+  - Rec_track_z0_max_hemisEmax
+  - Rec_track_z0_ave_hemisEmax
 
   # Reconstructed vertex variables
   - Rec_PV_x
@@ -198,7 +217,7 @@ stage2-vars:
   - Rec_vtx_thrustCosTheta
   - Rec_vtx_in_hemisEmin
 
-  # Reconstructed vertex statistics
+  # Reconstructed vertex stats for BDT2
   - Rec_vtx_d2PV_min_hemisEmin
   - Rec_vtx_d2PV_max_hemisEmin
   - Rec_vtx_d2PV_ave_hemisEmin
@@ -245,7 +264,7 @@ stage2-vars:
   - EVT_hemisEmax_nNeutral
   - EVT_hemisEmax_nDV
 
-  # EVT level particle variables
+  # EVT level special particle variables
   - EVT_hemisEmin_nKaon
   - EVT_hemisEmin_nPion
   - EVT_hemisEmin_maxeKaon
@@ -389,7 +408,8 @@ stage1-vars:
   - Rec_phi
   - Rec_thrustCosTheta
   - Rec_in_hemisEmin
-  # For new planned bdt features
+
+  # Reconstructed Particle stats for BDT2
   - Rec_thrustCosTheta_min_hemisEmin
   - Rec_thrustCosTheta_max_hemisEmin
   - Rec_thrustCosTheta_ave_hemisEmin
@@ -403,18 +423,26 @@ stage1-vars:
   - Rec_thrustCosTheta_max_hemisEmax_noBrem
   - Rec_thrustCosTheta_ave_hemisEmax_noBrem
 
-  # Track parameters
+  # Reconstructed particle - track parameters
   - Rec_track_n
   - Rec_track_d0
   - Rec_track_z0
   - Rec_track_normd0
   - Rec_track_normz0
-  - Rec_track_d0_min
-  - Rec_track_d0_max
-  - Rec_track_d0_ave
-  - Rec_track_z0_min
-  - Rec_track_z0_max
-  - Rec_track_z0_ave
+
+  # Reconstructed particle - track stats for BDT2
+  - Rec_track_d0_min_hemisEmin
+  - Rec_track_d0_max_hemisEmin
+  - Rec_track_d0_ave_hemisEmin
+  - Rec_track_z0_min_hemisEmin
+  - Rec_track_z0_max_hemisEmin
+  - Rec_track_z0_ave_hemisEmin
+  - Rec_track_d0_min_hemisEmax
+  - Rec_track_d0_max_hemisEmax
+  - Rec_track_d0_ave_hemisEmax
+  - Rec_track_z0_min_hemisEmax
+  - Rec_track_z0_max_hemisEmax
+  - Rec_track_z0_ave_hemisEmax
 
   # Reconstructed vertex variables
   - Rec_PV_ntracks
@@ -451,7 +479,7 @@ stage1-vars:
   - Rec_vtx_thrustCosTheta
   - Rec_vtx_in_hemisEmin
   
-  # Reconstructed vertex statistics
+  # Reconstructed vertex stats for BDT2
   - Rec_vtx_d2PV_min_hemisEmin
   - Rec_vtx_d2PV_max_hemisEmin
   - Rec_vtx_d2PV_ave_hemisEmin
@@ -518,8 +546,6 @@ stage1-vars:
   - EVT_hemisEmax_maxeKaon_ind
   - EVT_hemisEmax_maxePion_ind
 
-  # New --- Emin hemisphere contains a tau -> 3pi vertex
-  # Uses true MC mother info
   - EVT_hemisEmin_containsTau23Pi
   - EVT_hemisEmin_Emiss
   - EVT_hemisEmax_Emiss

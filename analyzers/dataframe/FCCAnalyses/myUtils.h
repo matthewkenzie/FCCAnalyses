@@ -149,6 +149,10 @@ namespace myUtils{
   // Remove photons from Bremsstrahlung from the list of particles
   ROOT::VecOps::RVec<int> remove_BremPhotons_fromRecoParticleStats(ROOT::VecOps::RVec<int> should_eval, 
       ROOT::VecOps::RVec<int> pdg, ROOT::VecOps::RVec<int> m1_pdg);
+
+  // Remove neutral particles from an array in which their value is true
+  ROOT::VecOps::RVec<int> remove_Neutrals_fromTrackStats(ROOT::VecOps::RVec<int> should_eval,
+      ROOT::VecOps::RVec<float> charge);
   /********************************** 
     END OF B2INV FUNCTIONS
   ***********************************/

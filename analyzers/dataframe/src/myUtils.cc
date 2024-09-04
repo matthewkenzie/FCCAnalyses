@@ -359,6 +359,17 @@ ROOT::VecOps::RVec<int> remove_BremPhotons_fromRecoParticleStats(ROOT::VecOps::R
   }
   return result;
 }
+
+ROOT::VecOps::RVec<int> remove_Neutrals_fromTrackStats(ROOT::VecOps::RVec<int> should_eval,
+    ROOT::VecOps::RVec<float> charge) {
+  ROOT::VecOps::RVec<int> result;
+  for (size_t i = 0; i < should_eval.size(); ++i) {
+    // Return (SHOULD_EVAL AND IS_CHARGED)
+    result.push_back((should_eval.at(i)) && (abs(charge.at(i)) > 0));
+  }
+
+  return result;
+}
 /**********************************
   END OF B2INV FUNCTIONS
 ***********************************/

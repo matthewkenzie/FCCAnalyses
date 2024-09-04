@@ -1,22 +1,22 @@
-axes.labelsize : 16
+axes.labelsize : 12
 axes.xmargin : 0
 
-xtick.labelsize : 12
-ytick.labelsize : 12
+xtick.labelsize : 10
+ytick.labelsize : 10
 xtick.top : True
 ytick.right : True
 xtick.minor.visible : True
 ytick.minor.visible : True
 
-font.size : 14
+font.size : 12
 
-lines.linewidth : 0.8
+lines.linewidth : 1
 text.usetex : True
 text.latex.preamble : \usepackage{amsmath}
 
 errorbar.capsize : 2
 
-legend.fontsize : 14
+legend.fontsize : 12
 legend.edgecolor : "1"
 legend.borderpad : 0.1
 legend.handleheight : 1.0
@@ -24,7 +24,6 @@ legend.handlelength : 1.8
 legend.frameon : False
 legend.handletextpad : 0.4
 legend.labelspacing : 0.3
-# legend.ncol : 2
 
 hatch.linewidth : 0.3
 
