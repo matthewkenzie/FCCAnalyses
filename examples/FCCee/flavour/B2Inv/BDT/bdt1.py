@@ -1,4 +1,5 @@
-# BDT1 using stage1 files
+# bdt1.py
+# Train BDT1 using stage1 files
 import xgboost as xgb # Has to be imported first to avoid conflicts with PyROOT
 
 import sys
@@ -128,6 +129,7 @@ def plot_punzi_significance(x, cuts, sigma):
     ax.legend(loc='best')
     fig.tight_layout()
 
+# Plots shaded area between S/sqrt(S+B) assuming the signal error is sqrt(S) and the background error is sqrt(B)
 def plot_significance(x, bdtvals, branching_fracs):
     fig, ax = plt.subplots()
     ax.set_xscale('log')
@@ -359,26 +361,26 @@ if __name__ == "__main__":
     #############################
     # VALIDATION
     #############################
-    data_dmatrix = xgb.DMatrix(data=x_train[bdtvars].to_numpy(), label=y_train.to_numpy(), weight=w_train.to_numpy())
-    xgb_cv = xgb.cv(dtrain=data_dmatrix, params=cv_dict, nfold=5, num_boost_round=50, early_stopping_rounds=10, metrics="auc", as_pandas=True, seed=123)
-    print('\n', xgb_cv.head())
-    print(f'...')
-    print(xgb_cv.tail())
-    print(f"{30*'-'}\n")
+    #data_dmatrix = xgb.DMatrix(data=x_train[bdtvars].to_numpy(), label=y_train.to_numpy(), weight=w_train.to_numpy())
+    #xgb_cv = xgb.cv(dtrain=data_dmatrix.to_numpy(), params=cv_dict, nfold=5, num_boost_round=50, early_stopping_rounds=10, metrics="auc", as_pandas=True, seed=123)
+    #print('\n', xgb_cv.head())
+    #print(f'...')
+    #print(xgb_cv.tail())
+    #print(f"{30*'-'}\n")
 
     #############################
     # SAVING MODEL
     #############################
     print(f"SAVING")
     if args.save_model: 
-        bdt.save_model(os.path.join(outputpath, "bdt1.json"))
-        ROOT.TMVA.Experimental.SaveXGBoost(bdt, "bdt", os.path.join(outputpath, "tmva1.root"), num_inputs=len(bdtvars))
+        #bdt.save_model(os.path.join(outputpath, "bdt1.json"))
+        ROOT.TMVA.Experimental.SaveXGBoost(bdt, "bdt", os.path.join(outputpath, "tmva1.root"), num_inputs=25)
         print(f"----> INFO: Model saved to")
-        print(f"{15*' '}1. {os.path.join(modelpath, 'bdt1.json')}")
-        print(f"{15*' '}2. {os.path.join(modelpath, 'tmva1.root')}")
+        print(f"{15*' '}1. {os.path.join(outputpath, 'bdt1.json')}")
+        print(f"{15*' '}2. {os.path.join(outputpath, 'tmva1.root')}")
 
     else:
-        print(f"---->INFO: --save-model flag not set, skipping model saving...")
+        print(f"----> INFO: --save-model flag not set, skipping model saving...")
 
     feature_importances = pd.DataFrame(bdt.feature_importances_,
                                        index = bdtvars,
@@ -396,44 +398,53 @@ if __name__ == "__main__":
     if args.plot_results:
         for df in x.values():
             df['XGB'] = bdt.predict_proba(df[bdtvars])[:, 1]
+        
+        if args.method == 'gridsearch':
+            prefix = 'bdt1-grid-'
+        else:
+            prefix = 'bdt1-'
 
         plot_bdt_response(x, "BDT1 response")
-        plt.savefig(os.path.join(outputpath, "bdt1-response.pdf"))
+        responsepath = os.path.join(outputpath, f"{prefix}response.pdf")
+        plt.savefig(responsepath)
         print(f'BDT1 response curve saved to')
-        print(f'{15*' '}{os.path.join(outputpath, "bdt1-response.pdf")}')
+        print(f"{15*' '}{responsepath}")
         plt.close()
 
         plot_roc(bdt, x_test[bdtvars], y_test, w_test)
-        plt.savefig(os.path.join(outputpath, "bdt1-roc.pdf"))
+        rocpath = os.path.join(outputpath, f"{prefix}roc.pdf")
+        plt.savefig(rocpath)
         print(f'ROC saved to')
-        print(f'{15*' '}{os.path.join(outputpath, "bdt1-roc.pdf")}')
+        print(f"{15*' '}{rocpath}")
         plt.close()
 
         plot_punzi_significance(x, np.linspace(0, 1, 20), 5)
-        plt.savefig(os.path.join(outputpath, "bdt1-punzi-significance.pdf"))
+        punzipath = os.path.join(outputpath, f"{prefix}punzi.pdf")
+        plt.savefig(punzipath)
         print(f'Punzi significance plot saved to')
-        print(f'{15*' '}{os.path.join(outputpath, "bdt1-punzi-significance.pdf")}')
+        print(f"{15*' '}{punzipath}")
         plt.close()
 
         plot_significance(x, [0.2, 0.6, 0.8, 0.9, 0.99], np.logspace(-9, -4, 100))
-        plt.savefig(os.path.join(outputpath, "bdt1-significance.pdf"))
+        significancepath = os.path.join(outputpath, f"{prefix}significance.pdf")
+        plt.savefig(significancepath)
         print(f'Significance plot saved to')
-        print(f'{15*' '}{os.path.join(outputpath, "bdt1-significance.pdf")}')
+        print(f"{15*' '}{significancepath}")
         plt.close()
 
         for feature in responsevars:
             plot_feature(x, 0.6, feature)
-            figpath = os.path.join(outputpath, f"bdt1-{feature}-withcut.pdf")
+            figpath = os.path.join(outputpath, f"{prefix}{feature}-withcut.pdf")
             plt.savefig(figpath)
             print(f'Feature plot with bdt cut saved to')
-            print(f'{15*' '}{figpath}')
+            print(f"{15*' '}{figpath}")
             plt.close()
 
             plot_feature(x, 0, feature)
-            figpath = os.path.join(outputpath, f"bdt1-{feature}-nocut.pdf")
+            figpath = os.path.join(outputpath, f"{prefix}{feature}-nocut.pdf")
             plt.savefig(figpath)
             print(f'Feature plot without cuts saved to')
-            print(f'{15*' '}{figpath}')
+            print(f"{15*' '}{figpath}")
             plt.close()
 
     else:

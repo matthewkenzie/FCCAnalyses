@@ -37,15 +37,21 @@ fccana_opts = {
     "outputDir": {
         "stage1_training": os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/stage1_training/")),
         "stage1"         : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/stage1/")),
-        "stage2_training": os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/stage2_training/")),
+        "stage2_training": os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/stage1/")), # By default stage2 trained on output of stage1
         "stage2"         : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/stage2/")),
+    },
+    "testFile": {
+        "Bs": "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root",
+        "bb": "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91/events_000083138.root",
+        "cc": "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zcc_ecm91/events_000046867.root",
+        "ss": "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zss_ecm91/events_000099129.root",
+        "ud": "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zud_ecm91/events_000071896.root",
     },
     "analysisName"  : "",
     "nCPUs"         : 8,
     "runBatch"      : True,
     "batchQueue"    : "workday",
     "compGroup"     : "group_u_FCC.local_gen",
-    "testFile"      : "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root",
     "yamlPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "B2Inv.yaml")),
     "outBranchList0": "stage0-vars",
     "outBranchList1": "stage1-vars",
@@ -54,7 +60,7 @@ fccana_opts = {
 
 # TMVA options
 bdt1_opts = {
-    "training"     : True,
+    "training"     : False,
     "mvaPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt1out/tmva1.root")),
     "mvaTreeName"  : "bdt",
     "mvaCut"       : 0.2,
@@ -67,16 +73,16 @@ bdt2_opts = {
     "mvaTreeName"  : "bdt",
     "mvaCut"       : 0.2,
     "mvaBranchList": "bdt2-training-vars",
-    "preselection" : "(EVT_hemisEmin_nCharged > 0) && (EVT_MVA1 > 0.6)" # Filters to place on BDT1 and other stage1 variables
+    "preselection" : "EVT_MVA1 > 0.6" # Filters to place on BDT1 and other stage1 variables
 }
 
 xgb1_train_opts = {
-    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage1_training/',
+    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage1_training/',  # Replace with default once done
     "outputpath" : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt1out/")), 
 }
 
 xgb2_train_opts = {
-    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage2_training/',
+    "inputpath"  : fccana_opts['outputDir']['stage2_training'],
     "outputpath" : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt2out/")),
 }
 
