@@ -180,7 +180,7 @@ if __name__ == "__main__":
 
     from argparse import ArgumentParser
     
-    parser = ArgumentParser(description='Trains BDT1 using xgb1_train_opts from config.py')
+    parser = ArgumentParser(description='Trains BDT1 using bdt1_opts from config.py')
     method = parser.add_argument("--method",           required=True, choices=['gridsearch', 'fixed-hyperparams'])
     nchunk = parser.add_argument("--nchunks",          default=None,  nargs='*')
     trainf = parser.add_argument("--train-frac",       default=0.75,  type=float)
@@ -211,8 +211,8 @@ if __name__ == "__main__":
 
     # Load configuration
     plt.style.use(os.path.abspath(os.path.join(cfg.FCCAnalysesPath, 'fcc.mplstyle')))
-    inputpath    = check_inputpath(cfg.xgb1_train_opts['inputpath'])
-    outputpath   = set_outputpath(cfg.xgb1_train_opts['outputpath'])
+    inputpath    = check_inputpath(cfg.bdt1_opts['inputpath'])
+    outputpath   = set_outputpath(cfg.bdt1_opts['outputpath'])
     yamlpath     = check_inputpath(cfg.fccana_opts['yamlPath'])
     bdtvars      = vars_fromyaml(yamlpath, cfg.bdt1_opts['mvaBranchList'])
     # Variables not used by the bdt which you want to plot
@@ -300,7 +300,7 @@ if __name__ == "__main__":
     # TRAINING
     #############################
     # Define BDT
-    bdt = xgb.XGBClassifier(early_stopping_rounds=10, eval_metric="auc")
+    bdt = xgb.XGBClassifier(early_stopping_rounds=10, eval_metric="auc", n_jobs=-1, objective='binary:logistic')
     print(f"BDT OUTPUT")
     # Tuning hyperparameters
     if args.method == 'gridsearch':
@@ -361,20 +361,20 @@ if __name__ == "__main__":
     #############################
     # VALIDATION
     #############################
-    #data_dmatrix = xgb.DMatrix(data=x_train[bdtvars].to_numpy(), label=y_train.to_numpy(), weight=w_train.to_numpy())
-    #xgb_cv = xgb.cv(dtrain=data_dmatrix.to_numpy(), params=cv_dict, nfold=5, num_boost_round=50, early_stopping_rounds=10, metrics="auc", as_pandas=True, seed=123)
-    #print('\n', xgb_cv.head())
-    #print(f'...')
-    #print(xgb_cv.tail())
-    #print(f"{30*'-'}\n")
+    data_dmatrix = xgb.DMatrix(data=x_train[bdtvars].to_numpy(), label=y_train.to_numpy(), weight=w_train.to_numpy())
+    xgb_cv = xgb.cv(dtrain=data_dmatrix, params=cv_dict, nfold=5, num_boost_round=50, early_stopping_rounds=10, metrics="auc", as_pandas=True, seed=123)
+    print('\n', xgb_cv.head())
+    print(f'...')
+    print(xgb_cv.tail())
+    print(f"{30*'-'}\n")
 
     #############################
     # SAVING MODEL
     #############################
     print(f"SAVING")
     if args.save_model: 
-        #bdt.save_model(os.path.join(outputpath, "bdt1.json"))
-        ROOT.TMVA.Experimental.SaveXGBoost(bdt, "bdt", os.path.join(outputpath, "tmva1.root"), num_inputs=25)
+        bdt.save_model(os.path.join(outputpath, "bdt1.json"))
+        ROOT.TMVA.Experimental.SaveXGBoost(bdt, cfg.bdt1_opts['mvaRBDTName'], os.path.join(outputpath, "tmva1.root"), num_inputs=len(bdtvars))
         print(f"----> INFO: Model saved to")
         print(f"{15*' '}1. {os.path.join(outputpath, 'bdt1.json')}")
         print(f"{15*' '}2. {os.path.join(outputpath, 'tmva1.root')}")

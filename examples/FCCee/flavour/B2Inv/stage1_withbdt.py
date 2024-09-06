@@ -5,8 +5,8 @@ import sys
 configPath = '/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv'
 sys.path.append(os.path.abspath(configPath))
 import ROOT
-import config as cfg
 
+import config as cfg
 from yaml import YAMLError, safe_load
 
 #Mandatory: List of processes
@@ -249,8 +249,8 @@ class RDFanalysis():
                     print(f"             {exc}")
 
             ROOT.gInterpreter.ProcessLine(f'''
-            TMVA::Experimental::RBDT bdt("{cfg.bdt1_opts['mvaTreeName']}", "{cfg.bdt1_opts['mvaPath']}");
-            auto computeModel = TMVA::Experimental::Compute<{len(BDT1branchList)}, float> (bdt);
+            TMVA::Experimental::RBDT bdt1("{cfg.bdt1_opts['mvaRBDTName']}", "{cfg.bdt1_opts['mvaPath']}");
+            auto computeModel1 = TMVA::Experimental::Compute<{len(BDT1branchList)}, float> (bdt1);
             ''')
 
             df3 = (
@@ -258,9 +258,12 @@ class RDFanalysis():
                 #############################################
                 ##                Build BDT                ##
                 #############################################
-                .Define("MVAVec",    ROOT.computeModel, BDT1branchList)
+                .Define("MVAVec",    ROOT.computeModel1, BDT1branchList)
                 .Define("EVT_MVA1",  "MVAVec.at(0)")
             )
+            #tmva_helper = TMVAHelperXGB(cfg.bdt1_opts['mvaPath'], cfg.bdt1_opts['mvaRBDTName'], variables=[])
+            ##df3 = tmva_helper.run_inference(df2, col_name="EVT_MVA1")
+            #df4 = df3
 
             # If the cut value is given filter on it else return the entire DataFrame
             if cfg.bdt1_opts['mvaCut'] is not None:

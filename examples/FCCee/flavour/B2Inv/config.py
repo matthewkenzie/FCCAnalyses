@@ -1,6 +1,7 @@
 import os
 # Mandatory --> replace the default string with the path to the B2Inv directory in the FCCAnalyses repo
 FCCAnalysesPath = "/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/"
+FCCAnalysesPath = os.path.abspath(FCCAnalysesPath)
 
 # processList to pass to `fccanalysis run`
 processList = {
@@ -35,10 +36,10 @@ fccana_opts = {
     "prodTag"       : "FCCee/winter2023/IDEA",
     #"outputDir"     : "/r01/lhcb/rrm42/fcc/stage1_postBDT/",
     "outputDir": {
-        "stage1_training": os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/stage1_training/")),
-        "stage1"         : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/stage1/")),
-        "stage2_training": os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/stage1/")), # By default stage2 trained on output of stage1
-        "stage2"         : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/stage2/")),
+        "stage1_training": os.path.join(FCCAnalysesPath, "outputs/stage1_training/"),
+        "stage1"         : os.path.join(FCCAnalysesPath, "outputs/stage1/"),
+        "stage2_training": os.path.join(FCCAnalysesPath, "outputs/stage1/"), # By default stage2 trained on output of stage1
+        "stage2"         : os.path.join(FCCAnalysesPath, "outputs/stage2/"),
     },
     "testFile": {
         "Bs": "root://eospublic.cern.ch//eos/experiment/fcc/ee/generation/DelphesEvents/winter2023/IDEA/p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu/events_026683563.root",
@@ -52,7 +53,7 @@ fccana_opts = {
     "runBatch"      : True,
     "batchQueue"    : "workday",
     "compGroup"     : "group_u_FCC.local_gen",
-    "yamlPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "B2Inv.yaml")),
+    "yamlPath"      : os.path.join(FCCAnalysesPath, "B2Inv.yaml"),
     "outBranchList0": "stage0-vars",
     "outBranchList1": "stage1-vars",
     "outBranchList2": "stage2-vars",
@@ -61,29 +62,23 @@ fccana_opts = {
 # TMVA options
 bdt1_opts = {
     "training"     : False,
-    "mvaPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt1out/tmva1.root")),
-    "mvaTreeName"  : "bdt",
+    "inputpath"    : fccana_opts['outputDir']['stage1_training'],
+    "outputpath"   : os.path.join(FCCAnalysesPath, "outputs/bdt1out/"),
+    "mvaPath"      : os.path.join(FCCAnalysesPath, "outputs/bdt1out/tmva1.root"),
+    "mvaRBDTName"  : "bdt",
     "mvaCut"       : 0.2,
     "mvaBranchList": "bdt1-training-vars",
 }
 
 bdt2_opts = {
     "training"     : True,
-    "mvaPath"      : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt2out/tmva2.root")),
-    "mvaTreeName"  : "bdt",
+    "inputpath"    : fccana_opts['outputDir']['stage2_training'],
+    "outputpath"   : os.path.join(FCCAnalysesPath, "outputs/bdt2out/"),
+    "mvaPath"      : os.path.join(FCCAnalysesPath, "outputs/bdt2out/tmva2.root"),
+    "mvaRBDTName"  : "bdt",
     "mvaCut"       : 0.2,
     "mvaBranchList": "bdt2-training-vars",
-    "preselection" : "EVT_MVA1 > 0.6" # Filters to place on BDT1 and other stage1 variables
-}
-
-xgb1_train_opts = {
-    "inputpath"  : '/r01/lhcb/rrm42/fcc/stage1_training/',  # Replace with default once done
-    "outputpath" : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt1out/")), 
-}
-
-xgb2_train_opts = {
-    "inputpath"  : fccana_opts['outputDir']['stage2_training'],
-    "outputpath" : os.path.abspath(os.path.join(FCCAnalysesPath, "outputs/bdt2out/")),
+    "preselection" : None # Filters to place on BDT1 and other stage1 variables
 }
 
 samples = [ 
@@ -130,8 +125,8 @@ branching_fractions = {
     "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": (1,0), # a dummy value
     "p8_ee_Zbb_ecm91": (0.1512, 0.0005),
     "p8_ee_Zcc_ecm91": (0.1203, 0.0021),
-    "p8_ee_Zss_ecm91": (0.1560, 0.0040),
-    "p8_ee_Zud_ecm91": (0.1560+0.1160, (0.6**2+0.4**2)**0.5),
+    "p8_ee_Zss_ecm91": (0.1584, 0.0060),
+    "p8_ee_Zud_ecm91": (0.2701, 0.0136),
 }
 
 mass_Z = 91.188
