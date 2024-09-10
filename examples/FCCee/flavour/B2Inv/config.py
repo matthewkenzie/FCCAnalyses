@@ -18,12 +18,12 @@ processList = {
         "p8_ee_Zss_ecm91": {"fraction": 0.01, "chunks": 50},
         "p8_ee_Zud_ecm91": {"fraction": 0.01, "chunks": 50},    
     },
-    "stage1": {
-        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": {"fraction": 0.5, "chunks": 20},
-        "p8_ee_Zbb_ecm91": {"fraction": 0.05, "chunks": 100},
-        "p8_ee_Zcc_ecm91": {"fraction": 0.05, "chunks": 100},
-        "p8_ee_Zss_ecm91": {"fraction": 0.05, "chunks": 100},
-        "p8_ee_Zud_ecm91": {"fraction": 0.05, "chunks": 100},
+    "stage1": { # ~10G or 2M events after preselection + loose cut per sample
+        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": {"fraction": 1, "chunks": 1000},
+        "p8_ee_Zbb_ecm91": {"fraction": 0.5, "chunks": 3000},
+        "p8_ee_Zcc_ecm91": {"fraction": 0.5, "chunks": 3000},
+        "p8_ee_Zss_ecm91": {"fraction": 0.5, "chunks": 3000},
+        "p8_ee_Zud_ecm91": {"fraction": 0.5, "chunks": 3000},
     },
     "stage2_training": {
     },
