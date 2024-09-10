@@ -13,6 +13,7 @@ import pandas as pd
 import os
 
 from time import time
+from datetime import timedelta
 from glob import glob
 from yaml import safe_load, YAMLError, dump
 from sklearn.model_selection import GridSearchCV
@@ -217,16 +218,6 @@ if __name__ == "__main__":
     bdtvars      = vars_fromyaml(yamlpath, cfg.bdt1_opts['mvaBranchList'])
     # Variables not used by the bdt which you want to plot
     responsevars = ["EVT_hemisEmin_Emiss"]
-    
-    #### TESTING --- REMOVE AFTERWARDS
-    #bdtvars.remove('Rec_vtx_n')
-    #bdtvars.remove('Rec_track_n')
-    #bdtvars.remove('Rec_PV_ntracks')
-    #bdtvars.remove('Rec_PV_x')
-    #bdtvars.remove('Rec_PV_y')
-    #bdtvars.remove('Rec_PV_z')
-    #bdtvars.remove('EVT_hemisEmin_nDV')
-    #bdtvars.remove('EVT_hemisEmax_nDV')
 
     # Efficiencies of pre-selection cuts and branching fractions
     bfs = {sample: cfg.branching_fractions[sample][0] for sample in cfg.samples}
@@ -451,9 +442,6 @@ if __name__ == "__main__":
         print(f"---->INFO: --plot-results flag not set, skipping plotting...")
     
     end = time()
-    exec_time = end - start
-    hours, rem = divmod(exec_time, 3600)
-    minutes, sec = divmod(exec_time, 60)
     print(f"\n{30*'-'}")
-    print(f"Execution time in H:M:S = {int(hours):02}:{int(minutes):02}:{sec:.3f}")
+    print(f"Execution time  = {timedelta(seconds=end-start)}")
     print(f"{30*'-'}")
