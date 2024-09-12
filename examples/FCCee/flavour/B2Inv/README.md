@@ -90,6 +90,10 @@ graph
 
 # Detailed reference
 
+### Analyzers
+
+Some dedicated C++ functions are added to `FCCAnalyses/analyzers/dataframe/` for this analysis. Right now they are mostly just dumped into `myUtils` (the odd one in some other namespace) in labelled code block. In the future they should be moved to the "correct" namespace depending on functionality/similarity with existing functions.
+
 ### `config.py`
 
 This contains almost all of the configuration options, most importantly:
@@ -105,6 +109,8 @@ This contains almost all of the configuration options, most importantly:
   + Branching fractions
   + Various efficiencies (currently have to manually save)
   + Sample names, their allocation (signal v background), labels to use in plot titles etc
+
+- Maybe the efficiencies should be moved to another YAML so it can be updated separately
 
 ### `B2Inv.yaml`
 
@@ -124,14 +130,19 @@ Saves ntuples from the `winter2023` samples for investigation
  - Currently out of date, may not contain all the variables present in `stage1_training`, `stage1` etc.
  - Tuples are saved in the corresponding path defined in `config`, by default in `outputs/stage0/`.
 
-### `stage1_training.py` (does not currently exist)
+### `stage1.py` (currently called `stage1_withbdt.py`)
 
-Saves ntuples to train BDT1
+Saves ntuples to either train BDT1 or uses a trained BDT1 to get samples
  - `MCParticle` and `MCVertex` now omitted except special cases (the MC $e^\pm$ beam is stored, as are the MC $Z$, $q$, $\bar{q}$)
  - True MC info associated with `ReconstructedParticles` is also saved, along with the true history (mothers/grandmothers)
- - Runs over 30\% of the signal and 1\% of each background by default
- - Tuples saved according to `config`, by default `outputs/stage1_training/`
+ - To run save files in training mode, modify set the flag in config to `True`
+ - When saving for training, runs over 30\% of the signal and 1\% of each background by default
+ - After getting the training sample, use `bdt1.py` to get a ROOT TMVA file in the correct location
+ - `stage1` files obtained by setting training to `False` in config. This adds a branch `EVT_MVA1` and places a loose cut EVT_MVA1 > 0.2
+ - By default this step saves all of the signal and 50\% of each background (currently takes multiple days due to vertexing issue)
  - WARNING: features used by BDT1 must be defined in this and must be a part of the `branchList`
+
+ * Would recommend using `hadd -v 1 -k -fk OUTPUT [INPUTS]` to merge these files as I/O operations on 2000+ files slow down subsequent scripts a lot. I merged groups of 250 files manually for now, should be relatively easy to automate. Would recommend using `glob` syntax, for e.g. `chunk_{0..249}.root` to select the first 250.
 
 ### `bdt1.py` (currently in the subdirectory `BDT/`)
 
@@ -145,14 +156,6 @@ python bdt1.py --help
 - BDT can be trained using either `GridSearchCV` to find optimum hyperparameters, or using `xgboost.fit` with fixed values
 - Due to the slow running of the xgboost version bundled with `key4hep`, recommended to use gridsearch over fewer chunks, save the optimum hyperparameters and then load those hyperparameters for the full fit
 - Optionally, you can plot the response, significance, etc.
-
-### `stage1.py` (currently called `stage1_withbdt.py`)
-
-Uses the ROOT TMVA file saved by `bdt1.py` to save tuples with a loose BDT1 cut
-- Runs over the entire signal sample and 50\% of the backgrounds (very slow right now due to vertexing issue)
-- Adds a branch for the BDT score, `EVT_MVA1`
-- Places a loose cut of BDT1 > 0.2 to prepare for `stage2`
-
 
 ### `tuple-handler.py` (needs to be refactored)
  - The `TupleHandler` class is meant to provide a modular way to access `stage0` files (and in the future all
