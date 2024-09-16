@@ -61,24 +61,46 @@ fccana_opts = {
 
 # TMVA options
 bdt1_opts = {
-    "training"     : False,
-    "inputpath"    : fccana_opts['outputDir']['stage1_training'],
-    "outputpath"   : os.path.join(FCCAnalysesPath, "outputs/bdt1out/"),
-    "mvaPath"      : os.path.join(FCCAnalysesPath, "outputs/bdt1out/tmva1.root"),
-    "mvaRBDTName"  : "bdt",
-    "mvaCut"       : 0.2,
-    "mvaBranchList": "bdt1-training-vars",
+    "training"          : False,
+    "inputPath"         : fccana_opts['outputDir']['stage1_training'],
+    "outputPath"        : os.path.join(FCCAnalysesPath, "outputs/bdt1out/"),
+    "jsonPath"          : os.path.join(FCCAnalysesPath, "outputs/bdt1out/bdt1.json"),
+    "mvaPath"           : os.path.join(FCCAnalysesPath, "outputs/bdt1out/tmva1.root"),
+    "mvaRBDTName"       : "bdt",
+    "mvaCut"            : 0.2,
+    "mvaBranchList"     : "bdt1-training-vars",
+    "efficiencyKey"     : "presel",
+    "optHyperParamsFile": os.path.join(FCCAnalysesPath, "outputs/bdt1out/best_params_bdt1.yaml"),
 }
 
+# BDT2 does not use BDT1 as a feature
 bdt2_opts = {
-    "training"     : True,
-    "inputpath"    : fccana_opts['outputDir']['stage2_training'],
-    "outputpath"   : os.path.join(FCCAnalysesPath, "outputs/bdt2out/"),
-    "mvaPath"      : os.path.join(FCCAnalysesPath, "outputs/bdt2out/tmva2.root"),
-    "mvaRBDTName"  : "bdt",
-    "mvaCut"       : 0.2,
-    "mvaBranchList": "bdt2-training-vars",
-    "preselection" : None # Filters to place on BDT1 and other stage1 variables
+    "training"          : True,
+    "inputPath"         : fccana_opts['outputDir']['stage2_training'],
+    "outputPath"        : os.path.join(FCCAnalysesPath, "outputs/bdt2out/"),
+    "jsonPath"          : os.path.join(FCCAnalysesPath, "outputs/bdt2out/bdt2.json"),
+    "mvaPath"           : os.path.join(FCCAnalysesPath, "outputs/bdt2out/tmva2.root"),
+    "mvaRBDTName"       : "bdt",
+    "mvaCut"            : 0.2,
+    "mvaBranchList"     : "bdt2-training-vars",
+    "efficiencyKey"     : "presel+bdt1>0.2",  # Efficiency key to use to calculate weights
+    "preselection"      : None, # Filters to place on BDT1 and other stage1 variables
+    "optHyperParamsFile": os.path.join(FCCAnalysesPath, "outputs/bdt2out/best_params_bdt2.yaml"),
+}
+
+# bdtComb is essentially BDT2 which also uses BDT1 score as a feature
+bdtComb_opts = {
+    "training"          : True,
+    "inputPath"         : fccana_opts['outputDir']['stage2_training'],
+    "outputPath"        : os.path.join(FCCAnalysesPath, "outputs/bdtCombout/"),
+    "jsonPath"          : os.path.join(FCCAnalysesPath, "outputs/bdtCombout/bdtComb.json"),
+    "mvaPath"           : os.path.join(FCCAnalysesPath, "outputs/bdtCombout/tmvaComb.root"),
+    "mvaRBDTName"       : "bdt",
+    "mvaCut"            : 0.2,
+    "mvaBranchList"     : "bdtComb-training-vars",
+    "efficiencyKey"     : "presel+bdt1>0.2",
+    "preselection"      : None, # Filters to place on BDT1 and other stage1 variables
+    "optHyperParamsFile": os.path.join(FCCAnalysesPath, "outputs/bdtCombout/best_params_bdtComb.yaml"),
 }
 
 samples = [ 
@@ -142,18 +164,18 @@ efficiencies = {
         "p8_ee_Zud_ecm91": 1,
     },
     "presel": {
-        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": 0.931654,
-        "p8_ee_Zbb_ecm91": 0.0843694570,
-        "p8_ee_Zcc_ecm91": 0.0845756524,
-        "p8_ee_Zss_ecm91": 0.11353,
-        "p8_ee_Zud_ecm91": 0.08848,
+        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": (0.9315, 0.0003),
+        "p8_ee_Zbb_ecm91": (0.08440, 0.00013),
+        "p8_ee_Zcc_ecm91": (0.08470, 0.00012),
+        "p8_ee_Zss_ecm91": (0.1144,   0.0001),
+        "p8_ee_Zud_ecm91": (0.08720, 0.00013),
     },
     "presel+bdt1>0.2": {
-        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": 0.929954,
-        "p8_ee_Zbb_ecm91": 0.026951298076923078,
-        "p8_ee_Zcc_ecm91": 0.01976784759011348,
-        "p8_ee_Zss_ecm91": 0.016586942271539597,
-        "p8_ee_Zud_ecm91": 0.007837139711792738,
+        "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": (0.8851, 0.0002),
+        "p8_ee_Zbb_ecm91": (0.008701, 0.000006),
+        "p8_ee_Zcc_ecm91": (0.005605, 0.000005),
+        "p8_ee_Zss_ecm91": (0.007871, 0.000006),
+        "p8_ee_Zud_ecm91": (0.002103, 0.000003),
     },
     "presel+bdt1>0.6": {
         "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": 0,

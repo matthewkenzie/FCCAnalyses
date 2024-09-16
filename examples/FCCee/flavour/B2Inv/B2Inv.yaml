@@ -106,6 +106,78 @@ bdt2-training-vars:
   - EVT_hemisEmax_maxeKaon_fromtruePV
   - EVT_hemisEmax_maxePion_fromtruePV
 
+bdtComb-training-vars: # Same as BDT2 except includes EVT_MVA1
+  - EVT_MVA1
+  # Reconstructed vertex - track info
+  - Rec_vtx_ntracks_min_hemisEmin
+  - Rec_vtx_ntracks_max_hemisEmin
+  - Rec_vtx_ntracks_ave_hemisEmin
+  - Rec_vtx_ntracks_min_hemisEmax
+  - Rec_vtx_ntracks_max_hemisEmax
+  - Rec_vtx_ntracks_ave_hemisEmax
+
+  # Reconstructed vertex - distance to primary vertex
+  - Rec_vtx_d2PV_min_hemisEmin
+  - Rec_vtx_d2PV_max_hemisEmin
+  - Rec_vtx_d2PV_ave_hemisEmin
+  - Rec_vtx_d2PV_min_hemisEmax
+  - Rec_vtx_d2PV_max_hemisEmax
+  - Rec_vtx_d2PV_ave_hemisEmax
+  
+  # Reconstructed vertex - angular distribution
+  - Rec_vtx_thrustCosTheta_min_hemisEmin
+  - Rec_vtx_thrustCosTheta_max_hemisEmin
+  - Rec_vtx_thrustCosTheta_ave_hemisEmin
+  - Rec_vtx_thrustCosTheta_min_hemisEmax
+  - Rec_vtx_thrustCosTheta_max_hemisEmax
+  - Rec_vtx_thrustCosTheta_ave_hemisEmax
+  
+  # Reconstructed particle - angular distribution
+  - Rec_thrustCosTheta_min_hemisEmin
+  - Rec_thrustCosTheta_max_hemisEmin
+  - Rec_thrustCosTheta_ave_hemisEmin
+  - Rec_thrustCosTheta_min_hemisEmax
+  - Rec_thrustCosTheta_max_hemisEmax
+  - Rec_thrustCosTheta_ave_hemisEmax
+  - Rec_thrustCosTheta_min_hemisEmin_noBrem
+  - Rec_thrustCosTheta_max_hemisEmin_noBrem
+  - Rec_thrustCosTheta_ave_hemisEmin_noBrem
+  - Rec_thrustCosTheta_min_hemisEmax_noBrem
+  - Rec_thrustCosTheta_max_hemisEmax_noBrem
+  - Rec_thrustCosTheta_ave_hemisEmax_noBrem
+
+  # Reconstructed particle - track impact parameters
+  - Rec_track_d0_min_hemisEmin
+  - Rec_track_d0_max_hemisEmin
+  - Rec_track_d0_ave_hemisEmin
+  - Rec_track_z0_min_hemisEmin
+  - Rec_track_z0_max_hemisEmin
+  - Rec_track_z0_ave_hemisEmin
+  - Rec_track_d0_min_hemisEmax
+  - Rec_track_d0_max_hemisEmax
+  - Rec_track_d0_ave_hemisEmax
+  - Rec_track_z0_min_hemisEmax
+  - Rec_track_z0_max_hemisEmax
+  - Rec_track_z0_ave_hemisEmax
+
+  # EVT level - special properties of each hemisphere
+  - EVT_hemisEmin_nKaon
+  - EVT_hemisEmin_nPion
+  - EVT_hemisEmin_maxeKaon
+  - EVT_hemisEmin_maxePion
+  - EVT_hemisEmin_maxeKaon_fromtruePV
+  - EVT_hemisEmin_maxePion_fromtruePV
+
+  - EVT_hemisEmax_nLept
+  - EVT_hemisEmax_nKaon
+  - EVT_hemisEmax_nPion 
+  - EVT_hemisEmax_maxeLept
+  - EVT_hemisEmax_maxeKaon
+  - EVT_hemisEmax_maxePion
+  - EVT_hemisEmax_maxeLept_fromtruePV
+  - EVT_hemisEmax_maxeKaon_fromtruePV
+  - EVT_hemisEmax_maxePion_fromtruePV
+
 ###############
 # STAGE1
 ###############

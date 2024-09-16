@@ -1,10 +1,11 @@
-# auto-hadd.py -- UNTESTED
+# auto-hadd.py -- UNTESTED -- CURRENTLY LEADS TO MEMORY LEAK
+# Probably best to instead implement this logic into a shell script
 # Takes stage1 or stage2 files and merges to a smaller number of files
 # Assumes POSIX system for glob syntax
 import os
 import sys
 sys.path.append('/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/')
-
+import subprocess
 
 from shutil import which
 from argparse import ArgumentParser
@@ -32,7 +33,7 @@ print(f"{30*'-'}\n")
 # If ROOT is not in PATH, source key4hep env
 if which('hadd') is None:
     print(f"----> INFO: `hadd` not found in PATH. Sourcing key4hep")
-    os.system('source /cvmfs/sw.hsf.org/key4hep/setup.sh')
+    subprocess.run("source /cvmfs/sw.hsf.org/key4hep/setup.sh", check=True, shell=True)
 
 # Get samples
 if args.samples[0] == 'all':
@@ -43,6 +44,8 @@ elif not set(args.samples).issubset(set(cfg.samples)):
     raise ValueError(f'''----> ERROR: Invalid sample name(s) passed, must be in:
                      {15*' '}{cfg.samples}
                      ''')
+else:
+    samples = args.samples
 
 print(f"Initialising...")
 print(f"----> INFO: Merging files for samples:")
@@ -62,23 +65,23 @@ except KeyError:
 #############################
 print(f"\n{30*'-'}\n")
 for sample in samples:
-    sample_cwd = os.path.abspath(os.path.join(location, sample))
-    os.system(f'cd {sample_cwd}')
-    n_files = len(glob(os.path.join(sample_cwd, '*.root')))
+    sample_dir = os.path.abspath(os.path.join(location, sample))
+    n_files = len(glob(os.path.join(sample_dir, '*.root')))
     if n_files == 0:
         print(f"----> WARNING: No ROOT files found at path, skipping...")
-        print(f"{15*' '}{sample_cwd}\n")
+        print(f"{15*' '}{sample_dir}\n")
         continue
     
     elif n_files <= args.n_per_chunk:
         print(f"----> WARNING: File count <={args.n_per_chunk} for sample, skipping...")
-        print(f"{15*' '}{sample_cwd}\n")
+        print(f"{15*' '}{sample_dir}\n")
         continue
     print(f"----> INFO: Found {n_files} files for sample:")
-    print(f"{15*' '}{sample_cwd}")
+    print(f"{15*' '}{sample_dir}")
 
-    # Create output directory and move to it
-    os.system(f'mkdir ../{sample}_temp && cd ../{sample}_temp')
+    # Create output directory
+    temp_dir = os.path.abspath(os.path.join(location, sample+'_temp'))
+    subprocess.run(f"mkdir {temp_dir}", check=True, shell=True)
     
     # Split files into chunks
     n_chunks = (n_files // args.n_per_chunk) + 1
@@ -95,11 +98,12 @@ for sample in samples:
         limits.append(count)
 
     for i in range(len(count) - 1):
-        os.system(f'hadd -v 0 -k -fk chunk_{i}.root ../{sample}/chunk_{{{count[i]+1}..{count[i+1]}}}.root')
+        input_files = os.path.abspath(os.path.join(sample_dir, f"chunk_{{{count[i]+1}..{count[i+1]}}}.root"))
+        output_file_name = os.path.abspath(os.path.join(temp_dir, f"chunk_{i}.root"))
+        subprocess.run(f"hadd -v 1 -k -fk {output_file_name} {input_files}", check=True, shell=True)
     
-    os.system(f'cd ..')
-    os.system(f'mv {sample} {sample}_nohadd')
-    os.system(f'mv {sample}_temp {sample}')
+    subprocess.run(["mv", sample_dir, os.path.abspath(os.path.join(location, sample+'_nohadd'))], check=True)
+    subprocess.run(["mv", temp_dir, sample_dir], check=True)
 
     print(f"----> INFO: File merging complete, un-merged files moved to:")
-    print(f"{15*' '}{sample}_nohadd\n")
+    print(f"{15*' '}{os.path.join(location, sample+'_nohadd')}\n")

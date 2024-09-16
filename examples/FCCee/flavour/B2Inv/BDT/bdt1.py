@@ -100,7 +100,7 @@ def plot_roc(bdt, x_test, y_test, w_test):
     plt.gca().set_aspect('equal', adjustable='box')
     plt.tight_layout()
 
-def plot_punzi_significance(x, cuts, sigma):
+def plot_punzi_significance(x, cuts, sigma, eff_before_bdt):
     n_before = {sample: x[sample].shape[0] for sample in x}
     B = np.array([])
     epsilon_s = np.array([])
@@ -114,7 +114,7 @@ def plot_punzi_significance(x, cuts, sigma):
             else:
                 before = len(x[sample])
                 after  = len(x[sample].query(f"XGB > {cut}"))
-                count = 6e12*cfg.branching_fractions[sample][0]*cfg.efficiencies['presel'][sample]*after/before
+                count = 6e12*cfg.branching_fractions[sample][0]*eff_before_bdt[sample]*after/before
                 temp_B += count
         
         B = np.append(B, temp_B)
@@ -131,7 +131,7 @@ def plot_punzi_significance(x, cuts, sigma):
     fig.tight_layout()
 
 # Plots shaded area between S/sqrt(S+B) assuming the signal error is sqrt(S) and the background error is sqrt(B)
-def plot_significance(x, bdtvals, branching_fracs):
+def plot_significance(x, bdtvals, branching_fracs, eff_before_bdt):
     fig, ax = plt.subplots()
     ax.set_xscale('log')
     for bdt in bdtvals:
@@ -141,12 +141,12 @@ def plot_significance(x, bdtvals, branching_fracs):
             if sample in cfg.sample_allocations['signal']:
                 before = len(x[sample])
                 after  = len(x[sample].query(f"XGB > {bdt}"))
-                temp_S = 6e12*cfg.branching_fractions['p8_ee_Zbb_ecm91'][0]*2*cfg.prod_frac['Bs']*cfg.efficiencies['presel'][sample]*after/before*branching_fracs
+                temp_S = 6e12*cfg.branching_fractions['p8_ee_Zbb_ecm91'][0]*2*cfg.prod_frac['Bs']*eff_before_bdt[sample]*after/before*branching_fracs
                 S = np.append(S, temp_S)
             else:
                 before = len(x[sample])
                 after  = len(x[sample].query(f"XGB > {bdt}"))
-                count = 6e12*cfg.branching_fractions[sample][0]*cfg.efficiencies['presel'][sample]*after/before
+                count = 6e12*cfg.branching_fractions[sample][0]*eff_before_bdt[sample]*after/before
                 B += count
     
         significance = np.divide(S, np.sqrt(S+B+1e-10))
@@ -181,7 +181,7 @@ if __name__ == "__main__":
 
     from argparse import ArgumentParser
     
-    parser = ArgumentParser(description='Trains BDT1 using bdt1_opts from config.py')
+    parser = ArgumentParser(description=f"Trains BDT1 using bdt1_opts from config.py, saves to {cfg.bdt1_opts['outputPath']}")
     method = parser.add_argument("--method",           required=True, choices=['gridsearch', 'fixed-hyperparams'])
     nchunk = parser.add_argument("--nchunks",          default=None,  nargs='*')
     trainf = parser.add_argument("--train-frac",       default=0.75,  type=float)
@@ -194,10 +194,10 @@ if __name__ == "__main__":
     method.help = "Method to train the BDT"
     nchunk.help = "Number of chunks to process, default = None (all are processed)"
     trainf.help = "Fraction of data to use for training, default = 0.75"
-    savehp.help = "If using `gridsearch` method, save the optimum hyperparameters to `best_params_bdt1.yaml`, default = False"
-    loadhp.help = "If using `fixed-hyperparams` method, use `best_params_bdt1.yaml`, default = False"
-    savemo.help = "Save model to `bdt1.json` and `tmva1.root`, default = False"
-    plotre.help = "Plot and save BDT responses, default = False"
+    savehp.help = f"If using `gridsearch` method, save the optimum hyperparameters to `{os.path.basename(cfg.bdt1_opts['optHyperParamsFile'])}`, default = False"
+    loadhp.help = f"If using `fixed-hyperparams` method, use `{os.path.basename(cfg.bdt1_opts['optHyperParamsFile'])}`, default = False"
+    savemo.help = f"Save model to `{os.path.basename(cfg.bdt1_opts['jsonPath'])}` and `{os.path.basename(cfg.bdt1_opts['mvaPath'])}`, default = False"
+    plotre.help = f"Plot and save BDT responses to `{os.path.basename(cfg.bdt1_opts['jsonPath'])}` and `{os.path.basename(cfg.bdt1_opts['mvaPath'])}`, default = False"
 
     args = parser.parse_args()
     
@@ -212,8 +212,8 @@ if __name__ == "__main__":
 
     # Load configuration
     plt.style.use(os.path.abspath(os.path.join(cfg.FCCAnalysesPath, 'fcc.mplstyle')))
-    inputpath    = check_inputpath(cfg.bdt1_opts['inputpath'])
-    outputpath   = set_outputpath(cfg.bdt1_opts['outputpath'])
+    inputpath    = check_inputpath(cfg.bdt1_opts['inputPath'])
+    outputpath   = set_outputpath(cfg.bdt1_opts['outputPath'])
     yamlpath     = check_inputpath(cfg.fccana_opts['yamlPath'])
     bdtvars      = vars_fromyaml(yamlpath, cfg.bdt1_opts['mvaBranchList'])
     # Variables not used by the bdt which you want to plot
@@ -221,9 +221,9 @@ if __name__ == "__main__":
 
     # Efficiencies of pre-selection cuts and branching fractions
     bfs = {sample: cfg.branching_fractions[sample][0] for sample in cfg.samples}
-    eff = {sample: cfg.efficiencies['presel'][sample] for sample in cfg.samples}  
+    eff = {sample: cfg.efficiencies[cfg.bdt1_opts['efficiencyKey']][sample][0] for sample in cfg.samples}  
     
-    print(f"----> INFO: Efficiencies loaded")
+    print(f"----> INFO: Efficiencies loaded from config.py using key `{cfg.bdt1_opts['efficiencyKey']}`")
     print(f"----> INFO: Using {cfg.bdt1_opts['mvaBranchList']} from")
     print(f"{15*' '}{yamlpath}")
     print(f"----> INFO: Loading files from")
@@ -320,10 +320,10 @@ if __name__ == "__main__":
 
         ### Save optimum combination of hyperparameters
         if args.save_hyperparams:
-            with open(os.path.join(outputpath, 'best_params_bdt1.yaml'), 'w') as outfile:
+            with open(cfg.bdt1_opts['optHyperParamsFile'], 'w') as outfile:
                 dump(cv_dict, outfile)
             print(f"----> INFO: Optimum hyperparameters saved to")
-            print(f"{15*' '}{os.path.join(outputpath, 'best_params_bdt1.yaml')}")
+            print(f"{15*' '}{cfg.bdt1_opts['optHyperParamsFile']}")
         else:
             print(f"----> INFO: --save-hyperparams not set, skipping...")
     
@@ -332,14 +332,15 @@ if __name__ == "__main__":
         
         ### Load hyperparameters
         if args.load_hyperparams:
-            with open(os.path.join(outputpath, 'best_params_bdt1.yaml'), 'r') as stream:
+            with open(cfg.bdt1_opts['optHyperParamsFile'], 'r') as stream:
                 config_dict = safe_load(stream)
             print(f"----> INFO: Loading hyperparameters from")
-            print(f"{15*' '}{os.path.join(outputpath, 'best_params_bdt1.yaml')}")
+            print(f"{15*' '}{cfg.bdt1_opts['optHyperParamsFile']}")
         else:
             config_dict = {'gamma': 0.2, 'learning_rate': 0.1, 'n_estimators': 200, 'subsample': 1.0, 'max_depth': 4}
             config_dict = {"n_estimators": 200, "learning_rate": 0.1, "max_depth": 7, "subsample": 1.0, "colsample_bytree": 1.0, "gamma": 0.2, "min_child_weight": 1}
-            print(f'----> INFO: --load-hyperparams not set, using default values')
+            print(f"----> INFO: --load-hyperparams not set, using default values")
+            print(f"{15*' '}{config_dict}")
 
         bdt.set_params(**config_dict)
         bdt.fit(x_train[bdtvars].to_numpy(), y_train.to_numpy(), sample_weight=w_train.to_numpy(), 
@@ -364,11 +365,11 @@ if __name__ == "__main__":
     #############################
     print(f"SAVING")
     if args.save_model: 
-        bdt.save_model(os.path.join(outputpath, "bdt1.json"))
-        ROOT.TMVA.Experimental.SaveXGBoost(bdt, cfg.bdt1_opts['mvaRBDTName'], os.path.join(outputpath, "tmva1.root"), num_inputs=len(bdtvars))
+        bdt.save_model(cfg.bdt1_opts['jsonPath'])
+        ROOT.TMVA.Experimental.SaveXGBoost(bdt, cfg.bdt1_opts['mvaRBDTName'], cfg.bdt1_opts['mvaPath'], num_inputs=len(bdtvars))
         print(f"----> INFO: Model saved to")
-        print(f"{15*' '}1. {os.path.join(outputpath, 'bdt1.json')}")
-        print(f"{15*' '}2. {os.path.join(outputpath, 'tmva1.root')}")
+        print(f"{15*' '}1. {cfg.bdt1_opts['jsonPath']}")
+        print(f"{15*' '}2. {cfg.bdt1_opts['mvaPath']}")
 
     else:
         print(f"----> INFO: --save-model flag not set, skipping model saving...")
@@ -409,7 +410,7 @@ if __name__ == "__main__":
         print(f"{15*' '}{rocpath}")
         plt.close()
 
-        plot_punzi_significance(x, np.linspace(0, 1, 20), 5)
+        plot_punzi_significance(x, np.linspace(0, 1, 20), 5, eff)
         punzipath = os.path.join(outputpath, f"{prefix}punzi.pdf")
         plt.savefig(punzipath)
         print(f'Punzi significance plot saved to')
