@@ -1,9 +1,12 @@
+# efficiency_finder.py - must be in the same directory as config.py
+# Contains functions to get efficiences with errors
+# Functions:
+#     - efficiency_calc  : Calculate efficiency and error
+#     - get_efficiencies : Get efficiencies for samples with various options
+# Run `python efficiency_finder.py --help` for more information:w
 import os
-import sys
-sys.path.append('/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv') # Redundant if we enforce that this file must be present with config
 
 import uproot
-import awkward as ak
 import numpy as np
 import pandas as pd
 
@@ -14,12 +17,14 @@ from datetime import timedelta
 import config as cfg
 
 def efficiency_calc(before, after):
-        mode = after/before
-        # From <link>, variance in an efficiency k/n is (k+1)(k+2)/(n+2)(n+3) - (k+1)^2/(n+2)^2
-        var = ((after+1)*(after+2))/((before+2)*(before+3)) - ((after+1)/(before+2))**2
-        error = np.sqrt(var)
+    mode = after/before
+    # From <link>, variance in an efficiency k/n is (k+1)(k+2)/(n+2)(n+3) - (k+1)^2/(n+2)^2
+    var = ((after+1)*(after+2))/((before+2)*(before+3)) - ((after+1)/(before+2))**2
+    error = np.sqrt(var)
 
-def efficiencies(inputtype, 
+    return mode, var
+
+def get_efficiencies(inputtype, 
                  further_analysis=True,
                  samples=None, 
                  cut=None, 
@@ -221,5 +226,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    efficiencies(args.inputtype, further_analysis=False, samples=args.samples, cut=args.cut, nchunks=args.nchunks, raw=args.raw, custompath=args.custompath, save=args.save, verbose=True)
+    get_efficiencies(args.inputtype, further_analysis=False, samples=args.samples, 
+                     cut=args.cut, nchunks=args.nchunks, raw=args.raw, 
+                     custompath=args.custompath, save=args.save, verbose=True)
 

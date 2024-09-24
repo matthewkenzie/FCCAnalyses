@@ -39,7 +39,7 @@ graph
    git clone https://github.com/RMangrulkar/FCCAnalyses.git
    ```
    
-3. Set up the environment
+2. Set up the environment
    
    ```bash
    cd FCCAnalyses
@@ -49,19 +49,19 @@ graph
    cd examples/FCCee/flavour/B2Inv/
    ```
    
-4. Save the stage1 training sample (defaults to `outputs/stage1_training`)
+3. Save the stage1 training sample (defaults to `outputs/stage1_training`)
    ```bash
    fccanalysis run stage1_training.py
    ```
-5. Train BDT using `outputs/stage1_training`. All results saved to `outputs/bdt1out/`
+4. Train BDT using `outputs/stage1_training`. All results saved to `outputs/bdt1out/`
    ```bash
    python bdt1.py --method gridsearch --save-hyperparams --save-model --plot-results
    ```
-6. Save the final stage1 sample (defaults to `outputs/stage1`)
+5. Save the final stage1 sample (defaults to `outputs/stage1`)
    ```bash
    fccanalysis run stage1.py
    ```
-7. Automated merging of background `.root` files (2000\+ which contain ~500 events each) \- WIP
+6. Automated merging of background `.root` files (2000\+ which contain ~500 events each) \- WIP
    - Something to the effect of:
         ```
         #!/bin/bash
@@ -73,11 +73,11 @@ graph
             ...
         end
         ``` 
-9. Train BDT2 using `outputs/stage1`. All results saved to `outputs/bdt1out/`
+7. Train BDT2 using `outputs/stage1`. All results saved to `outputs/bdt1out/`
     ```bash
     python bdt2.py --method gridsearch --nchunks {`default-files`} --save-hyperparams --save-model --plot-results
     ```
-10. Apply BDT2 to the rest of stage1 (or in the future save ntuples from raw files again)
+8. Apply BDT2 to the rest of stage1 (or in the future save ntuples from raw files again)
     ```bash
     python bdt2-apply.py --load-model {`default-location`} --nchunks {`remaining-files`} --with-results
     ```
@@ -93,7 +93,7 @@ graph
 ### Analyzers
 
 Some dedicated C++ functions are added to `FCCAnalyses/analyzers/dataframe/` for this analysis. Right now they are mostly just dumped into `myUtils` (the odd one in some other namespace) in labelled code block. In the future they should be moved to the "correct" namespace depending on functionality/similarity with existing functions.
-
+- TODO: Also need to check if B2Inv specific analyzers should be moved to FCCeePhysicsPerformance
 ### `config.py`
 
 This contains almost all of the configuration options, most importantly:
@@ -168,3 +168,26 @@ python bdt1.py --help
 
  - `variable_plotter.py` is a simple plotting script that reads from `config.py`
  - example usage `python -i variable_plotter.py` then can interactively make some plots
+
+### `efficiency-finder.py`
+
+ - A simple script that prints (or saves) the efficiencies of a given cut
+ - The `efficiencies` function performs the calculation
+
+ Given the number of events after the cut $k$ and the number
+ before the cut $n$, the efficiency is
+ $$
+ \epsilon = \frac{k}{n}
+ $$
+
+ with variance
+ $$
+ \sigma_\epsilon^2 = \frac{(k+1)(k+2)}{(n+2)(n+3)} - \left(\frac{k+1}{n+2}\right)^2
+ $$
+
+ This is from assuming that $\exists$ a "true" efficiency and the probability that $k$ events
+ survive the cut is a binomial distribution
+
+ $$
+ P(k | n) = nCk \epsilon_\text{true}^k (1-\epsilon_\text{true})^{n-k}
+ $$

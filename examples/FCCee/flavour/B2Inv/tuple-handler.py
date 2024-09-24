@@ -1,22 +1,29 @@
+# tuple_handler.py
+# Contains useful functions related to tupling
+# Classes:   TupleHandler
+# Functions:
+#           - get_vars_from_yaml
+#           - load_data
 import sys
 import os
 import subprocess
 import time
 import uproot
 
-from glob import glob
-
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import awkward as ak
 
+from glob import glob
+from yaml import safe_load
 
 # Requires config file in the working directory
 import config as cfg
 
 # Set global options
 plt.style.use('fcc.mplstyle')
+
 
 ##################################################################
 #               PLANNED FEATURES
@@ -699,6 +706,26 @@ class TupleHandler():
 
         return ak.unflatten(np.select(condition_list, choice_list, 10), lengths, axis=-1)
 
+
+def get_vars_from_yaml(yamlpath, key):
+    """
+    Return the list of variables from the yaml file
+
+    Parameters
+    ----------
+    yamlpath : str
+        Path to the yaml file
+    key : str
+        Key to extract from the yaml file
+
+    Returns
+    -------
+    custom
+        Value of yamlpath[key]
+    """
+    with open(yamlpath) as stream:
+        yamlFile = safe_load(stream)
+        return yamlFile[key]
 
 if __name__=="__main__":
 

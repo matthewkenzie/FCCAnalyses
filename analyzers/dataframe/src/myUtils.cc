@@ -90,7 +90,7 @@ int hasPV(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
 }
 
 /********************************** 
-  B2INV ADDITIONAL STAGE0 FUNCTIONS
+  B2INV ADDITIONAL FUNCTIONS
 ***********************************/
 ROOT::VecOps::RVec<edm4hep::MCParticleData> get_MCObject_fromRP (ROOT::VecOps::RVec<int> reco_ind,
     ROOT::VecOps::RVec<int> mc_ind, 

@@ -218,22 +218,7 @@ if __name__ == "__main__":
     
     paths = {sample: os.path.join(inputpath, sample, "*.root") for sample in cfg.samples}
     
-    # Depending on the value passed to --nchunks:
-    # Single int: use this number of chunks for every sample
-    # len(cfg.samples) ints: use corresponding number
-    # None or mismatched length or other: use all chunks
-    #if (args.nchunks is not None):
-    #    if (len(args.nchunks) == 1):
-    #        files = {sample: glob(paths[sample])[:int(args.nchunks[0])] for sample in cfg.samples}
-    #    elif (len(args.nchunks) == len(cfg.samples)):
-    #        files = {sample: glob(paths[sample])[:int(args.nchunks[i])] for i, sample in enumerate(cfg.samples)}
-    #    warn_about_slowGridSearch = 0
-    #else:
-    #    print(f"----> INFO: --nchunks is None or invalid, skipping...")
-    #    files = {sample: glob(paths[sample]) for sample in cfg.samples}
-    #    warn_about_slowGridSearch = 1
-    
-    files = {sample: glob(path[sample])[5:] for sample in cfg.samples}
+    files = {sample: glob(path[sample]) for sample in cfg.samples}
 
     x = {sample: None for sample in cfg.samples}
     y = {sample: None for sample in cfg.samples}
@@ -253,18 +238,6 @@ if __name__ == "__main__":
             raise ValueError
         elif (sample not in cfg.sample_allocations['signal']) and (np.any(y[sample].to_numpy() == 1)):
             raise ValueError
-    
-    rand_state = 7 # For reproducibility
-    x_train = pd.concat([x[sample].sample(frac=0.8, random_state=rand_state) for sample in cfg.samples], copy=True, ignore_index=True)
-    y_train = pd.concat([y[sample].sample(frac=0.8, random_state=rand_state) for sample in cfg.samples], copy=True, ignore_index=True)
-    # Normalise weights by dividing by the total number of events of each type
-    w_train = pd.concat([w[sample].sample(frac=0.8, random_state=rand_state)/(0.8*len(x[sample])) for sample in cfg.samples], copy=True, ignore_index=True)
-    
-    # Create test dataframes by sampling the indices not used in x/y/w_train
-    x_test = pd.concat([x[sample].drop(x[sample].sample(frac=0.8, random_state=rand_state).index) for sample in cfg.samples], copy=True, ignore_index=True)
-    y_test = pd.concat([y[sample].drop(y[sample].sample(frac=0.8, random_state=rand_state).index) for sample in cfg.samples], copy=True, ignore_index=True)
-    # Normalise weights by dividing by the total number of events of each type
-    w_test = pd.concat([w[sample].drop(w[sample].sample(frac=0.8, random_state=rand_state).index)/((1-0.8)*len(w[sample])) for sample in cfg.samples], copy=True, ignore_index=True)
     
     #############################
     # LOAD BDT
@@ -336,8 +309,8 @@ if __name__ == "__main__":
             plt.close()
 
 
-    for cut in [0.5, 0.7, 0.9]:
+    for cut in np.linspace(0, 1, 15):
         for sample in cfg.samples:
             mode, error = efficiency_calc(x[sample].shape[0], x[sample].query(f'XGB > {cut}').shape[0])
-
+            
             
