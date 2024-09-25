@@ -107,43 +107,6 @@ def get_weights():
     
     return hist_weights
 
-#def parse_pid(branch_cond, particleclass, particle, pids=cfg.PIDs):
-#    """
-#    Returns a string of PIDs to match and pass to `cut`
-#
-#    Parameters
-#    ----------
-#    branch_cond : str
-#        Specify which branch to check, such as "MC_PDG".
-#    particleclass : array
-#        Array of high level keys in PIDs.
-#    particle : array
-#        Array of nested keys for each high level key. Accepts "all" to use every nested key
-#    pids : dict, optional
-#        Dictionary that contains PIDs. Default: cfg.PIDs.
-#
-#    Returns
-#    -------
-#    cut_str : str
-#        String containing the expression passed to `cut`. Example "MC_PDG==x||MC_PD==y||MC_PDG==z..."
-#    """
-#
-#    if len(particleclass) != len(particle):
-#        raise ValueError("`particle` must contain an element for every `particleclass`")
-#
-#    cut_str = ""
-#    for idx, pclass in enumerate(particleclass):
-#        if particle[idx] == 'all':
-#            for pvalue in pids[pclass].values():
-#                cut_str = cut_str + branch_cond + "==" + str(pvalue) + " or "
-#        else:
-#            for pkey in particle[idx]:
-#                cut_str = cut_str + branch_cond + "==" + str(pids[pclass][pkey]) + " or "
-#
-#    # Remove trailing ' or '
-#    return cut_str[:-4]
-
-
 def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, 
          interactive=False, save=None, bins=50, range=None, 
          total=["background"], components=["signal", "background"], cut=None, xtitle=None, nchunks=None):

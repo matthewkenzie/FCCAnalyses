@@ -1,5 +1,8 @@
 # bdt2.py
 # Train BDT2 using stage1 files
+# Since the workflow does not need `fccanalysis` from this point use the lb-conda default environment
+#           as this has updated xgboost and ROOT versions
+
 import xgboost as xgb # Has to be imported first to avoid conflicts with PyROOT
 
 import sys
@@ -308,6 +311,7 @@ if __name__ == "__main__":
     # Define BDT
     bdt = xgb.XGBClassifier(early_stopping_rounds=10, eval_metric="auc", n_jobs=-1, objective='binary:logistic')
     print(f"BDT OUTPUT")
+
     # Tuning hyperparameters
     if args.method == 'gridsearch':
         param_grid = {

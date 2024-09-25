@@ -1,4 +1,9 @@
+# config.py
+# This file contains all of the important configuration options used throughtout the analysis
+# This file, along with all other analysis scripts, are expected to be in the `FCCAnalysesPath` directory
+# Also contains branching fractions, cut efficiencies, etc which are manually filled in for now
 import os
+
 # Mandatory --> replace the default string with the path to the B2Inv directory in the FCCAnalyses repo
 FCCAnalysesPath = "/r02/lhcb/rrm42/fcc/FCCAnalyses/examples/FCCee/flavour/B2Inv/"
 FCCAnalysesPath = os.path.abspath(FCCAnalysesPath)
@@ -18,7 +23,7 @@ processList = {
         "p8_ee_Zss_ecm91": {"fraction": 0.01, "chunks": 50},
         "p8_ee_Zud_ecm91": {"fraction": 0.01, "chunks": 50},    
     },
-    "stage1": { # ~10G or 2M events after preselection + loose cut per sample
+    "stage1": { # ~10G or 2M events per sample after preselection and a loose BDT1 cut
         "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu": {"fraction": 1, "chunks": 1000},
         "p8_ee_Zbb_ecm91": {"fraction": 0.5, "chunks": 3000},
         "p8_ee_Zcc_ecm91": {"fraction": 0.5, "chunks": 3000},
@@ -31,10 +36,9 @@ processList = {
     },
 }
 
-# Default options to pass to `fccanalysis run`. Recommended to keep, fccana_opts should be used for custom options.
+# Default options to pass to `fccanalysis run`
 fccana_opts = {
     "prodTag"       : "FCCee/winter2023/IDEA",
-    #"outputDir"     : "/r01/lhcb/rrm42/fcc/stage1_postBDT/",
     "outputDir": {
         "stage1_training": os.path.join(FCCAnalysesPath, "outputs/stage1_training/"),
         "stage1"         : os.path.join(FCCAnalysesPath, "outputs/stage1/"),
@@ -53,23 +57,23 @@ fccana_opts = {
     "runBatch"      : True,
     "batchQueue"    : "workday",
     "compGroup"     : "group_u_FCC.local_gen",
-    "yamlPath"      : os.path.join(FCCAnalysesPath, "B2Inv.yaml"),
-    "outBranchList0": "stage0-vars",
-    "outBranchList1": "stage1-vars",
-    "outBranchList2": "stage2-vars",
+    "yamlPath"      : os.path.join(FCCAnalysesPath, "B2Inv.yaml"), # Path to the YAML file containing feature names
+    "outBranchList0": "stage0-vars", # key in the yaml file that gives stage0 branches
+    "outBranchList1": "stage1-vars", # key in the yaml file that gives stage1 branches
+    "outBranchList2": "stage2-vars", # ---- " --- stage2 branches
 }
 
 # TMVA options
 bdt1_opts = {
-    "training"          : False,
+    "training"          : True,                 # True == stage1 does not use BDT1
     "inputPath"         : fccana_opts['outputDir']['stage1_training'],
     "outputPath"        : os.path.join(FCCAnalysesPath, "outputs/bdt1out/"),
     "jsonPath"          : os.path.join(FCCAnalysesPath, "outputs/bdt1out/bdt1.json"),
     "mvaPath"           : os.path.join(FCCAnalysesPath, "outputs/bdt1out/tmva1.root"),
-    "mvaRBDTName"       : "bdt",
+    "mvaRBDTName"       : "bdt",                # Name of the TMVA TObject in the .root file
     "mvaCut"            : 0.2,
-    "mvaBranchList"     : "bdt1-training-vars",
-    "efficiencyKey"     : "presel",
+    "mvaBranchList"     : "bdt1-training-vars", # key in the yaml file pointing to the feature list
+    "efficiencyKey"     : "presel",             # efficiencies used to calculate sample weights
     "optHyperParamsFile": os.path.join(FCCAnalysesPath, "outputs/bdt1out/best_params_bdt1.yaml"),
 }
 
@@ -83,8 +87,7 @@ bdt2_opts = {
     "mvaRBDTName"       : "bdt",
     "mvaCut"            : 0.2,
     "mvaBranchList"     : "bdt2-training-vars",
-    "efficiencyKey"     : "presel+bdt1>0.2",  # Efficiency key to use to calculate weights
-    "preselection"      : None, # Filters to place on BDT1 and other stage1 variables
+    "efficiencyKey"     : "presel+bdt1>0.2",     # Efficiency key to use to calculate weights
     "optHyperParamsFile": os.path.join(FCCAnalysesPath, "outputs/bdt2out/best_params_bdt2.yaml"),
 }
 
@@ -99,7 +102,6 @@ bdtComb_opts = {
     "mvaCut"            : 0.2,
     "mvaBranchList"     : "bdtComb-training-vars",
     "efficiencyKey"     : "presel+bdt1>0.2",
-    "preselection"      : None, # Filters to place on BDT1 and other stage1 variables
     "optHyperParamsFile": os.path.join(FCCAnalysesPath, "outputs/bdtCombout/best_params_bdtComb.yaml"),
 }
 
@@ -110,9 +112,6 @@ samples = [
     "p8_ee_Zss_ecm91",
     "p8_ee_Zud_ecm91",
 ]
-
-stage0dir_in = '/r01/lhcb/mkenzie/fcc/B2Inv/stage0/'
-stage0dir_out = '/r01/lhcb/rrm42/fcc/post_stage0/'
 
 sample_allocations = {
     "signal" : ["p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu"],
@@ -151,7 +150,7 @@ branching_fractions = {
     "p8_ee_Zud_ecm91": (0.2701, 0.0136),
 }
 
-mass_Z = 91.188
+mass_Z = 91.188  # Ecm used in the winter2023 samples
 EVT_hemisEmin_e_withpresel_min = 0.5*mass_Z - 40
 EVT_hemisEmin_e_withpresel_max = 0.5*mass_Z
 

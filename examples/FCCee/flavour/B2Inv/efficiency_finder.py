@@ -3,7 +3,7 @@
 # Functions:
 #     - efficiency_calc  : Calculate efficiency and error
 #     - get_efficiencies : Get efficiencies for samples with various options
-# Run `python efficiency_finder.py --help` for more information:w
+# Run `python efficiency_finder.py --help` for more information
 import os
 
 import uproot
@@ -17,8 +17,27 @@ from datetime import timedelta
 import config as cfg
 
 def efficiency_calc(before, after):
+    '''
+    Function that calculates the efficiency and error given the number of events before and after the selection
+
+    Parameters
+    ----------
+    before: int or ndarray, required
+        The number (or an array of numbers) of events before the selection.
+    after: int or ndarray, required
+        The number (or an array of numbers) of events that pass the selection.
+        Must have the same dimensions as `before`
+
+    Returns
+    -------
+    mode: int or ndarray
+        The selection efficiency, after/before
+    error: int or ndarray
+        The error in the efficiency, assuming a binomial distribution of acceptance/rejection.
+        See <https://indico.cern.ch/event/66256/contributions/2071577/attachments/1017176/1447814/EfficiencyErrors.pdf>
+    '''
     mode = after/before
-    # From <link>, variance in an efficiency k/n is (k+1)(k+2)/(n+2)(n+3) - (k+1)^2/(n+2)^2
+    # Variance in an efficiency k/n is (k+1)(k+2)/(n+2)(n+3) - (k+1)^2/(n+2)^2
     var = ((after+1)*(after+2))/((before+2)*(before+3)) - ((after+1)/(before+2))**2
     error = np.sqrt(var)
 
@@ -35,7 +54,8 @@ def get_efficiencies(inputtype,
                  verbose=True):
     '''
     Function to print, save or return efficiencies of given samples with a given cut string.
-    PARAMETERS
+
+    Parameters
     ----------
     inputtype: str, required
         Choose one of `stage1_training`, `stage1`, `stage2_training` or `stage2` to use from config. To use a custom path pass `custom` with a valid `custompath`.
@@ -57,7 +77,7 @@ def get_efficiencies(inputtype,
     verbose: bool, optional
         Print messages in stdout as the function is running. Default = True.
 
-    RETURNS
+    Returns
     -------
     If further_analysis is True,
     data: dict
@@ -66,9 +86,9 @@ def get_efficiencies(inputtype,
         data[sample][1] : Bayesian error in the efficiency
     '''
 
-    ######################################
+    ##############################
     ## INITIALISATION
-    ######################################
+    ##############################
     if verbose:
         start = time()
         print(f"\n{30*'-'}")
@@ -144,16 +164,23 @@ def get_efficiencies(inputtype,
     # `files`: dict of list of files for each sample
     # `cut`: Additional cut value
     # `raw`: Whether to use eventsProcessed or eventsSelected in the denominator
+    # Optionally, `data`: An empty dictionary that will be filled with the values
 
-    ######################################
+    ##############################
     ## CALCULATION
-    ######################################
+    ##############################
     if verbose:
         print(f"\n{30*'-'}\n")
 
     for sample in samples:
-        before = 0
-        after = 0
+
+        if (cut is None) or (isinstance(cut, str)):
+            before = 0
+            after = 0
+        elif isinstance(cut, list):
+            before = np.zeros(len(cut))
+            after = np.zeros(len(cut))
+
         for file in files[sample]:
             with uproot.open(file) as f:
                 if cut is None:
@@ -164,29 +191,45 @@ def get_efficiencies(inputtype,
                         before += int(f['eventsProcessed'])
                     else:
                         before += int(f['eventsSelected'])
-
-                    after += len(f['events'].arrays('Rec_n', cut = cut)) # Placeholder column
-            
+                        
+                    # If cut is a single string
+                    if isinstance(cut, str):
+                        after += len(f['events'].arrays('Rec_n', cut = cut)) # Placeholder column
+                    
+                    # If cut is a list of strings, pass each one
+                    elif isinstance(cut, list):
+                        for i, cut_expr in enumerate(cut):
+                            after[i] += len(f['events'].arrays('Rec_n', cut=cut_expr))
+        
         mode, error = efficiency_calc(before, after)
         
         if (save is not None) or (further_analysis):
-            data[sample] = (mode, error)
+            data[sample+'_eff'] = mode
+            data[sample+'_err'] = error
 
         if verbose:
-            # Try to print by extracting the exponent
-            common_div = np.floor(np.log10(mode))
-            print(f"{sample} with cut {cut}:")
-            print(f"{15*' '}n_events processed = {before}")
-            print(f"{15*' '}n_events selected  = {after}")
-            print(f"{15*' '}Efficiency         = ({mode/10**common_div:.3f} +/- {error/10**common_div:.3f}) x 10^{int(common_div)}")
+            if (cut is None) or isinstance(cut, str):
+                # Try to print by extracting the exponent
+                common_div = np.floor(np.log10(mode))
+                print(f"{sample} with cut {cut}:")
+                print(f"{15*' '}n_events processed = {before}")
+                print(f"{15*' '}n_events selected  = {after}")
+                print(f"{15*' '}Efficiency         = ({mode/10**common_div:.3f} +/- {error/10**common_div:.3f}) x 10^{int(common_div)}\n")
+            elif isinstance(cut, list):
+                for i, cut_expr in enumerate(cut):
+                    common_div = np.floor(np.log10(mode[i]))
+                    print(f"{sample} with cut {cut_expr}:")
+                    print(f"{15*' '}n_events before selection = {before[i]}")
+                    print(f"{15*' '}n_events after  selection = {after[i]}")
+                    print(f"{15*' '}Efficiency         = ({mode[i]/10**common_div:.3f} +/- {error[i]/10**common_div:.3f}) x 10^{int(common_div)}\n")
     
-    ######################################
+    ##############################
     ## OUTPUT
-    ######################################
+    ##############################
     if verbose:
         print(f"\n{30*'-'}\n")
     if save is not None:
-        pd.DataFrame(data, index=[f'{cut}', 'error'], columns=samples).to_csv(save, columns=samples)
+        pd.DataFrame(data, index=cut, columns=list(data.keys())).to_csv(save, columns=list(data.keys()))
         if verbose:
             print(f"----> INFO: Efficiencies saved to")
             print(f"{15*' '}{save}")

@@ -1,5 +1,7 @@
 # bdtComb.py
 # Train BDTCOMB using stage1 files
+# Since the workflow does not need `fccanalysis` from this point use the lb-conda default environment
+#           as this has updated xgboost and ROOT versions
 import xgboost as xgb # Has to be imported first to avoid conflicts with PyROOT
 
 import sys
@@ -457,11 +459,6 @@ if __name__ == "__main__":
 
     else:
         print(f"---->INFO: --plot-results flag not set, skipping plotting...")
-    
-    for sample in x:
-        x[sample]['XGB'] = bdt.predict_proba(x[sample][bdtvars])[:, 1]
-        print(f"{sample} before = {x[sample].shape[0]}")
-        print(f"{sample} after = {x[sample].query('XGB > 0.9').shape[0]}")
 
     end = time()
     print(f"\n{30*'-'}")

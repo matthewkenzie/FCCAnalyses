@@ -44,9 +44,9 @@ def set_outputpath(outputpath):
         os.makedirs(outputpath)
     return outputpath
 
-#############################
-# LOAD_DATA FUNCTION
-#############################
+##############################
+## LOAD_DATA FUNCTION
+##############################
 def load_data(filenames, category, eff, cols):
     df = ROOT.RDataFrame("events", filenames)
     df_np = df.AsNumpy(columns=cols)
@@ -65,9 +65,9 @@ def load_data(filenames, category, eff, cols):
 
     return x, y, w
 
-#############################
-# PLOTTERS
-#############################
+##############################
+## PLOTTERS
+##############################
 def plot_bdt_response(x, title):
     fig, ax = plt.subplots()
     ax.set_ylim([1e-3, 1e2])
