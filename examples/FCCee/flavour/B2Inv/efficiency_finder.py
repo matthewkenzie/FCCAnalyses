@@ -76,7 +76,10 @@ def get_efficiencies(inputtype,
         Path to a csv file to store the efficiencies. Default = None.
     verbose: bool, optional
         Print messages in stdout as the function is running. Default = True.
-
+    shorthand: bool, optional
+        Use shorthands defined in config.sample_shorthand instead of the full name from config.samples.
+        ONLY RENAMES THE COLUMNS IN THE OUTPUT CSV
+    
     Returns
     -------
     If further_analysis is True,
@@ -238,7 +241,7 @@ def get_efficiencies(inputtype,
 
     if verbose:
         end = time()
-        print(f"\n{30*'-'}\n")
+        print(f"\n{30*'-'}")
         print(f"Execution time = {timedelta(seconds=end-start)}")
         print(f"{30*'-'}")
     

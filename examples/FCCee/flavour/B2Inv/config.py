@@ -105,6 +105,12 @@ bdtComb_opts = {
     "optHyperParamsFile": os.path.join(FCCAnalysesPath, "outputs/bdtCombout/best_params_bdtComb.yaml"),
 }
 
+# Options for post stage2 analysis (efficiency maps, maximising FOM, final limit on bf etc)
+poststage2_opts = {
+    "inputPath"  : fccana_opts['outputDir']['stage2'],
+    "outputPath" : os.path.join(FCCAnalysesPath, "outputs/post_stage2"),
+}
+
 samples = [ 
     "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu",
     "p8_ee_Zbb_ecm91",
@@ -116,7 +122,15 @@ samples = [
 sample_allocations = {
     "signal" : ["p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu"],
     "background": ["p8_ee_Zbb_ecm91", "p8_ee_Zcc_ecm91", "p8_ee_Zss_ecm91", "p8_ee_Zud_ecm91"],
-    "bb only": ["p8_ee_Zbb_ecm91"]
+    "bb only": ["p8_ee_Zbb_ecm91"],
+}
+
+sample_shorthand = {
+    "p8_ee_Zbb_ecm91_EvtGen_Bs2NuNu" : "Bs2NuNu",
+    "p8_ee_Zbb_ecm91"                : "Z2bb",
+    "p8_ee_Zcc_ecm91"                : "Z2cc",
+    "p8_ee_Zss_ecm91"                : "Z2ss",
+    "p8_ee_Zud_ecm91"                : "Z2ud",
 }
 
 titles = {

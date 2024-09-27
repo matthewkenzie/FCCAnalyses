@@ -86,6 +86,8 @@ if __name__ == "__main__":
             # Load the ROOT file
             f = ROOT.TFile(file, "READ")
             t = f.Get("events")
+            process = f.Get("eventsProcessed").GetVal()
+            select  = f.Get("eventsSelected").GetVal()
 
             # Load the stage1 data
             df = ROOT.RDataFrame(t)
@@ -103,6 +105,14 @@ if __name__ == "__main__":
             df2.Snapshot("events", os.path.join(stage2path, sample, os.path.basename(file)), branchList)
             
             # Close the stage1 root file
+            f.Close()
+
+            # Open the newly created file and add the TParameters
+            f = ROOT.TFile(os.path.join(stage2path, sample, os.path.basename(file)), "UPDATE")
+            param1 = ROOT.TParameter("int")("eventsProcessed", process)
+            param2 = ROOT.TParameter("int")("eventsSelected",   select)
+            param1.Write()
+            param2.Write()
             f.Close()
 
         print(f"----> INFO: Saved {len(stage1files[sample])} {sample} stage2 files\n")
