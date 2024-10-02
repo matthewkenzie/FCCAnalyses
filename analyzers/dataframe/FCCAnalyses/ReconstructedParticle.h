@@ -98,7 +98,16 @@ namespace ReconstructedParticle{
   };
 
 
+  //////////////
+  // B2INV
+  //////////////
 
+  /// return customid of reconstructed particles
+  // ~20 -> charged lepton
+  // ~30 -> neutral hadron
+  // ~40 -> charged hadron
+  // ~10 -> neutrals (photons)
+  ROOT::VecOps::RVec<int> get_customid(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> in);
 
   /// return reconstructed particles
   ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> get(ROOT::VecOps::RVec<int> index, ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> in);
