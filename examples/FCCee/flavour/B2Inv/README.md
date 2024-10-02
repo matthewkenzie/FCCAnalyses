@@ -20,7 +20,7 @@ graph
     E-->BDT2
     subgraph ANA
         direction TB
-        H[stage2]-->|BDT2 uses BDT1|I[1D efficiency map]
+        H[stage2]-->|BDTComb uses BDT1|I[1D efficiency map]
         H-->|BDT2 and BDT1 separate|J[2D efficiency map]
         I-->K[Maximise FOM]
         J-->K
@@ -130,7 +130,7 @@ Saves ntuples from the `winter2023` samples for investigation
  - Currently out of date, may not contain all the variables present in `stage1_training`, `stage1` etc.
  - Tuples are saved in the corresponding path defined in `config`, by default in `outputs/stage0/`.
 
-### `stage1.py` (currently called `stage1_withbdt.py`)
+### `stage1.py`
 
 Saves ntuples to either train BDT1 or uses a trained BDT1 to get samples
  - `MCParticle` and `MCVertex` now omitted except special cases (the MC $e^\pm$ beam is stored, as are the MC $Z$, $q$, $\bar{q}$)
@@ -157,7 +157,9 @@ python bdt1.py --help
 - Due to the slow running of the xgboost version bundled with `key4hep`, recommended to use gridsearch over fewer chunks, save the optimum hyperparameters and then load those hyperparameters for the full fit
 - Optionally, you can plot the response, significance, etc.
 
-### `tuple-handler.py` (needs to be refactored)
+### Similarly `BDT/bdt2.py` and `BDT/BDTComb.py`
+
+### `tuple_handler.py` (needs to be refactored)
  - The `TupleHandler` class is meant to provide a modular way to access `stage0` files (and in the future all
    processed ntuples) to selectively store, display, or plot relevant variables.
  - Expected to work as `variable_plotter.py` but with much greater functionality
@@ -169,18 +171,15 @@ python bdt1.py --help
  - `variable_plotter.py` is a simple plotting script that reads from `config.py`
  - example usage `python -i variable_plotter.py` then can interactively make some plots
 
-### `efficiency-finder.py`
+### `efficiency_finder.py`
 
  - A simple script that prints (or saves) the efficiencies of a given cut
+ - Justification [here](https://indico.cern.ch/event/66256/contributions/2071577/attachments/1017176/1447814/EfficiencyErrors.pdf)
  - The `efficiencies` function performs the calculation
 
  Given the number of events after the cut $k$ and the number
- before the cut $n$, the efficiency is
- $$
- \epsilon = \frac{k}{n}
- $$
-
- with variance
+ before the cut $n$, the efficiency is $\epsilon = \frac{k}{n}$ with variance
+ 
  $$
  \sigma_\epsilon^2 = \frac{(k+1)(k+2)}{(n+2)(n+3)} - \left(\frac{k+1}{n+2}\right)^2
  $$
@@ -189,5 +188,12 @@ python bdt1.py --help
  survive the cut is a binomial distribution
 
  $$
- P(k | n) = nCk \epsilon_\text{true}^k (1-\epsilon_\text{true})^{n-k}
+ P(k | n) = \binom{n}{k} \epsilon_\text{true}^k (1-\epsilon_\text{true})^{n-k}
  $$
+
+ ### `efficiency_map.py`
+
+ - Using BDT1, BDT2 and BDTComb saves CSVs of the 2d/1d efficiency maps with their errors (assuming the above formula)
+ - WIP --> Adding plotting of these efficiencies in the same script
+
+ 
