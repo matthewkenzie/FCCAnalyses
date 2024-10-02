@@ -4,6 +4,7 @@ import numpy as np
 import uproot
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import awkward as ak  # Needed if using awkward arrays
 plt.style.use('fcc.mplstyle')
 
 # go configure 
@@ -45,23 +46,34 @@ def check_var(folder, varname):
         raise RuntimeError( f"No branch {varname} found in files at path {folder}. Try one from the list above." )
     return True
 
-def as_array(folder, varname):
-    path = os.path.join( args.inputpath, folder, "*.root" )
+def as_array(folder, varname, cut, nchunks):
+    if nchunks is not None:
+        files = glob(os.path.join(args.inputpath, folder, "*.root"))[:nchunks]
+        path = [ f"{f}:events" for f in files ]
+    else:
+        path = os.path.join( args.inputpath, folder, "*.root:events" )
+
     try: 
-        arr = uproot.concatenate( path+":events", expressions=varname, library="np" )[varname]
+        # awkward array instead of numpy -> allows variable length elements
+        #arr = uproot.concatenate( path+":events", expressions=varname, library="np")[varname]
+        arr = uproot.concatenate( path, expressions=varname, cut=cut)[varname]
     except:
         branches = get_list_of_branches(folder)
         print( f"Branches found in files at path {folder}:" )
         for br in branches:
             print('  ', br)
         raise RuntimeError( f"Cannot process expression {varname} in files at path {folder}. Try combinations of branches from the list above." )
-    return arr 
 
+    # Return awkward array as a flattened ndarray
+    return ak.to_numpy(ak.ravel(arr))
+
+# Should work as-is after flattening awkward array `values`
 def outlier_removal(values, threshold=7):
     mean = np.mean(values)
     sdev = np.std(values)
     pull = (values - mean)/sdev
     values = values[ np.abs(pull)<=threshold ]
+
     return values
 
 def histogram_settings():
@@ -95,7 +107,9 @@ def get_weights():
     
     return hist_weights
 
-def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, interactive=False, save=None, bins=50, range=None, total=["background"], components=["signal", "background"]):
+def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True, 
+         interactive=False, save=None, bins=50, range=None, 
+         total=["background"], components=["signal", "background"], cut=None, xtitle=None, nchunks=None):
     
     """ 
     plot( varname, **opts ) will plot a variable
@@ -111,7 +125,7 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
         Weight histograms by their expected branching fraction 
         multiplied by efficiency. Default: true
     density : bool, optional
-        Normalise histograms so that they reresent a probability
+        Normalise histograms so that they represent a probability
         density. Default: true
     remove_outliers : bool, optional
         Remove severe outliers from the distribution. Default: true
@@ -119,12 +133,18 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
         Show the plot interactively after its made. Default: false
     save : str, optional
         Save file for the plot. If None then no plot is saved. Default: none 
+    cuts : str, optional
+        Cut branch varname according to a (valid) ROOT expression. Default: none
+    xtitle : str, optional
+        Provide a custom title for the x axis. Default : `varname`, cut=`cut`
+    nchunks : int, optional
+        Provide number of files to use per sample for the plot. Default: None (all files are used)
     """
 
     if remove_outliers:
-        values = { sample: outlier_removal(as_array(sample, varname)) for sample in cfg.samples }
+        values = { sample: outlier_removal(as_array(sample, varname, cut, nchunks)) for sample in cfg.samples }
     else:
-        values = { sample: as_array(sample, varname) for sample in cfg.samples }
+        values = { sample: as_array(sample, varname, cut, nchunks) for sample in cfg.samples }
 
     if range is None:
         xmin = min( [ min(values[sample]) for sample in values ] )
@@ -160,7 +180,7 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
             hist_opts['hatch'] = '////'
         elif allocation=='background':
             reds = mpl.colormaps['Reds_r']
-            hist_opts['color'] = reds( np.linspace(0, 1, len(samples)+2)[1:-1] ) 
+            hist_opts['color'] = reds( np.linspace(0, 1, len(samples)+2)[1:-1] )
         
         ax.hist( 
             x = hist_x,
@@ -186,12 +206,16 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
             )
 
     ax.legend(reverse=True)
-    if varname in cfg.variable_plot_titles:
-        ax.set_xlabel( cfg.variable_plot_titles[varname] )
+    #if varname in cfg.variable_plot_titles:
+    #    ax.set_xlabel( cfg.variable_plot_titles[varname] )
+    #else:
+    #    ax.set_xlabel(f'{varname}, cut={cut}')
+    if xtitle is not None:
+        ax.set_xlabel(xtitle)
     else:
-        ax.set_xlabel(varname)
+        ax.set_xlabel(f'{varname} (cut={cut})')
     ax.set_ylabel('Density')
-
+    fig.tight_layout()
     if interactive:
         plt.show()
 
@@ -212,7 +236,8 @@ def make_plots():
 
 if __name__=="__main__":
 
-    make_plots()
+    #make_plots()
 
     print( plot.__doc__ )
+    #print( parse_pid.__doc__ )
 
