@@ -213,8 +213,7 @@ def plot(varname, stacked=True, weight=True, density=True, remove_outliers=True,
     if xtitle is not None:
         ax.set_xlabel(xtitle)
     else:
-        ax.set_xlabel(f'{varname}, cut={cut}')
-    
+        ax.set_xlabel(f'{varname} (cut={cut})')
     ax.set_ylabel('Density')
     fig.tight_layout()
     if interactive:
