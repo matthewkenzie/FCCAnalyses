@@ -16,6 +16,7 @@ from datetime import timedelta
 
 import config as cfg
 
+
 def efficiency_calc(before, after):
     '''
     Function that calculates the efficiency and error given the number of events before and after the selection
@@ -41,17 +42,17 @@ def efficiency_calc(before, after):
     var = ((after+1)*(after+2))/((before+2)*(before+3)) - ((after+1)/(before+2))**2
     error = np.sqrt(var)
 
-    return mode, var
+    return mode, error
 
 def get_efficiencies(inputtype, 
-                 further_analysis=True,
-                 samples=None, 
-                 cut=None, 
-                 nchunks=None, 
-                 raw=False, 
-                 custompath=None, 
-                 save=None, 
-                 verbose=True):
+                     further_analysis=True,
+                     samples=None,
+                     cut=None,
+                     nchunks=None,
+                     raw=False,
+                     custompath=None,
+                     save=None,
+                     verbose=True):
     '''
     Function to print, save or return efficiencies of given samples with a given cut string.
 
@@ -66,7 +67,7 @@ def get_efficiencies(inputtype,
     cut: str, optional
         Valid ROOT expression to pass to uproot as an additional cut. Default = None.
     nchunks: int or list of ints, optional
-        The number of files to use for each sample. Either a single int used for all or a list with corresponding values. 
+        The number of files to use for each sample. Either a single int used for all or a list with corresponding values.
         If the length of this list is longer than the length of samples, the first elements are used. Default = None (all files used)
     raw: bool, optional
         If True and cut is provided, use the eventsProcessed TParameter, otherwise use eventsSelected. Default = False.
@@ -79,7 +80,7 @@ def get_efficiencies(inputtype,
     shorthand: bool, optional
         Use shorthands defined in config.sample_shorthand instead of the full name from config.samples.
         ONLY RENAMES THE COLUMNS IN THE OUTPUT CSV
-    
+
     Returns
     -------
     If further_analysis is True,
@@ -102,18 +103,18 @@ def get_efficiencies(inputtype,
     # Set inputpath
     if (inputtype == 'custom') and (custompath is None):
         raise ValueError(f"{custompath} custompath incompatible with `inputtype` == {inputtype}")
-    elif (inputtype == 'custom') and not(os.path.exists(custompath)):
+    elif (inputtype == 'custom') and not os.path.exists(custompath):
         raise ValueError(f"{custompath} invalid or does not exist")
     elif inputtype not in ['stage1_training', 'stage1', 'stage2_training', 'stage2', 'custom']:
         raise ValueError(f"`inputtype` must be one of ['stage1_training', 'stage1', 'stage2_training', 'stage2', 'custom']")
 
     inputpath = cfg.fccana_opts['outputDir'][inputtype] if inputtype != 'custom' else custompath
-    
+
     if verbose:
         print(f"----> INFO: Using files from:")
         print(f"{15*' '}{inputpath}")
         print(f"----> INFO: With cut {cut}")
-    
+
         if (cut is not None) and raw:
             print(f"----> INFO: Calculating TOTAL efficiency (from eventsProcessed)")
         elif (cut is not None):
@@ -121,7 +122,7 @@ def get_efficiencies(inputtype,
         else:
             print(f"----> INFO: Cut is not set, calculating tupling efficiency")
         print(f"\n{30*'-'}\n")
-    
+
     # Define the samples from inputpath for which efficiency is calculated
     try:
         filepaths = {sample: os.path.join(inputpath, sample) for sample in samples}
@@ -133,7 +134,7 @@ def get_efficiencies(inputtype,
         samples = cfg.samples
         if verbose:
             print(f"----> INFO: `samples` either 'all' or invalid, using all config.samples")
-    
+
     # Define the number of files for each sample from which the efficiency is calculated
     try:
         # Length of samples is correct
@@ -194,18 +195,18 @@ def get_efficiencies(inputtype,
                         before += int(f['eventsProcessed'])
                     else:
                         before += int(f['eventsSelected'])
-                        
+
                     # If cut is a single string
                     if isinstance(cut, str):
-                        after += len(f['events'].arrays('Rec_n', cut = cut)) # Placeholder column
-                    
+                        after += len(f['events'].arrays('Rec_n', cut = cut))  # Placeholder column
+
                     # If cut is a list of strings, pass each one
                     elif isinstance(cut, list):
                         for i, cut_expr in enumerate(cut):
                             after[i] += len(f['events'].arrays('Rec_n', cut=cut_expr))
-        
+
         mode, error = efficiency_calc(before, after)
-        
+
         if (save is not None) or (further_analysis):
             data[sample+'_eff'] = mode
             data[sample+'_err'] = error
@@ -225,7 +226,7 @@ def get_efficiencies(inputtype,
                     print(f"{15*' '}n_events before selection = {before[i]}")
                     print(f"{15*' '}n_events after  selection = {after[i]}")
                     print(f"{15*' '}Efficiency         = ({mode[i]/10**common_div:.3f} +/- {error[i]/10**common_div:.3f}) x 10^{int(common_div)}\n")
-    
+
     ##############################
     ## OUTPUT
     ##############################
@@ -244,9 +245,10 @@ def get_efficiencies(inputtype,
         print(f"\n{30*'-'}")
         print(f"Execution time = {timedelta(seconds=end-start)}")
         print(f"{30*'-'}")
-    
+
     if further_analysis:
         return data
+
 
 if __name__ == "__main__":
     # If this script is run, i.e. not imported, pass arguments
@@ -261,7 +263,7 @@ if __name__ == "__main__":
     rawv = parser.add_argument("--raw",        default=False, action="store_true")
     cstp = parser.add_argument("--custompath", default=None,  type=str)
     save = parser.add_argument("--save",       default=None,  type=str)
-    
+
     inpt.help = 'Sample collection to use, if custom needs CUSTOMPATH'
     smpl.help = 'List of samples to use from config.samples, default is None (all config.samples used)'
     cutv.help = 'Cut expression used by uproot, default is None (calculates efficiency of selection cuts when files were generated)'
@@ -272,7 +274,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    get_efficiencies(args.inputtype, further_analysis=False, samples=args.samples, 
-                     cut=args.cut, nchunks=args.nchunks, raw=args.raw, 
+    get_efficiencies(args.inputtype, further_analysis=False, samples=args.samples,
+                     cut=args.cut, nchunks=args.nchunks, raw=args.raw,
                      custompath=args.custompath, save=args.save, verbose=True)
-

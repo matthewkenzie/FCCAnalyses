@@ -1,17 +1,18 @@
 # tuple_handler.py
+# WIP -- NEEDS TO BE INTEGRATED WITH THE WORKFLOW
+# Currently logically and stylistically outdated
 # Contains useful functions related to tupling
 # Classes:   TupleHandler
 # Functions:
 #           - get_vars_from_yaml
 #           - load_data
-import sys
+
 import os
 import subprocess
 import time
 import uproot
 
 import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import awkward as ak
 
@@ -49,11 +50,12 @@ class TupleHandler():
     """
     Class that handles stage0 data, including cutting and plotting
     """
+
     def __init__(self,
                  inputpath=None,
                  outputpath=None,
                  init_status=True):
-        
+
         # Check if inputpath is a valid directory, if None use default stage0 directory
         self.set_inputpath(inputpath)
 
@@ -72,16 +74,15 @@ class TupleHandler():
 
         # Instantiating methods
         self.configure()
-        
+
         if init_status:
             self.print_status()
-        
 
     def set_inputpath(self, inputpath):
         ''' Define directory in which config.samples are located. If None use default'''
         if inputpath is None:
             if not os.path.exists(cfg.stage0dir_in):
-                raise RuntimeError(f"Default input path {defaultpath} does not exist. Please ensure that the default directory is set correctly or use the optional argument to set it.")
+                raise RuntimeError(f"Default input path {inputpath} does not exist. Please ensure that the default directory is set correctly or use the optional argument to set it.")
             self.inputpath = cfg.stage0dir_in
         else:
             if not os.path.exists(inputpath):
@@ -95,7 +96,7 @@ class TupleHandler():
                 try:
                     subprocess.run(["mkdir", cfg.stage0dir_out], check=True)
                 except subprocess.CalledProcessError:
-                    print(f"Default path {defaultpath} does not exist or could not be created. Please ensure that the default directory is set correctly or use the optional argument to set it.")
+                    print(f"Default path {outputpath} does not exist or could not be created. Please ensure that the default directory is set correctly or use the optional argument to set it.")
 
             self.outputpath = cfg.stage0dir_out
 
@@ -109,7 +110,7 @@ class TupleHandler():
             self.outputpath = outputpath
 
     def configure(self):
-        """ 
+        """
         Import config file
 
         Parameters
@@ -150,10 +151,10 @@ class TupleHandler():
             List of .root filenames inside `folder`
         """
         path = os.path.join(self.inputpath, folder)
-        if not os.path.exists( path ):
+        if not os.path.exists(path):
             raise RuntimeError(f"No such path: {path}")
         path = os.path.join(path, "*.root")
-        files = glob( path )
+        files = glob(path)
         if len(files) == 0:
             raise RuntimeError(f"No root files in {path}")
         return path, files
@@ -169,35 +170,34 @@ class TupleHandler():
         print(f"Samples from {self.inputpath}...\n")
         print(f"Saving to {self.outputpath}...\n\n")
         time.sleep(1)
-        
-        if self.file_dict is not None: 
+
+        if self.file_dict is not None:
             print(f"File paths saved")
         if self.hist_data is not None:
             print(f"Current histogram data: {self.hist_data}")
-            
+
         print("-------------------------------------------------")
 
-
     def clear_hist_data(self):
-        self.hist_data = { }
-    
+        self.hist_data = {}
+
     def get_branch_data(self,
-                    branches,
-                    branchtype,
-                    hemisphere,
-                    aliases=None,
-                    cut_EVTlevel=None,
-                    cut_MClevel=None,
-                    cut_REClevel=None,
-                    sample_select=None,
-                    output_type='rt',
-                    show_status=True,
-                    custom_tree_name=None,
-                    custom_out_name=None,
-                    overwrite=False):
+                        branches,
+                        branchtype,
+                        hemisphere,
+                        aliases=None,
+                        cut_EVTlevel=None,
+                        cut_MClevel=None,
+                        cut_REClevel=None,
+                        sample_select=None,
+                        output_type='rt',
+                        show_status=True,
+                        custom_tree_name=None,
+                        custom_out_name=None,
+                        overwrite=False):
         """
         Store data from .root files to analyse or plot
-        
+
         Parameters
         ----------
         branches : str
@@ -224,18 +224,16 @@ class TupleHandler():
             'rt'   : saves cut branches as a .root file in the current directory
         """
 
-        #################################################
-        #
-        # EXCEPTION HANDLING
-        #
-        #################################################
-        if ( not (branches or branchtype) ) or ( branchtype not in ['per-event', 'per-mc', 'per-rec'] ):
+        ##############################
+        ## EXCEPTION HANDLING
+        ##############################
+        if (not (branches or branchtype)) or (branchtype not in ['per-event', 'per-mc', 'per-rec']):
             raise ValueError('One of branch or branchtype was empty, or branchtype invalid.')
 
         if hemisphere[0:4] not in ['both', 'max ', 'min ']:
             raise ValueError('`hemisphere` must be both, max or min followed by variable to use for angle')
-        
-        if ( not branchtype ) and ( cut_EVTlevel or cut_MClevel or cut_REClevel):
+
+        if (not branchtype) and (cut_EVTlevel or cut_MClevel or cut_REClevel):
             raise ValueError(f'branchtype {branchtype} incompatible with non-trivial cuts')
         elif branchtype == 'per-event' and ((cut_MClevel is not None) or (cut_REClevel is not None)):
             raise ValueError('event level branches but particle level cuts provided')
@@ -245,32 +243,25 @@ class TupleHandler():
             raise ValueError('Reconstructed variable branches but MC type cuts provided')
 
         if sample_select is not None:
-            samples = [ cfg.samples[i] for i in sample_select ]
+            samples = [cfg.samples[i] for i in sample_select]
         else:
             samples = cfg.samples
 
         if (len(branches) > 1) and (output_type == 'hist'):
             raise ValueError('Cannot create a histogram with more than one branch')
-        
+
         if (custom_out_name is not None) and (len(custom_out_name) != len(samples)):
             raise ValueError(f'{custom_out_name} cannot be broadcast to {samples}: incorrect length')
-        #################################################
-        # END OF EXCEPTION HANDLING
-        #################################################
+        ##############################
+        ## END OF EXCEPTION HANDLING
+        ##############################
 
-
-        #################################################
-        #
-        # UPDATE NAMES OF FILES TO USE
-        #
-        #################################################
+        # Update filenames to use
         self.update_file_dict(samples)
 
-        #################################################
-        #
-        # GENERATE STRING TO PASS TO `CUT`
-        #
-        #################################################
+        ##############################
+        ## GENERATE CUT EXPRESSION
+        ##############################
         # Basic expression without direction information
         cut_expr = None
         if (cut_EVTlevel is not None) and (cut_MClevel is not None):
@@ -283,33 +274,29 @@ class TupleHandler():
             cut_expr = cut_MClevel
         elif cut_REClevel is not None:
             cut_expr = cut_REClevel
-        
+
         # Append hemisphere condition
         if (hemisphere != 'both') and (branchtype not in ['per-mc', 'per-rec']):
             raise ValueError(f"Hemisphere value {hemisphere} needs `per-particle` branchtype")
         elif hemisphere[0:4] == 'min ':
             var4theta = hemisphere[4:-1]
             poscosTheta = f"(EVT_Thrust_x*{var4theta}x + EVT_Thrust_y*{var4theta}y + EVT_Thrust_z*{var4theta}z) / ((EVT_Thrust_x**2 + EVT_Thrust_y**2 + EVT_Thrust_z**2)**0.5 * ({var4theta}x**2 + {var4theta}y**2+{var4theta}z**2)) > 0"
-            
+
             cut_expr = f"({cut_expr}) & ({poscosTheta})"
         elif hemisphere[0:4] == 'max ':
             var4theta = hemisphere[4:-1]
             negcosTheta = f"(EVT_Thrust_x*{var4theta}x + EVT_Thrust_y*{var4theta}y + EVT_Thrust_z*{var4theta}z) / ((EVT_Thrust_x**2 + EVT_Thrust_y**2 + EVT_Thrust_z**2)**0.5 * ({var4theta}x**2 + {var4theta}y**2+{var4theta}z**2)) < 0"
-            
+
             cut_expr = f"({cut_expr}) & ({negcosTheta})"
         elif hemisphere == 'both':
             pass
         else:
             raise ValueError("Incompatible options for `hemisphere` and `branchtype`")
-        #################################################
-        # END OF CUT EXPRESSION GENERATION              
-        #################################################
 
-        #################################################
-        #
-        # SAVE TO ROOT FILE AT GIVEN OUTPUTPATH
-        # Issues -------> Remove [] from dataset instead of empty entry in tree
-        #################################################
+        ##############################
+        ## SAVE TO ROOT FILE AT GIVEN OUTPUTPATH
+        ## Issues -------> Remove [] from dataset instead of empty entry in tree
+        ##############################
         if output_type == 'rt':
             tree_name = custom_tree_name if custom_tree_name is not None else 'events'
             custom_out_name = custom_out_name if custom_out_name is not None else {sample: sample for sample in samples}
@@ -319,12 +306,12 @@ class TupleHandler():
                 print("Preliminary checks passed...")
                 print(f"Using name {tree_name} for root TTree...")
                 print("\n----------------------------")
-            
+
             for sample in samples:
 
                 if os.path.exists(os.path.join(self.outputpath, sample+'.root')) and overwrite is False:
-                        if show_status:
-                            print(f"{os.path.exists(os.path.join(self.outputpath, sample+'.root'))} already exists, skipping...")
+                    if show_status:
+                        print(f"{os.path.exists(os.path.join(self.outputpath, sample+'.root'))} already exists, skipping...")
                         continue
 
                 with uproot.recreate(os.path.join(self.outputpath, sample+".root")) as outfile:
@@ -336,12 +323,9 @@ class TupleHandler():
                     if show_status:
                         print(f"Branches from {sample} stored in {os.path.join(self.outputpath, sample+'.root')}")
 
-
-        #################################################
-        #
-        # WIP ----> SAVE TO SELF.HIST_DATA FOR PLOTTING
-        #
-        #################################################
+        ##############################
+        ## WIP ----> SAVE TO SELF.HIST_DATA FOR PLOTTING
+        ##############################
         if output_type == 'hist':
 
             if show_status:
@@ -354,19 +338,17 @@ class TupleHandler():
             for sample in samples:
                 self.hist_data[sample] = np.array([])
                 with uproot.iterate(self.file_dict[sample]+':events', expressions=branches, cut=cut_expr, aliases=aliases) as tree:
-                    self.hist_data[sample] = np.append(self.hist_data[sample], 
+                    self.hist_data[sample] = np.append(self.hist_data[sample],
                                                        ak.ravel(tree[branches]).to_numpy())
 
-    #################################################
-    #
-    # WIP ----> PLOT DATA FROM SELF.HIST_DATA
-    #
-    #################################################
+    ##############################
+    ## WIP ----> PLOT DATA FROM SELF.HIST_DATA
+    ##############################
     def plot_histogram(self,
                        external_data=None,
                        style='all-backgrounds',
-                       stacked=True, 
-                       density=True, 
+                       stacked=True,
+                       density=True,
                        remove_outliers=True,
                        interactive=False,
                        save=None,
@@ -379,8 +361,6 @@ class TupleHandler():
 
         Parameters
         ----------
-
-        
         """
         if total is None:
             total = self.total
@@ -388,15 +368,15 @@ class TupleHandler():
         if components is None:
             components = self.components
         if remove_outliers:
-            self.hist_data = { sample: self.remove_outliers(self.hist_data[sample]) for sample in self.hist_data }
+            self.hist_data = {sample: self.remove_outliers(self.hist_data[sample]) for sample in self.hist_data}
 
         if range is None:
-            xmin = min( [ min(self.hist_data[sample]) for sample in self.hist_data ] )
-            xmax = max( [ max(self.hist_data[sample]) for sample in self.hist_data ] )
+            xmin = min([min(self.hist_data[sample]) for sample in self.hist_data])
+            xmax = max([max(self.hist_data[sample]) for sample in self.hist_data])
         else:
             xmin = range[0]
             xmax = range[1]
-        
+
         #
         # PLOTTING HERE
         #
@@ -409,7 +389,7 @@ class TupleHandler():
 
         if clear_saved_data:
             self.clear_hist_data()
-    
+
     ################## MC MATCHING
     #
     # Issues ---> eager writing of data (everything stored in an awkward Array before writing)

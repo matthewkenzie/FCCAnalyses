@@ -1,3 +1,6 @@
+# particle_counter.py
+# LEGACY - for reference (plotting styles)
+
 ########################################################
 # Plots histograms of particle num per event using 'datafromrecp' files
 # Produces a plot of: e, mu, tau, kaon, pion count

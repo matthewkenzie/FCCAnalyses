@@ -1,4 +1,5 @@
-
+# plot.py
+# LEGACY -- Julio's code
 import numpy as np
 import ROOT
 from matplotlib import pyplot as plt

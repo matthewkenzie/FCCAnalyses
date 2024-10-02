@@ -1,3 +1,6 @@
+# thrustmag_vs_bbthrustangle.py
+# LEGACY - for intermediate analysis
+
 import os
 import uproot
 import numpy as np

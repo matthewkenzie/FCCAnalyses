@@ -1,4 +1,5 @@
-# auto-hadd.py -- UNTESTED -- CURRENTLY LEADS TO MEMORY LEAK
+# auto-hadd.py
+# UNTESTED -- CURRENTLY LEADS TO MEMORY LEAK
 # Probably best to instead implement this logic into a shell script
 # Takes stage1 or stage2 files and merges to a smaller number of files
 # Assumes POSIX system for glob syntax
@@ -22,9 +23,9 @@ parser.add_argument('--samples',      required=True, nargs='+', type=str, help='
 parser.add_argument('--n-per-chunk',  required=False, default=250, type=int, help='Reduction factor. The number of files for each hadd command, default is 250')
 args = parser.parse_args()
 
-#############################
-# INITIALISATION
-#############################
+##############################
+## INITIALISATION
+##############################
 start = time()
 print(f"\n{30*'-'}")
 print(f"MERGE FILES USING HADD")
@@ -60,9 +61,9 @@ except KeyError:
                    {15*' '}Must be one of {cfg.fccana_opts['outputDir'].keys()}
                    ''')
 
-#############################
-# MAIN BODY
-#############################
+##############################
+## MAIN BODY
+##############################
 print(f"\n{30*'-'}\n")
 for sample in samples:
     sample_dir = os.path.abspath(os.path.join(location, sample))
@@ -71,7 +72,7 @@ for sample in samples:
         print(f"----> WARNING: No ROOT files found at path, skipping...")
         print(f"{15*' '}{sample_dir}\n")
         continue
-    
+
     elif n_files <= args.n_per_chunk:
         print(f"----> WARNING: File count <={args.n_per_chunk} for sample, skipping...")
         print(f"{15*' '}{sample_dir}\n")
@@ -82,11 +83,11 @@ for sample in samples:
     # Create output directory
     temp_dir = os.path.abspath(os.path.join(location, sample+'_temp'))
     subprocess.run(f"mkdir {temp_dir}", check=True, shell=True)
-    
+
     # Split files into chunks
     n_chunks = (n_files // args.n_per_chunk) + 1
     limits = [-1]
-    count = -1 # Need to start at -1 because indexing starts at 0
+    count = -1  # Need to start at -1 because indexing starts at 0
 
     while count < n_files:
         count += args.n_per_chunk
@@ -94,14 +95,14 @@ for sample in samples:
         # Last chunk contains the remainder
         if count >= n_files:
             count = n_files - 1
-        
+
         limits.append(count)
 
     for i in range(len(count) - 1):
         input_files = os.path.abspath(os.path.join(sample_dir, f"chunk_{{{count[i]+1}..{count[i+1]}}}.root"))
         output_file_name = os.path.abspath(os.path.join(temp_dir, f"chunk_{i}.root"))
         subprocess.run(f"hadd -v 1 -k -fk {output_file_name} {input_files}", check=True, shell=True)
-    
+
     subprocess.run(["mv", sample_dir, os.path.abspath(os.path.join(location, sample+'_nohadd'))], check=True)
     subprocess.run(["mv", temp_dir, sample_dir], check=True)
 

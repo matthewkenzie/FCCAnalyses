@@ -1,3 +1,6 @@
+# thrust_bb_distributions.py
+# LEGACY - for intermediate analysis
+
 import os
 import uproot
 import numpy as np

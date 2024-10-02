@@ -1,4 +1,5 @@
-
+# xgb.py
+# LEGACY -- Julio's code
 import numpy as np
 import ROOT
 import random

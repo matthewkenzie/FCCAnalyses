@@ -1,4 +1,5 @@
-import sys
+# mother_averages.py
+# LEGACY - Prints a summary of true MC properties of surviving events
 import os
 import uproot
 import warnings
@@ -17,7 +18,7 @@ parser = ArgumentParser()
 parser.add_argument("--cut",       type=str, required=False, default=None, help='Cut expression to pass to uproot')
 parser.add_argument("--inputpath", type=str, default='/r01/lhcb/rrm42/fcc/stage1_postBDT', help='Path to files containing cfg.samples')
 parser.add_argument("--nchunks",   nargs='*', default=None, help='Number of chunks to run over')
-parser.add_argument("--eminonly",  default=False, action="store_const", const=True, help="Option to only use particles from Emin hemisphere") 
+parser.add_argument("--eminonly",  default=False, action="store_const", const=True, help="Option to only use particles from Emin hemisphere")
 args = parser.parse_args()
 
 print('Initialising...')

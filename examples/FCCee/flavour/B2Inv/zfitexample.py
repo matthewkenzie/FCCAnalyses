@@ -1,3 +1,5 @@
+# zfitexample.py
+# LEGACY -- just to remind me how to use zfit
 import os
 import sys
 from glob import glob
@@ -57,7 +59,7 @@ for file in files:
 obs    = zfit.Space('Emiss', cfg.EVT_hemisEmin_e_withpresel_min, cfg.EVT_hemisEmin_e_withpresel_max)
 data = zfit.Data(data_np, obs=obs)
 
-if args.model == 'DoubleCB': 
+if args.model == 'DoubleCB':
     mu     = zfit.Parameter("mu",      40,   0, 80)
     sigma  = zfit.Parameter("sigma",   10,   0, 50)
     alphal = zfit.Parameter("alphal", -35, -50, 50)
