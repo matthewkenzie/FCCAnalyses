@@ -52,7 +52,6 @@ def setup_build_parser(parser):
                             default=False,
                             help='enable ACTS based analyzers')
 
-
 def setup_test_parser(parser):
     '''
     Arguments for the test sub-command

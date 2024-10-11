@@ -293,13 +293,13 @@ VertexFinderAMVF(ROOT::VecOps::RVec<edm4hep::TrackState> tracks ){
     TheVertexColl.push_back(TheVertex);
   }
 
-  if (vertices.size()>0){
-    std::cout << "Found more than 0 Primary Vertex " << vertices.size() << std::endl;
-    for (const auto& vtx : vertices) {
-      std::cout << "Found vertex at " << vtx.fullPosition().transpose() << " with "
-		<< vtx.tracks().size() << " tracks." << std::endl;
-    }
-  }
+  //if (vertices.size()>0){
+  //  std::cout << "Found more than 0 Primary Vertex " << vertices.size() << std::endl;
+  //  for (const auto& vtx : vertices) {
+  //    std::cout << "Found vertex at " << vtx.fullPosition().transpose() << " with "
+	//	<< vtx.tracks().size() << " tracks." << std::endl;
+  //  }
+  //}
 
 
   return TheVertexColl;

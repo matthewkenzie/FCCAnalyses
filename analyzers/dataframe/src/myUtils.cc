@@ -115,6 +115,291 @@ int hasPV(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
   return result;
 }
 
+/********************************** 
+  B2INV ADDITIONAL FUNCTIONS
+***********************************/
+ROOT::VecOps::RVec<edm4hep::MCParticleData> get_MCObject_fromRP (ROOT::VecOps::RVec<int> reco_ind,
+    ROOT::VecOps::RVec<int> mc_ind, 
+    ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco, 
+    ROOT::VecOps::RVec<edm4hep::MCParticleData> mc) {
+  edm4hep::MCParticleData placeholder;
+  ROOT::VecOps::RVec<edm4hep::MCParticleData> result;
+  result.resize(reco.size(), placeholder);
+
+  for (unsigned int i = 0; i < reco_ind.size(); ++i) {
+    result[reco_ind.at(i)] = mc.at(mc_ind.at(i));
+  }
+
+  return result;
+}
+
+ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_MCParentandGParent_fromRP (ROOT::VecOps::RVec<int> reco_ind, 
+    ROOT::VecOps::RVec<int> mc_ind, ROOT::VecOps::RVec<int> parents,
+    ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop, 
+    ROOT::VecOps::RVec<edm4hep::MCParticleData> mc) {
+  // result.at(0) == Parent0
+  // result.at(1) == Parent1
+  // result.at(2) == Grandparent0 (Parent0 of Parent0)
+  // result.at(3) == Grandparent1 (Parent1 of Parent0)
+  // result.at(4) == Grandparent2 (Parent0 of Parent1)
+  // result.at(5) == Grandparent3 (Parent1 of Parent1)
+  ROOT::VecOps::RVec<int> placeholder;
+  placeholder.resize(recop.size(), 0);
+  ROOT::VecOps::RVec< ROOT::VecOps::RVec<int> > result;
+  result.resize(6, placeholder);
+
+  for (unsigned int i = 0; i < reco_ind.size(); ++i) {
+    int parent0 = myUtils::getMC_parent(0, mc.at(mc_ind.at(i)), parents);
+    int parent1 = myUtils::getMC_parent(1, mc.at(mc_ind.at(i)), parents);
+    if (parent0 != -999) {
+      result[0][reco_ind.at(i)] = mc.at(parent0).PDG;
+      int gparent0 = myUtils::getMC_parent(0, mc.at(parent0), parents);
+      int gparent1 = myUtils::getMC_parent(1, mc.at(parent0), parents);
+      if (gparent0 != -999) result[2][reco_ind.at(i)] = mc.at(gparent0).PDG;
+      if (gparent1 != -999) result[3][reco_ind.at(i)] = mc.at(gparent1).PDG;
+    }
+
+    if (parent1 != -999) {
+      result[1][reco_ind.at(i)] = mc.at(parent1).PDG;
+      int gparent0 = myUtils::getMC_parent(0, mc.at(parent1), parents);
+      int gparent1 = myUtils::getMC_parent(1, mc.at(parent1), parents);
+      if (gparent0 != -999) result[4][reco_ind.at(i)] = mc.at(gparent0).PDG;
+      if (gparent1 != -999) result[5][reco_ind.at(i)] = mc.at(gparent1).PDG;
+    }
+  }
+
+  return result;
+}
+
+ROOT::VecOps::RVec<int> get_MCVertex_fromMC(ROOT::VecOps::RVec<edm4hep::MCParticleData> mc, 
+    ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertexMC> mcvertex) {
+  ROOT::VecOps::RVec<int> result;
+  for (size_t i = 0; i < mc.size(); ++i) {
+    for (size_t j = 0; j < mcvertex.size(); ++j) {
+      ROOT::VecOps::RVec<int> mc_ind = mcvertex.at(j).mc_ind;
+      if (std::find(mc_ind.begin(), mc_ind.end(), i) != mc_ind.end()) {
+        result.push_back(j);
+        break;
+      }
+    }
+    // If result is updated its length must be at least i+1
+    if (result.size() <= i) result.push_back(-999);
+  }
+
+  return result;
+}
+
+ROOT::VecOps::RVec<int> get_Vertex_fromRP(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop,
+    ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex) {
+  ROOT::VecOps::RVec<int> result;
+  for (size_t i = 0; i < recop.size(); ++i) {
+    for (size_t j = 0; j < vertex.size(); ++j) {
+      ROOT::VecOps::RVec<int> reco_ind = vertex.at(j).reco_ind;
+      if (std::find(reco_ind.begin(), reco_ind.end(), i) != reco_ind.end()) {
+        result.push_back(j);
+        break;
+      }
+    }
+    // If result is updated its length must be at least i+1
+    if (result.size() <= i) result.push_back(-999);
+  }
+
+  return result;
+}
+
+int get_Vertex_fromRPindex(int index, 
+    ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex) {
+  int result=-999;
+  for (size_t i = 0; i < vertex.size(); ++i) {
+    ROOT::VecOps::RVec<int> reco_ind = vertex.at(i).reco_ind;
+    if (std::find(reco_ind.begin(), reco_ind.end(), index) != reco_ind.end()) {
+      result = i;
+      break;
+    }
+  }
+
+  return result;
+}
+
+get_RP_inHemis::get_RP_inHemis(bool arg_pos){
+  _pos = arg_pos;
+}
+ROOT::VecOps::RVec<int> get_RP_inHemis::operator() (ROOT::VecOps::RVec<float> thrustcostheta) {
+  ROOT::VecOps::RVec<int> result;
+  for (auto &angle:thrustcostheta){
+    // Initialise with `indeterminate` value
+    int value = -1;
+
+    // Emin hemisphere
+    if (_pos){
+      if (angle > 0.) value = 1;
+      else if (angle < 0.) value = 0;
+    }
+
+    // Emax hemisphere
+    else {
+      if (angle < 0.) value = 1;
+      else if (angle > 0.) value = 0;
+    }
+
+    result.push_back(value);
+  }
+
+  return result;
+}
+
+// Check if K_L should be included
+ROOT::VecOps::RVec<HemisParticleInfo> get_RP_HemisInfo(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop,
+    ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex, ROOT::VecOps::RVec<int> should_eval) {
+  HemisParticleInfo lept;
+  HemisParticleInfo kaon;
+  HemisParticleInfo pion;
+
+  for (size_t i = 0; i < recop.size(); ++i) {
+    // Check for 0 (dont evaluate) or -1 (error)
+    if (should_eval.at(i) != 1) continue;
+    #if edm4hep_VERSION > EDM4HEP_VERSION(0, 10, 5)
+      int pid = recop.at(i).PDG;
+    #else
+      int pid = recop.at(i).type;
+    #endif
+
+    // Lepton
+    if ((pid == 11) || (pid == 13)) {
+      lept.num++;
+      if (recop.at(i).energy > lept.maxE) {
+        lept.maxE = recop.at(i).energy;
+        lept.index = i;
+      }
+    }
+    // Kaon
+    if (pid == 321) {
+      kaon.num++;
+      if (recop.at(i).energy > kaon.maxE) {
+        kaon.maxE = recop.at(i).energy;
+        kaon.index = i;
+      }
+    }
+    // Pion
+    if (pid == 211) {
+      pion.num++;
+      if (recop.at(i).energy > pion.maxE) {
+        pion.maxE = recop.at(i).energy;
+        pion.index = i;
+      }
+    }
+  }
+
+  int l_vtxind = get_Vertex_fromRPindex(lept.index, vertex);
+  int k_vtxind = get_Vertex_fromRPindex(kaon.index, vertex);
+  int p_vtxind = get_Vertex_fromRPindex(pion.index, vertex);
+
+  // -999 indicates that the corresponding vertex is not found
+  if (l_vtxind != -999) lept.fromPV = vertex.at(l_vtxind).vertex.primary;
+  if (k_vtxind != -999) kaon.fromPV = vertex.at(k_vtxind).vertex.primary;
+  if (p_vtxind != -999) pion.fromPV = vertex.at(p_vtxind).vertex.primary;
+  
+  ROOT::VecOps::RVec<HemisParticleInfo> result {lept, kaon, pion};
+  return result;
+}
+
+int get_hemis_containstau23pi(ROOT::VecOps::RVec<int> should_eval,
+    ROOT::VecOps::RVec<int> pdg, ROOT::VecOps::RVec<int> m1_pdg,
+    ROOT::VecOps::RVec<int> reco_indvtx, ROOT::VecOps::RVec<int> reco_vtx_ntracks) {
+
+  int result = 0;
+  for (size_t i = 0; i < should_eval.size(); ++i) {
+    // If the particle is a charged pion, comes from a tau and is in the correct hemisphere, find its vertex index
+    if (should_eval.at(i) && (abs(pdg.at(i)) == 211) && (abs(m1_pdg.at(i)) == 15)) {
+      int indvtx = reco_indvtx.at(i);
+      if ((reco_indvtx.at(i) != -999) && (reco_vtx_ntracks.at(indvtx) == 3)) {
+        result = 1;
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+// If `sign` is 1 return value, else return -(value)
+ROOT::VecOps::RVec<float> get_VertexFeature_signed(ROOT::VecOps::RVec<int> sign,
+    ROOT::VecOps::RVec<float> feature_vtx) {
+  ROOT::VecOps::RVec<float> result;
+
+  for (size_t i = 0; i < feature_vtx.size(); ++i) {
+    if (sign.at(i) == 1) result.push_back(feature_vtx.at(i));
+    else result.push_back(-feature_vtx.at(i));
+  }
+
+  return result;
+}
+
+ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(ROOT::VecOps::RVec<int> should_eval, 
+    ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
+  ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> result;
+  for (size_t i = 0; i < vertex.size(); ++i) {
+    if (should_eval.at(i) == 1) result.push_back(vertex.at(i));
+  }
+  return result;
+}
+
+ROOT::VecOps::RVec<int>  remove_PV_fromVertexStats(ROOT::VecOps::RVec<int> should_eval, 
+    ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> reco_vtx) {
+  ROOT::VecOps::RVec<int> result;
+  for (size_t i = 0; i < reco_vtx.size(); ++i) {
+    // One line expression, truth table of NOT(should_eval => isPV) i.e. ((NOT PV) AND SHOULD_EVAL)
+    result.push_back((!(reco_vtx.at(i).vertex.primary) && should_eval.at(i)));
+
+    // if (should_eval.at(i) == 1 && reco_vtx.at(i).vertex.primary == 1) result.push_back(0);
+    // else result.push_back(should_eval.at(i));
+  }
+
+  return result;
+}
+
+ROOT::VecOps::RVec<float> get_Stats_fromRVec(ROOT::VecOps::RVec<int> should_eval, ROOT::VecOps::RVec<float> values) {
+  ROOT::VecOps::RVec<float> values_to_eval;
+  for (size_t i = 0; i < values.size(); ++i) {
+    if (should_eval.at(i) == 1) values_to_eval.push_back(values.at(i));
+  }
+
+  auto min = ROOT::VecOps::Min(values_to_eval);
+  auto max = ROOT::VecOps::Max(values_to_eval);
+  auto ave = ROOT::VecOps::Mean(values_to_eval);
+  ROOT::VecOps::RVec<float> result {float(min), float(max), float(ave)};
+  return result;
+}
+
+ROOT::VecOps::RVec<int> remove_BremPhotons_fromRecoParticleStats(ROOT::VecOps::RVec<int> should_eval,
+    ROOT::VecOps::RVec<int> pdg, ROOT::VecOps::RVec<int> m1_pdg) {
+  ROOT::VecOps::RVec<int> result;
+  for (size_t i = 0; i < should_eval.size(); ++i) {
+    // One line expression, truth table of ((NOT BremPhoton) AND SHOULD_EVAL)
+    // A BremPhoton is one with a true id of 22 and a mother with a true id of 11 (can be replaced with reco ids instead of true ids)
+    result.push_back((!(abs(pdg.at(i)) == 22 && abs(m1_pdg.at(i)) == 11) && should_eval.at(i) == 1));
+    
+    // if (should_eval.at(i) == 1) {
+    //  if (abs(pdg.at(i)) == 22 && abs(m1_pdg.at(i)) == 11) result.push_back(0);
+    //  else result.push_back(1);
+    // }
+  }
+  return result;
+}
+
+ROOT::VecOps::RVec<int> remove_Neutrals_fromTrackStats(ROOT::VecOps::RVec<int> should_eval,
+    ROOT::VecOps::RVec<float> charge) {
+  ROOT::VecOps::RVec<int> result;
+  for (size_t i = 0; i < should_eval.size(); ++i) {
+    // Return (SHOULD_EVAL AND IS_CHARGED)
+    result.push_back((should_eval.at(i)) && (abs(charge.at(i)) > 0));
+  }
+
+  return result;
+}
+/**********************************
+  END OF B2INV FUNCTIONS
+***********************************/
+
 ROOT::VecOps::RVec<float> get_Vertex_mass(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
 						   ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco){
 
@@ -350,10 +635,10 @@ merge_VertexObjet(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> in) {
   return in;
 }
 
-std::vector<std::vector<int>> get_Vertex_ind(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
-  std::vector<std::vector<int>> result;
+ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_Vertex_ind(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex){
+  ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> result;
   for (auto &p:vertex){
-    std::vector<int> tmp;
+    ROOT::VecOps::RVec<int> tmp;
     for (size_t i = 0; i < p.reco_ind.size(); ++i) tmp.push_back(p.reco_ind.at(i));
     result.push_back(tmp);
   }

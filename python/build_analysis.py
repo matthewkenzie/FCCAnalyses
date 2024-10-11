@@ -13,7 +13,7 @@ import logging
 LOGGER = logging.getLogger('FCCAnalyses.build')
 
 
-def run_subprocess(command: str, run_dir: str) -> None:
+def run_subprocess(command: str, run_dir: str)->None:
     '''
     Run subprocess in specified directory.
     Check only the return value, otherwise keep the subprocess connected to
@@ -32,7 +32,7 @@ def run_subprocess(command: str, run_dir: str) -> None:
         sys.exit(0)
 
 
-def build_analysis(mainparser) -> None:
+def build_analysis(mainparser)->None:
     '''
     Main build steering function
     '''

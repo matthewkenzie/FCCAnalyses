@@ -287,7 +287,39 @@ ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> remove(
   return ROOT::VecOps::RVec(result);
 }
 
+/////////////////////////////
+// B2INV
+/////////////////////////////
 
+ROOT::VecOps::RVec<int> get_customid(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> in) {
+  ROOT::VecOps::RVec<int> result;
+  for (auto &p:in) {
+  #if edm4hep_VERSION > EDM4HEP_VERSION(0, 10, 5)
+    int pid = fabs(p.PDG);
+  #else
+    int pid = fabs(p.type);
+  #endif
+    // Charged leptons
+    if (pid == 11) result.push_back(21);
+    else if (pid == 13) result.push_back(22);
+    else if (pid == 15) result.push_back(23);
+
+    // Charged meson
+    else if ( !(pid / 1000) && (pid / 100) && (((pid / 100) + (pid % 100 / 10)) % 2) ) result.push_back(44);
+    // Neutral meson
+    else if ( !(pid / 1000) && (pid / 100) ) result.push_back(34);
+
+    // Charged baryon
+    else if ( !(pid / 10000) && (pid / 1000) && (((pid / 1000) + (pid % 1000 / 100) + (pid % 100 / 10)) % 2) ) result.push_back(45);
+    // Neutral baryon
+    else if ( !(pid / 10000) && (pid / 1000) ) result.push_back(35);
+    
+    // All others (photons)
+    else result.push_back(10);
+  }
+
+  return result;
+}
 
 
 ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> get(ROOT::VecOps::RVec<int> index, ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> in){
