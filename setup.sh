@@ -39,6 +39,13 @@ if [ "${0}" != "${BASH_SOURCE}" ]; then
     export LD_LIBRARY_PATH=${ONNXRUNTIME_ROOT_DIR}/lib:${LD_LIBRARY_PATH}
   fi
 
+  # --- New lines added towards the endm before the MANPATH - set the path of your local delphes accordingly  :
+  # My local delphes
+  export LD_LIBRARY_PATH=/r02/lhcb/mkenzie/fcc/delphes/install/lib:${LD_LIBRARY_PATH}
+  export CMAKE_PREFIX_PATH=/r02/lhcb/mkenzie/fcc/delphes/install:$CMAKE_PREFIX_PATH
+  export DELPHES_DIR=/r02/lhcb/mkenzie/fcc/delphes/install
+  # -------------------------------
+
   export MANPATH=${LOCAL_DIR}/man:${MANPATH}
   export MANPATH=${LOCAL_DIR}/install/share/man:${MANPATH}
 
