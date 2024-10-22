@@ -16,7 +16,7 @@
 [\fB\-\-graph\-path\fR \fIGRAPH_PATH\fR]
 .I analysis-script
 .SH DESCRIPTION
-.B fccanalysis-run
+.B fccanalysis\-run
 will run analysis provided in the analysis file\&. The
 analysis itself can be divided into several stages if desired\&. For all those
 stages \fIfccanalysis-run\fR is used\&.
@@ -49,8 +49,8 @@ Run over the test file\&.
 .B \-\-bench
 Output benchmark results to a JSON file\&.
 .TP
-\fB\-\-ncpus\fR \fINCPUS\fR
-Set number of threads\&.
+\fB\-j\fR \fINCPUS\fR, \fB\-\-ncpus\fR \fINCPUS\fR
+Set number of jobs (threads)\&.
 .TP
 .BR \-g ", " \-\-graph
 The computational graph of the analysis will be generated\&.
@@ -73,7 +73,7 @@ authors are:
 .in +4
 Clement Helsens
 .br
-Valentin Volk
+Valentin Volkl
 .br
 Gerardo Ganis
 .SH FCCANALYSES

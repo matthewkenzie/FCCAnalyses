@@ -47,7 +47,10 @@ def setup_build_parser(parser):
         default=1,
         help='number of threads when building (equivalent to `make -j`)'
     )
-
+    build_args.add_argument('--acts-on',
+                            action='store_true',
+                            default=False,
+                            help='enable ACTS based analyzers')
 
 def setup_test_parser(parser):
     '''
@@ -112,7 +115,7 @@ def setup_run_parser(parser):
                         help='run over the test input file')
     parser.add_argument('--bench', action='store_true', default=False,
                         help='output benchmark results to a JSON file')
-    parser.add_argument('--ncpus', type=int, default=-1,
+    parser.add_argument('-j', '--ncpus', type=int, default=-1,
                         help='set number of threads')
     parser.add_argument('-g', '--graph', action='store_true', default=False,
                         help='generate computational graph of the analysis')
@@ -143,13 +146,24 @@ def setup_run_parser_plots(parser):
     Define command line arguments for the plots sub-command.
     '''
     parser.add_argument('script_path', help="path to the plots script")
+    parser.add_argument('--legend-text-size', type=float, default=None,
+                        help='text size for the legend elements')
+    parser.add_argument('--legend-x-min', type=float, default=None,
+                        help='minimal x position of the legend')
+    parser.add_argument('--legend-x-max', type=float, default=None,
+                        help='maximal x position of the legend')
+    parser.add_argument('--legend-y-min', type=float, default=None,
+                        help='minimal y position of the legend')
+    parser.add_argument('--legend-y-max', type=float, default=None,
+                        help='maximal y position of the legend')
+
+
 
 def setup_run_parser_combine(parser):
     '''
     Define command line arguments for the combine sub-command.
     '''
     parser.add_argument('script_path', help="path to the combine script")
-
 
 
 # _____________________________________________________________________________

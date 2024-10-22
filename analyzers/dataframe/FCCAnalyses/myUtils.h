@@ -76,7 +76,86 @@ namespace myUtils{
     int m_PDG=211;
     ROOT::VecOps::RVec<int> operator() (ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop);
   };
+  
+  // For B2INV
+  struct HemisParticleInfo {
+    int num = 0;
+    float maxE = 0.;
+    int index = -999;
+    int fromPV = -999; // Default value to check for errors
+  };
 
+  /********************************** 
+    B2INV ADDITIONAL STAGE0 FUNCTIONS
+  ***********************************/
+  // Get the MC variables of truthmatched reconstructed particles
+  ROOT::VecOps::RVec<edm4hep::MCParticleData> get_MCObject_fromRP (ROOT::VecOps::RVec<int> reco_ind,
+      ROOT::VecOps::RVec<int> mc_ind,
+      ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> reco,
+      ROOT::VecOps::RVec<edm4hep::MCParticleData> mc);
+
+  // Get the parent and grandparent ids of truthmatched reconstructed particles
+  ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_MCParentandGParent_fromRP (ROOT::VecOps::RVec<int> reco_ind,
+      ROOT::VecOps::RVec<int> mc_ind,
+      ROOT::VecOps::RVec<int> parents,
+      ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop,
+      ROOT::VecOps::RVec<edm4hep::MCParticleData> mc);
+
+  // Get the index of the MC vertex corresponding to the MCParticle
+  ROOT::VecOps::RVec<int> get_MCVertex_fromMC(ROOT::VecOps::RVec<edm4hep::MCParticleData> mc, ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertexMC> mcvertex);
+
+  // Get the index of the reconstructed vertex to which the RecoP belongs
+  ROOT::VecOps::RVec<int> get_Vertex_fromRP(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop,
+      ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex);
+
+  // Get the index of the reconstructed vertex, but now using a single reco_ind
+  int get_Vertex_fromRPindex(int index, ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex);
+
+  // Use Rec_AxisCosTheta to get information about which hemisphere the particle is travelling in
+  // 1 if true, 0 if false, -1 if indeterminate (costheta exactly 0 somehow)
+  struct get_RP_inHemis {
+  public:
+    get_RP_inHemis(bool arg_pos=0);
+    ROOT::VecOps::RVec<int> operator() (const ROOT::VecOps::RVec<float> angle);
+
+  private:
+    bool _pos; /// Which hemisphere to select, false selects cosTheta<0 true selects cosTheta>0, Default=0
+  };
+  
+  /* output[0] -> info about leptons
+   * output[1] -> info about kaons
+   * output[2] -> info about pions
+   */
+  ROOT::VecOps::RVec<HemisParticleInfo> get_RP_HemisInfo(ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop,
+                ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex, ROOT::VecOps::RVec<int> should_eval);
+
+  int get_hemis_containstau23pi(ROOT::VecOps::RVec<int> should_eval,
+      ROOT::VecOps::RVec<int> pdg, ROOT::VecOps::RVec<int> m1_pdg, 
+      ROOT::VecOps::RVec<int> reco_indvtx, ROOT::VecOps::RVec<int> reco_vtx_ntracks);
+    
+  // Meant to take the output of get_Vertex_d2PV and sign based on the hemisphere
+  ROOT::VecOps::RVec<float> get_VertexFeature_signed(ROOT::VecOps::RVec<int> sign, ROOT::VecOps::RVec<float> feature_vtx);
+
+  ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> get_VertexObject_withcond(ROOT::VecOps::RVec<int> should_eval, 
+      ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex);
+
+  // Remove the true PV from a list of bools to evaluate, if present
+  ROOT::VecOps::RVec<int> remove_PV_fromVertexStats(ROOT::VecOps::RVec<int> should_eval, 
+      ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> reco_vtx);
+
+  // Given a vector of floats and a vector of bools, return the minimum, maximum and average of the values using indices where the bools are true
+  ROOT::VecOps::RVec<float> get_Stats_fromRVec(ROOT::VecOps::RVec<int> should_eval, ROOT::VecOps::RVec<float> values);
+
+  // Remove photons from Bremsstrahlung from the list of particles
+  ROOT::VecOps::RVec<int> remove_BremPhotons_fromRecoParticleStats(ROOT::VecOps::RVec<int> should_eval, 
+      ROOT::VecOps::RVec<int> pdg, ROOT::VecOps::RVec<int> m1_pdg);
+
+  // Remove neutral particles from an array in which their value is true
+  ROOT::VecOps::RVec<int> remove_Neutrals_fromTrackStats(ROOT::VecOps::RVec<int> should_eval,
+      ROOT::VecOps::RVec<float> charge);
+  /********************************** 
+    END OF B2INV FUNCTIONS
+  ***********************************/
 
   ROOT::VecOps::RVec<edm4hep::TrackState> get_pseudotrack(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex,
 							  ROOT::VecOps::RVec<edm4hep::ReconstructedParticleData> recop);
@@ -150,7 +229,7 @@ namespace myUtils{
 					    ROOT::VecOps::RVec<int> mcind,
 					    int comp);
 
-  std::vector<std::vector<int>> get_Vertex_ind(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex);
+  ROOT::VecOps::RVec<ROOT::VecOps::RVec<int>> get_Vertex_ind(ROOT::VecOps::RVec<VertexingUtils::FCCAnalysesVertex> vertex);
 
   float get_d0(TVector3 x, TVector3 p);
   float get_z0(TVector3 x, TVector3 p);

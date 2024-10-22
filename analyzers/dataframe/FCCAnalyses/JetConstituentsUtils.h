@@ -4,6 +4,16 @@
 #include "ROOT/RVec.hxx"
 #include "edm4hep/ReconstructedParticle.h"
 #include "edm4hep/MCParticle.h"
+#include "edm4hep/Quantity.h"
+#if __has_include("edm4hep/TrackerHit3DData.h")
+#include "edm4hep/TrackerHit3DData.h"
+#else
+#include "edm4hep/TrackerHitData.h"
+namespace edm4hep {
+  using TrackerHit3DData = edm4hep::TrackerHitData;
+}
+#endif
+
 #include "fastjet/JetDefinition.hh"
 
 #include "TMath.h"
@@ -195,7 +205,7 @@ namespace FCCAnalyses {
     rv::RVec<FCCAnalysesJetConstituentsData> get_mtof(const rv::RVec<FCCAnalysesJetConstituents>& jcs,
                                                       const rv::RVec<float>& track_L,
                                                       const rv::RVec<edm4hep::TrackData>& trackdata,
-                                                      const rv::RVec<edm4hep::TrackerHitData>& trackerhits,
+                                                      const rv::RVec<edm4hep::TrackerHit3DData>& trackerhits,
                                                       const rv::RVec<edm4hep::ClusterData>& gammadata,
                                                       const rv::RVec<edm4hep::ClusterData>& nhdata,
                                                       const rv::RVec<edm4hep::CalorimeterHitData>& calohits,

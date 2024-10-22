@@ -1,5 +1,5 @@
 '''
-Run regular stage of an analysis
+Run analysis in one of the different styles.
 '''
 
 import os
@@ -872,7 +872,11 @@ def run(parser):
     Set things in motion.
     '''
 
-    args, _ = parser.parse_known_args()
+    args, unknown_args = parser.parse_known_args()
+    # Add unknown arguments including unknown input files
+    unknown_args += [x for x in args.files_list if not x.endswith('.root')]
+    args.unknown = unknown_args
+    args.files_list = [x for x in args.files_list if x.endswith('.root')]
 
     if not hasattr(args, 'command'):
         LOGGER.error('Error occurred during subcommand routing!\nAborting...')
@@ -923,7 +927,7 @@ def run(parser):
     # Load the analysis script as a module
     anapath = os.path.abspath(anapath)
     LOGGER.info('Loading analysis file:\n%s', anapath)
-    rdf_spec = importlib.util.spec_from_file_location("rdfanalysis",
+    rdf_spec = importlib.util.spec_from_file_location("fcc_analysis_module",
                                                       anapath)
     rdf_module = importlib.util.module_from_spec(rdf_spec)
     rdf_spec.loader.exec_module(rdf_module)
@@ -935,19 +939,29 @@ def run(parser):
     if get_element(rdf_module, 'graphPath') != '':
         args.graph_path = get_element(rdf_module, 'graphPath')
 
-    if hasattr(rdf_module, "build_graph") and \
-            hasattr(rdf_module, "RDFanalysis"):
-        LOGGER.error('Analysis file ambiguous!\nBoth "RDFanalysis" '
-                     'class and "build_graph" function are defined.')
+    n_ana_styles = 0
+    for analysis_style in ["build_graph", "RDFanalysis", "Analysis"]:
+        if hasattr(rdf_module, analysis_style):
+            LOGGER.debug("Analysis style found: %s", analysis_style)
+            n_ana_styles += 1
+
+    if n_ana_styles == 0:
+        LOGGER.error('Analysis file does not contain required objects!\n'
+                     'Provide either RDFanalysis class, Analysis class, or '
+                     'build_graph function.')
         sys.exit(3)
-    elif hasattr(rdf_module, "build_graph") and \
-            not hasattr(rdf_module, "RDFanalysis"):
-        run_histmaker(args, rdf_module, anapath)
-    elif not hasattr(rdf_module, "build_graph") and \
-            hasattr(rdf_module, "RDFanalysis"):
+
+    if n_ana_styles > 1:
+        LOGGER.error('Analysis file ambiguous!\n'
+                     'Multiple analysis styles used!\n'
+                     'Provide only one out of "RDFanalysis", "Analysis", '
+                     'or "build_graph".')
+        sys.exit(3)
+
+    if hasattr(rdf_module, "Analysis"):
+        from run_fccanalysis import run_fccanalysis
+        run_fccanalysis(args, rdf_module)
+    if hasattr(rdf_module, "RDFanalysis"):
         run_stages(args, rdf_module, anapath)
-    else:
-        LOGGER.error('Analysis file does not contain required '
-                     'objects!\nProvide either "RDFanalysis" class or '
-                     '"build_graph" function.')
-        sys.exit(3)
+    if hasattr(rdf_module, "build_graph"):
+        run_histmaker(args, rdf_module, anapath)
