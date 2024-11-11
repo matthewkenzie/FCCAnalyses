@@ -45,7 +45,7 @@ class analysis():
                .Define("MC_PrimaryVertex",  "FCCAnalyses::MCParticle::get_EventPrimaryVertex(21)( Particle )" )
 
                # number of tracks
-               .Define("ntracks","ReconstructedParticle2Track::getTK_n(EFlowTrack_1)")
+               .Define("ntracks","FCCAnalyses::ReconstructedParticle2Track::getTK_n(EFlowTrack_1)")
 
 
                # Select primary tracks based on the matching to MC
@@ -54,21 +54,21 @@ class analysis():
                .Alias("MCRecoAssociations0", "MCRecoAssociations#0.index")
                .Alias("MCRecoAssociations1", "MCRecoAssociations#1.index")
                # the recoParticles corresponding  to the tracks that are primaries, according to MC-matching :
-               .Define("MC_PrimaryTracks_RP",  "VertexingUtils::SelPrimaryTracks(MCRecoAssociations0,MCRecoAssociations1,ReconstructedParticles,Particle, MC_PrimaryVertex)" )
+               .Define("MC_PrimaryTracks_RP",  "FCCAnalyses::VertexingUtils::SelPrimaryTracks(MCRecoAssociations0,MCRecoAssociations1,ReconstructedParticles,Particle, MC_PrimaryVertex)" )
                # and the corresponding tracks :
-               .Define("MC_PrimaryTracks",  "ReconstructedParticle2Track::getRP2TRK( MC_PrimaryTracks_RP, EFlowTrack_1)" )
+               .Define("MC_PrimaryTracks",  "FCCAnalyses::ReconstructedParticle2Track::getRP2TRK( MC_PrimaryTracks_RP, EFlowTrack_1)" )
 
-               .Define("nPrimaryTracks", "ReconstructedParticle::get_n(MC_PrimaryTracks_RP)")
+               .Define("nPrimaryTracks", "FCCAnalyses::ReconstructedParticle::get_n(MC_PrimaryTracks_RP)")
 
                # Reconstruct the vertex from these primary tracks :
-               .Define("VertexObject_primaryTracks",  "VertexFitterSimple::VertexFitter ( 1, MC_PrimaryTracks_RP, EFlowTrack_1) ")
-               .Define("Vertex_primaryTracks",   "VertexingUtils::get_VertexData( VertexObject_primaryTracks )")   # primary vertex, in mm
+               .Define("VertexObject_primaryTracks",  "FCCAnalyses::VertexFitterSimple::VertexFitter ( 1, MC_PrimaryTracks_RP, EFlowTrack_1) ")
+               .Define("Vertex_primaryTracks",   "FCCAnalyses::VertexingUtils::get_VertexData( VertexObject_primaryTracks )")   # primary vertex, in mm
 
                # Idem, but adding the beam-spot constraint to the vertex fitter
                   # At the Z peak, the beam-spot size is ( 4.5 mum, 20 nm, 0.3 mm)
 		  # The beam-spot dimensions are passed in mum :
-               .Define("VertexObject_primaryTracks_BSC",  "VertexFitterSimple::VertexFitter ( 1, MC_PrimaryTracks_RP, EFlowTrack_1, true, 4.5, 20e-3, 300) ")
-               .Define("Vertex_primaryTracks_BSC",   "VertexingUtils::get_VertexData( VertexObject_primaryTracks_BSC )")   # primary vertex, in mm
+               .Define("VertexObject_primaryTracks_BSC",  "FCCAnalyses::VertexFitterSimple::VertexFitter ( 1, MC_PrimaryTracks_RP, EFlowTrack_1, true, 6, 25e-3, 400) ")
+               .Define("Vertex_primaryTracks_BSC",   "FCCAnalyses::VertexingUtils::get_VertexData( VertexObject_primaryTracks_BSC )")   # primary vertex, in mm
 
 
                #Run the Acts AMVF vertex finder
@@ -84,23 +84,23 @@ class analysis():
                # --- now, determime the primary (and secondary) tracks without using the MC-matching:
 
                # First, reconstruct a vertex from all tracks
-               #.Define("VertexObject_allTracks",  "VertexFitterSimple::VertexFitter_Tk ( 1, EFlowTrack_1, true, 4.5, 20e-3, 300)")
+               .Define("VertexObject_allTracks",  "FCCAnalyses::VertexFitterSimple::VertexFitter_Tk ( 1, EFlowTrack_1, true, 6, 25e-3, 400)")
                # Select the tracks that are reconstructed  as primaries
-               .Define("RecoedPrimaryTracks",  "VertexFitterSimple::get_PrimaryTracks( EFlowTrack_1, true, 4.5, 20e-3, 300, 0., 0., 0.)")
+               .Define("RecoedPrimaryTracks",  "FCCAnalyses::VertexFitterSimple::get_PrimaryTracks( EFlowTrack_1, true, 6, 25e-3, 400, 0., 0., 0.)")
 
-               .Define("n_RecoedPrimaryTracks",  "ReconstructedParticle2Track::getTK_n( RecoedPrimaryTracks )")
+               .Define("n_RecoedPrimaryTracks",  "FCCAnalyses::ReconstructedParticle2Track::getTK_n( RecoedPrimaryTracks )")
                # the final primary vertex :
-               .Define("FinalVertexObject",   "VertexFitterSimple::VertexFitter_Tk ( 1, RecoedPrimaryTracks, true, 4.5, 20e-3, 300) ")
-               .Define("FinalVertex",   "VertexingUtils::get_VertexData( FinalVertexObject )")
+               .Define("FinalVertexObject",   "FCCAnalyses::VertexFitterSimple::VertexFitter_Tk ( 1, RecoedPrimaryTracks, true, 6, 25e-3, 400) ")
+               .Define("FinalVertex",   "FCCAnalyses::VertexingUtils::get_VertexData( FinalVertexObject )")
 
                # the secondary tracks
-               .Define("SecondaryTracks",   "VertexFitterSimple::get_NonPrimaryTracks( EFlowTrack_1,  RecoedPrimaryTracks )")
-               .Define("n_SecondaryTracks",  "ReconstructedParticle2Track::getTK_n( SecondaryTracks )" )
+               .Define("SecondaryTracks",   "FCCAnalyses::VertexFitterSimple::get_NonPrimaryTracks( EFlowTrack_1,  RecoedPrimaryTracks )")
+               .Define("n_SecondaryTracks",  "FCCAnalyses::ReconstructedParticle2Track::getTK_n( SecondaryTracks )" )
 
                # which of the tracks are primary according to the reco algprithm
-               .Define("IsPrimary_based_on_reco",  "VertexFitterSimple::IsPrimary_forTracks( EFlowTrack_1,  RecoedPrimaryTracks )")
+               .Define("IsPrimary_based_on_reco",  "FCCAnalyses::VertexFitterSimple::IsPrimary_forTracks( EFlowTrack_1,  RecoedPrimaryTracks )")
                # which of the tracks are primary according to the MC-matching
-               .Define("IsPrimary_based_on_MC",  "VertexFitterSimple::IsPrimary_forTracks( EFlowTrack_1,  MC_PrimaryTracks )")
+               .Define("IsPrimary_based_on_MC",  "FCCAnalyses::VertexFitterSimple::IsPrimary_forTracks( EFlowTrack_1,  MC_PrimaryTracks )")
 
 
 
@@ -148,11 +148,12 @@ if __name__ == "__main__":
     import os
     os.system("mkdir -p {}".format(outDir))
     outfile = outDir+infile.split('/')[-1]
-    ncpus = 0
+    ncpus = 16
+    print(outfile)
     analysis = analysis(infile, outfile, ncpus)
     analysis.run()
 
-    tf = ROOT.TFile(infile)
+    tf = ROOT.TFile.Open(infile)
     entries = tf.events.GetEntries()
     p = ROOT.TParameter(int)( "eventsProcessed", entries)
     outf=ROOT.TFile(outfile,"UPDATE")
