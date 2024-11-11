@@ -1,3 +1,20 @@
+########## INSTRUCTIONS ############
+#
+# Use this file to process B -> inv tuples
+# Runs in a few different configurations
+#   - stage1_training 
+#           produce ntuples to train BDT1
+#           these have pre-selection cuts on
+#           min hemis E and nCharged
+#   - stage2_training: 
+#           produce ntuples to train BDT2
+#           also have a loose cut on BDT1
+#   - stage2:          
+#           produce final tuples with both BDTs
+#           and some loose cuts
+#
+####################################
+
 import os
 import sys
 
@@ -12,19 +29,13 @@ from yaml import safe_load
 import config as cfg
 
 #Mandatory: List of processes
-if cfg.bdt1_opts['training']:
-    processList = cfg.processList['stage1_training']
-else:
-    processList = cfg.processList['stage1']
+processList = cfg.processList[ cfg.run_mode ]
 
 #Mandatory: Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics
 prodTag = cfg.fccana_opts['prodTag']
 
 #Optional: output directory, default is local running directory
-if cfg.bdt1_opts['training']:
-    outputDir = cfg.fccana_opts['outputDir']['stage1_training']
-else:
-    outputDir = cfg.fccana_opts['outputDir']['stage1']
+outputDir = cfg.fccana_opts[ cfg.run_mode ]
 
 #Optional: analysisName, default is ""
 analysisName = cfg.fccana_opts['analysisName']
@@ -34,12 +45,6 @@ nCPUs = cfg.fccana_opts['nCPUs']
 
 #Optional running on HTCondor, default is False
 runBatch = cfg.fccana_opts['runBatch']
-
-#Optional batch queue name when running on HTCondor, default is workday
-batchQueue = cfg.fccana_opts['batchQueue']
-
-#Optional computing account when running on HTCondor, default is group_u_FCC.local_gen
-compGroup = cfg.fccana_opts['compGroup']
 
 #Optional test file
 testFile = cfg.fccana_opts['testFile']['bb']
@@ -63,6 +68,14 @@ class RDFanalysis():
             .Alias("MCRecoAssociationsGen", "MCRecoAssociations#1.index")  # points to Particle
             .Alias("ParticleParents",       "Particle#0.index")            # gen particle parents
             .Alias("ParticleChildren",      "Particle#1.index")            # gen particle children
+
+            #############################################
+            ##       Matt and Ella updates             ##
+            #############################################
+            #  -- fit the PV as per the vertex/analysis.py -> with new checked BSC
+            #  -- then get reco vertices and particles as done below (note where the BSC is hard-coded and change that)
+            #  -- then compute thrust variables (e.g. EVT_ stuff) 
+
 
             #############################################
             ##       Crucial Intermediate Objects      ##

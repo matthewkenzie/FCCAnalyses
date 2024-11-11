@@ -1,10 +1,9 @@
+# Run the analysis adding MVA1 and MVA2 outputs
+
 import os
 import sys
-
-# Config and yaml file must be in this directory by default
-# Absolute path must be supplied for the script to work in batch mode
-configPath = os.getcwd() 
-sys.path.append(os.path.abspath(configPath))
+configPath = os.getcwd()
+sys.path.append( os.path.abspath(configPath) )
 
 import ROOT
 from yaml import safe_load
@@ -12,19 +11,13 @@ from yaml import safe_load
 import config as cfg
 
 #Mandatory: List of processes
-if cfg.bdt1_opts['training']:
-    processList = cfg.processList['stage1_training']
-else:
-    processList = cfg.processList['stage1']
+processList = cfg.processList["stage2"]
 
 #Mandatory: Production tag when running over EDM4Hep centrally produced events, this points to the yaml files for getting sample statistics
 prodTag = cfg.fccana_opts['prodTag']
 
 #Optional: output directory, default is local running directory
-if cfg.bdt1_opts['training']:
-    outputDir = cfg.fccana_opts['outputDir']['stage1_training']
-else:
-    outputDir = cfg.fccana_opts['outputDir']['stage1']
+outputDir = cfg.fccana_opts['outputDir']['stage2']
 
 #Optional: analysisName, default is ""
 analysisName = cfg.fccana_opts['analysisName']
@@ -38,17 +31,13 @@ runBatch = cfg.fccana_opts['runBatch']
 #Optional batch queue name when running on HTCondor, default is workday
 batchQueue = cfg.fccana_opts['batchQueue']
 
-#Optional computing account when running on HTCondor, default is group_u_FCC.local_gen
-compGroup = cfg.fccana_opts['compGroup']
-
 #Optional test file
-testFile = cfg.fccana_opts['testFile']['bb']
+testFile = cfg.fccana_opts['testFile']['Bs']
 
 print("----> INFO: Using config.py file from:")
 print(f"{15*' '}{os.path.abspath(configPath)}")
 print("----> INFO: Using branch names from:")
 print(f"{15*' '}{cfg.fccana_opts['yamlPath']}")
-
 
 class RDFanalysis():
 
@@ -83,6 +72,42 @@ class RDFanalysis():
             .Define("RecoParticlesPID",          "myUtils::PID(ReconstructedParticles, MCRecoAssociationsRec, MCRecoAssociationsGen, Particle)")
             # now update reco momentum based on the rec vertex
             .Define("RecoParticlesPIDAtVertex",  "myUtils::get_RP_atVertex(RecoParticlesPID, Rec_VertexObject)")
+
+            #############################################
+            ##       Reconstructed PrimaryVertex       ##
+            #############################################
+            # Get collection of all tracks and use this to reconstruct the PV
+            .Define("Rec_PV_ntracks",  "float(Rec_PrimaryTracks.size())")
+
+            .Define("Rec_PV_x",        "Rec_PrimaryVertex.position.x")
+            .Define("Rec_PV_y",        "Rec_PrimaryVertex.position.y")
+            .Define("Rec_PV_z",        "Rec_PrimaryVertex.position.z")
+
+            #############################################
+            ##       Track Impact Parameter Info       ##
+            #############################################
+            .Define("Rec_track_n",       "float(ReconstructedParticle2Track::getTK_n(EFlowTrack_1))")
+
+            #############################################
+            ##           Reconstructed Vertex          ##
+            #############################################
+            .Define("Rec_vtx_n",               "float(Rec_VertexObject.size())")
+            .Define("Rec_vtx_indRP",           "myUtils::get_Vertex_ind(Rec_VertexObject)")
+            .Define("Rec_vtx_chi2",            "myUtils::get_Vertex_chi2(Rec_VertexObject)")
+            .Define("Rec_vtx_isPV",            "myUtils::get_Vertex_isPV(Rec_VertexObject)")
+            .Define("Rec_vtx_ntracks",         "myUtils::get_Vertex_ntracks(Rec_VertexObject)")
+            .Define("Rec_vtx_m",               "myUtils::get_Vertex_mass(Rec_VertexObject, RecoParticlesPIDAtVertex)")
+            .Define("Rec_vtx_x",               "myUtils::get_Vertex_x(Rec_VertexObject)")
+            .Define("Rec_vtx_y",               "myUtils::get_Vertex_y(Rec_VertexObject)")
+            .Define("Rec_vtx_z",               "myUtils::get_Vertex_z(Rec_VertexObject)")
+            .Define("Rec_vtx_xerr",            "myUtils::get_Vertex_xErr(Rec_VertexObject)")
+            .Define("Rec_vtx_yerr",            "myUtils::get_Vertex_yErr(Rec_VertexObject)")
+            .Define("Rec_vtx_zerr",            "myUtils::get_Vertex_zErr(Rec_VertexObject)")
+
+            #############################################
+            ##                  Filter                 ##
+            #############################################
+            .Filter("ROOT::VecOps::Any(Rec_vtx_isPV > 0)")  # Remove events that fail to reconstruct a PV
 
             #############################################
             ##         Reconstructed Particles         ##
@@ -197,81 +222,45 @@ class RDFanalysis():
             .Filter("EVT_hemisEmin_nLept == 0")  # Remove events with a reconstructed lepton on the signal side -- removes a lot of semileptonic decays
 
             #############################################
-            ##       Reconstructed PrimaryVertex       ##
-            #############################################
-            # Get collection of all tracks and use this to reconstruct the PV
-            .Define("Rec_PV_ntracks",  "float(Rec_PrimaryTracks.size())")
-
-            .Define("Rec_PV_x",        "Rec_PrimaryVertex.position.x")
-            .Define("Rec_PV_y",        "Rec_PrimaryVertex.position.y")
-            .Define("Rec_PV_z",        "Rec_PrimaryVertex.position.z")
-
-            #############################################
-            ##       Track Impact Parameter Info       ##
-            #############################################
-            .Define("Rec_track_n",       "float(ReconstructedParticle2Track::getTK_n(EFlowTrack_1))")
-
-            #############################################
-            ##           Reconstructed Vertex          ##
-            #############################################
-            .Define("Rec_vtx_n",               "float(Rec_VertexObject.size())")
-            .Define("Rec_vtx_indRP",           "myUtils::get_Vertex_ind(Rec_VertexObject)")
-            .Define("Rec_vtx_chi2",            "myUtils::get_Vertex_chi2(Rec_VertexObject)")
-            .Define("Rec_vtx_isPV",            "myUtils::get_Vertex_isPV(Rec_VertexObject)")
-            .Define("Rec_vtx_ntracks",         "myUtils::get_Vertex_ntracks(Rec_VertexObject)")
-            .Define("Rec_vtx_m",               "myUtils::get_Vertex_mass(Rec_VertexObject, RecoParticlesPIDAtVertex)")
-            .Define("Rec_vtx_x",               "myUtils::get_Vertex_x(Rec_VertexObject)")
-            .Define("Rec_vtx_y",               "myUtils::get_Vertex_y(Rec_VertexObject)")
-            .Define("Rec_vtx_z",               "myUtils::get_Vertex_z(Rec_VertexObject)")
-            .Define("Rec_vtx_xerr",            "myUtils::get_Vertex_xErr(Rec_VertexObject)")
-            .Define("Rec_vtx_yerr",            "myUtils::get_Vertex_yErr(Rec_VertexObject)")
-            .Define("Rec_vtx_zerr",            "myUtils::get_Vertex_zErr(Rec_VertexObject)")
-
-            #############################################
-            ##                  Filter                 ##
-            #############################################
-            .Filter("ROOT::VecOps::Any(Rec_vtx_isPV > 0)")  # Remove events that fail to reconstruct a PV
-
-            #############################################
             ##  Tau -> 3 pi vertex on the signal side  ##
             #############################################
             .Define("Rec_vtx_ntracks_int",   "myUtils::get_Vertex_ntracks(Rec_VertexObject)")
             .Define("EVT_hemisEmin_containsTau23Pi",   "myUtils::get_hemis_containstau23pi(Rec_in_hemisEmin, Rec_true_PDG, Rec_true_M1, Rec_indvtx, Rec_vtx_ntracks_int)")
 
         )
+        #############################################
+        ##               Build BDTs                ##
+        #############################################
+        with open(cfg.fccana_opts['yamlPath']) as stream:
+            yaml = safe_load(stream)
+            BDT1branchList = yaml[cfg.bdt1_opts['mvaBranchList']]
+            BDT2branchList = yaml[cfg.bdt2_opts['mvaBranchList']]
+            BDTCombbranchList = yaml[cfg.bdtComb_opts['mvaBranchList']]
 
-        if not cfg.bdt1_opts['training']:
-            # Read list of feature names used in the BDT from the config YAML file
-            with open(cfg.fccana_opts['yamlPath']) as stream:
-                yaml = safe_load(stream)
-                BDT1branchList = yaml[cfg.bdt1_opts['mvaBranchList']]
+        ROOT.gInterpreter.ProcessLine(f'''
+        TMVA::Experimental::RBDT bdt1("{cfg.bdt1_opts['mvaRBDTName']}", "{cfg.bdt1_opts['mvaPath']}");
+        auto computeModel1 = TMVA::Experimental::Compute<{len(BDT1branchList)}, float> (bdt1);
+        ''')
 
-            ROOT.gInterpreter.ProcessLine(f'''
-            TMVA::Experimental::RBDT bdt1("{cfg.bdt1_opts['mvaRBDTName']}", "{cfg.bdt1_opts['mvaPath']}");
-            auto computeModel1 = TMVA::Experimental::Compute<{len(BDT1branchList)}, float> (bdt1);
-            ''')
+        ROOT.gInterpreter.ProcessLine(f'''
+        TMVA::Experimental::RBDT bdt2("{cfg.bdt2_opts['mvaRBDTName']}", "{cfg.bdt2_opts['mvaPath']}");
+        auto computeModel2 = TMVA::Experimental::Compute<{len(BDT2branchList)}, float> (bdt2);
+        ''')
+        
+        ROOT.gInterpreter.ProcessLine(f'''
+        TMVA::Experimental::RBDT bdtComb("{cfg.bdtComb_opts['mvaRBDTName']}", "{cfg.bdtComb_opts['mvaPath']}");
+        auto computeModelComb = TMVA::Experimental::Compute<{len(BDTCombbranchList)}, float> (bdtComb);
+        ''')
+        
+        # Evaluate MVA1
+        df3 = (
+            df2
+            .Define("MVAVec1",    ROOT.computeModel1, BDT1branchList)
+            .Define("EVT_MVA1",  "MVAVec1.at(0)")
+        )
+        # Filter on MVA1
+        df4 = df3.Filter(f"EVT_MVA1 > {cfg.bdt2_opts['mvaCut1']}")
 
-            df3 = (
-                df2
-                #############################################
-                ##                Build BDT                ##
-                #############################################
-                .Define("MVAVec",    ROOT.computeModel1, BDT1branchList)
-                .Define("EVT_MVA1",  "MVAVec.at(0)")
-            )
-            #tmva_helper = TMVAHelperXGB(cfg.bdt1_opts['mvaPath'], cfg.bdt1_opts['mvaRBDTName'], variables=[])
-            ##df3 = tmva_helper.run_inference(df2, col_name="EVT_MVA1")
-            #df4 = df3
-
-            # If the cut value is given filter on it else return the entire DataFrame
-            if cfg.bdt1_opts['mvaCut'] is not None:
-                df4 = df3.Filter(f"EVT_MVA1 > {cfg.bdt1_opts['mvaCut']}")
-            else:
-                df4 = df3
-
-        # If training is True, do not evaluate the BDT
-        else:
-            df4 = df2
         # Defining remaining variables
         df5 = (
             df4
@@ -280,7 +269,7 @@ class RDFanalysis():
             #############################################
             # Pythia8 generatorStatus
             # 21 - incoming particles of hardest process (e+ e- beams)
-            # 22 - intermediate particles of hardest process (Z)
+            # 22 - intermediate particles of hardest process (Z)
             # 23 - outgoing particles of hardest process (quark pair produced from Z)
             #  1 - final-state particles
             .Define("MC_ee",          "MCParticle::sel_genStatus(21)(Particle)")   # INTERMEDIATE
@@ -498,17 +487,31 @@ class RDFanalysis():
             .Define("EVT_hemisEmax_maxePion_ind",         "(EVT_EmaxPartInfo.at(2)).index")
         )
 
-        return df5
+        # Evaluate MVA2
+        df6 = (
+            df5
+            .Define("MVAVec2",    ROOT.computeModel2, BDT2branchList)
+            .Define("EVT_MVA2",  "MVAVec2.at(0)")
+        )
+        # Filter on MVA2
+        df7 = df6.Filter(f"EVT_MVA2 > {cfg.bdt2_opts['mvaCut2']}")
+
+        # Evaluate MVAComb
+        df8 = (
+            df7
+            .Define("MVAVecComb", ROOT.computeModelComb, BDTCombbranchList)
+            .Define("EVT_MVAComb", "MVAVecComb.at(0)")
+        )
+
+        return df8
 
     def output():
         # Get the output branchList from the config YAML file
         with open(cfg.fccana_opts['yamlPath']) as stream:
             yaml = safe_load(stream)
-            branchList = yaml[cfg.fccana_opts['outBranchList1']]
+            branchList = yaml[cfg.fccana_opts['outBranchList2']]
             print(f"----> INFO:")
-            print(f"            Output branch list used = {cfg.fccana_opts['outBranchList1']}")
-
-        if not cfg.bdt1_opts['training']:
-            branchList.append("EVT_MVA1")
+            print(f"            Output branch list used = {cfg.fccana_opts['outBranchList2']}")
 
         return branchList
+
