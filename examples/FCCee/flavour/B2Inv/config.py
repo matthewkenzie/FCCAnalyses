@@ -79,6 +79,9 @@ fccana_opts = {
     "outBranchList0": "stage0-vars",  # key in the yaml file that gives stage0 branches
     "outBranchList1": "stage1-vars",  # ---- " ---- stage1 branches
     "outBranchList2": "stage2-vars",  # ---- " ---- stage2 branches
+    "outputBranches": {
+        "stage1_training": "stage1-vars",
+    },
 }
 
 # TMVA options
