@@ -104,52 +104,29 @@ $(function(){ initResizable(false); });
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;ROOT/RVec.hxx&quot;</code><br />
-<code>#include &quot;edm4hep/ReconstructedParticle.h&quot;</code><br />
-<code>#include &quot;edm4hep/MCParticle.h&quot;</code><br />
-<code>#include &quot;edm4hep/Quantity.h&quot;</code><br />
-<code>#include &quot;edm4hep/TrackerHitData.h&quot;</code><br />
-<code>#include &quot;fastjet/JetDefinition.hh&quot;</code><br />
-<code>#include &quot;TMath.h&quot;</code><br />
-<code>#include &quot;TVector3.h&quot;</code><br />
-<code>#include &quot;TRotation.h&quot;</code><br />
 <code>#include &quot;TLorentzVector.h&quot;</code><br />
+<code>#include &quot;TMath.h&quot;</code><br />
+<code>#include &quot;TRotation.h&quot;</code><br />
+<code>#include &quot;TVector3.h&quot;</code><br />
+<code>#include &quot;edm4hep/CalorimeterHitData.h&quot;</code><br />
+<code>#include &quot;edm4hep/ClusterData.h&quot;</code><br />
+<code>#include &quot;edm4hep/MCParticleData.h&quot;</code><br />
+<code>#include &quot;edm4hep/RecDqdxData.h&quot;</code><br />
+<code>#include &quot;edm4hep/ReconstructedParticleData.h&quot;</code><br />
+<code>#include &quot;edm4hep/TrackerHitData.h&quot;</code><br />
+<code>#include &quot;edm4hep/TrackData.h&quot;</code><br />
+<code>#include &quot;edm4hep/TrackState.h&quot;</code><br />
+<code>#include &quot;fastjet/JetDefinition.hh&quot;</code><br />
+<code>#include &quot;<a class="el" href="TrackUtils_8h_source.html">FCCAnalyses/TrackUtils.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for JetConstituentsUtils.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="JetConstituentsUtils_8h__incl.png" border="0" usemap="#aanalyzers_2dataframe_2FCCAnalyses_2JetConstituentsUtils_8h" alt=""/></div>
-<map name="aanalyzers_2dataframe_2FCCAnalyses_2JetConstituentsUtils_8h" id="aanalyzers_2dataframe_2FCCAnalyses_2JetConstituentsUtils_8h">
-<area shape="rect" title=" " alt="" coords="817,5,1019,60"/>
-<area shape="rect" title=" " alt="" coords="5,108,124,133"/>
-<area shape="poly" title=" " alt="" coords="817,44,518,70,138,111,138,105,517,65,817,39"/>
-<area shape="rect" title=" " alt="" coords="149,108,367,133"/>
-<area shape="poly" title=" " alt="" coords="817,50,359,109,359,104,817,44"/>
-<area shape="rect" title=" " alt="" coords="392,108,548,133"/>
-<area shape="poly" title=" " alt="" coords="817,56,543,108,542,103,816,51"/>
-<area shape="rect" title=" " alt="" coords="573,108,711,133"/>
-<area shape="poly" title=" " alt="" coords="834,63,693,106,691,101,833,58"/>
-<area shape="rect" title=" " alt="" coords="735,108,911,133"/>
-<area shape="poly" title=" " alt="" coords="891,62,848,101,844,97,887,58"/>
-<area shape="rect" title=" " alt="" coords="936,108,1089,133"/>
-<area shape="poly" title=" " alt="" coords="949,58,992,97,988,101,945,62"/>
-<area shape="rect" title=" " alt="" coords="1113,108,1184,133"/>
-<area shape="poly" title=" " alt="" coords="989,58,1106,101,1104,106,988,63"/>
-<area shape="rect" title=" " alt="" coords="1209,108,1294,133"/>
-<area shape="poly" title=" " alt="" coords="1020,57,1196,102,1195,108,1018,62"/>
-<area shape="rect" title=" " alt="" coords="1318,108,1409,133"/>
-<area shape="poly" title=" " alt="" coords="1019,50,1305,105,1304,110,1018,56"/>
-<area shape="rect" title=" " alt="" coords="1433,108,1555,133"/>
-<area shape="poly" title=" " alt="" coords="1020,46,1420,105,1419,111,1019,51"/>
-</map>
 </div>
 </div><div class="textblock"><div class="dynheader">
 This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="JetConstituentsUtils_8h__dep__incl.png" border="0" usemap="#aanalyzers_2dataframe_2FCCAnalyses_2JetConstituentsUtils_8hdep" alt=""/></div>
-<map name="aanalyzers_2dataframe_2FCCAnalyses_2JetConstituentsUtils_8hdep" id="aanalyzers_2dataframe_2FCCAnalyses_2JetConstituentsUtils_8hdep">
-<area shape="rect" title=" " alt="" coords="5,5,207,60"/>
-<area shape="rect" href="JetConstituentsUtils_8cc.html" title=" " alt="" coords="13,108,199,148"/>
-<area shape="poly" title=" " alt="" coords="109,74,109,108,103,108,103,74"/>
-</map>
 </div>
 </div>
 <p><a href="JetConstituentsUtils_8h_source.html">Go to the source code of this file.</a></p>
@@ -256,8 +233,9 @@ Functions</h2></td></tr>
 <tr class="separator:a6a0d1eaff4335888557dc0ccaea9a481"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8a523f3f164586a79a5abb8f7047ac36" id="r_a8a523f3f164586a79a5abb8f7047ac36"><td class="memItemLeft" align="right" valign="top">rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a7b2b810b664bff99b2628e2a08aff6cb">FCCAnalysesJetConstituentsData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a8a523f3f164586a79a5abb8f7047ac36">FCCAnalyses::JetConstituentsUtils::get_omega_z0_cov</a> (const rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a3cacdfafd9ed0304450a0903afa8e62b">FCCAnalysesJetConstituents</a> &gt; &amp;jcs, const ROOT::VecOps::RVec&lt; edm4hep::TrackState &gt; &amp;tracks)</td></tr>
 <tr class="separator:a8a523f3f164586a79a5abb8f7047ac36"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab01577108d8093eebf6e423f76345d76" id="r_ab01577108d8093eebf6e423f76345d76"><td class="memItemLeft" align="right" valign="top">rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a7b2b810b664bff99b2628e2a08aff6cb">FCCAnalysesJetConstituentsData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#ab01577108d8093eebf6e423f76345d76">FCCAnalyses::JetConstituentsUtils::get_dndx</a> (const rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a3cacdfafd9ed0304450a0903afa8e62b">FCCAnalysesJetConstituents</a> &gt; &amp;jcs, const rv::RVec&lt; edm4hep::Quantity &gt; &amp;dNdx, const rv::RVec&lt; edm4hep::TrackData &gt; &amp;trackdata, const rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a7b2b810b664bff99b2628e2a08aff6cb">FCCAnalysesJetConstituentsData</a> &gt; JetsConstituents_isChargedHad)</td></tr>
-<tr class="separator:ab01577108d8093eebf6e423f76345d76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ff094b84628a0271e5bb60025fe3d51" id="r_a3ff094b84628a0271e5bb60025fe3d51"><td class="memItemLeft" align="right" valign="top">rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a7b2b810b664bff99b2628e2a08aff6cb">FCCAnalysesJetConstituentsData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a3ff094b84628a0271e5bb60025fe3d51">FCCAnalyses::JetConstituentsUtils::get_dndx</a> (const rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a3cacdfafd9ed0304450a0903afa8e62b">FCCAnalysesJetConstituents</a> &gt; &amp;jetConstituents, const <a class="el" href="classFCCAnalyses_1_1TrackUtils_1_1TrackDqdxHandler.html">TrackUtils::TrackDqdxHandler</a> &amp;dNdxHandler, const rv::RVec&lt; edm4hep::TrackData &gt; &amp;trackColl, const rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a7b2b810b664bff99b2628e2a08aff6cb">FCCAnalysesJetConstituentsData</a> &gt; isJetConstChargedHad)</td></tr>
+<tr class="memdesc:a3ff094b84628a0271e5bb60025fe3d51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain dNdx corresponding to the provided jet constituents.  <br /></td></tr>
+<tr class="separator:a3ff094b84628a0271e5bb60025fe3d51"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a45a95b6e7307cb2eee552ee13e39c49e" id="r_a45a95b6e7307cb2eee552ee13e39c49e"><td class="memItemLeft" align="right" valign="top">rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a7b2b810b664bff99b2628e2a08aff6cb">FCCAnalysesJetConstituentsData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a45a95b6e7307cb2eee552ee13e39c49e">FCCAnalyses::JetConstituentsUtils::get_Sip2dVal</a> (const rv::RVec&lt; edm4hep::ReconstructedParticleData &gt; &amp;jets, const rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a3cacdfafd9ed0304450a0903afa8e62b">FCCAnalysesJetConstituents</a> &gt; &amp;jcs, const ROOT::VecOps::RVec&lt; edm4hep::TrackState &gt; &amp;tracks)</td></tr>
 <tr class="separator:a45a95b6e7307cb2eee552ee13e39c49e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a840ddb95ec8812048dea1d5613e3f47e" id="r_a840ddb95ec8812048dea1d5613e3f47e"><td class="memItemLeft" align="right" valign="top">rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a7b2b810b664bff99b2628e2a08aff6cb">FCCAnalysesJetConstituentsData</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a840ddb95ec8812048dea1d5613e3f47e">FCCAnalyses::JetConstituentsUtils::get_Sip2dVal_cluster</a> (const rv::RVec&lt; fastjet::PseudoJet &gt; &amp;jets, const rv::RVec&lt; <a class="el" href="namespaceFCCAnalyses_1_1JetConstituentsUtils.html#a3cacdfafd9ed0304450a0903afa8e62b">FCCAnalysesJetConstituents</a> &gt; &amp;jcs, const ROOT::VecOps::RVec&lt; edm4hep::TrackState &gt; &amp;tracks)</td></tr>
